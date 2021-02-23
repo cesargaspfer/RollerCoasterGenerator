@@ -6,6 +6,8 @@ public class RollerCoaster : MonoBehaviour
 {
 
     #pragma warning disable 0649
+    [SerializeField] private bool _debug;
+    #pragma warning disable 0649
     [SerializeField] public Transform _railPrefab;
     #pragma warning disable 0649
     [SerializeField] public Transform _railsParent;
@@ -13,6 +15,8 @@ public class RollerCoaster : MonoBehaviour
     [SerializeField] public Transform _carsParent;
     #pragma warning disable 0649
     [SerializeField] private Transform _carManagerPrefab;
+    #pragma warning disable 0649
+    [SerializeField] public Transform _finalRailDebugger;
     [SerializeField] private Constructor _constructor;
     [SerializeField] private Generator _generator;
     [SerializeField] private Simulator _simulator;
@@ -35,6 +39,11 @@ public class RollerCoaster : MonoBehaviour
         }
         
         _generator = new Generator(this);
+        if(_debug)
+        {
+            var finalRailDebuggerTransform = Instantiate(_finalRailDebugger, -Vector3.right, Quaternion.identity);
+            finalRailDebuggerTransform.GetComponent<FinalRailDebugger>().constructor = _constructor;
+        }
     }
 
     public void AddRail()

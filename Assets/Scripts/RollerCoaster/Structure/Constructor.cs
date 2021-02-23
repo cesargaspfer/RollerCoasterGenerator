@@ -18,6 +18,7 @@ public class Constructor
     [SerializeField] private Matrix4x4 _finalBasis;
 
     [SerializeField] private List<Rail> _rails;
+    [SerializeField] private List<Rail> _railsIntersection;
     private Rail _currentRail;
 
     private Vector3 _initialPosition;
@@ -33,6 +34,7 @@ public class Constructor
         _mp = mp;
         _length = rp.Length;
         _rails = new List<Rail>();
+        _railsIntersection = new List<Rail>();
         _currentRail = null;
         _position = sp.Position;
         _basis = sp.Basis;
@@ -60,10 +62,16 @@ public class Constructor
 
         sp.Curve = curve;
 
+        if(_rails.Count > 0)
+        {
+            _railsIntersection.Add(_rails[_rails.Count - 1]);
+        }
 
         _currentRail = new Rail(this, localrp, _mp, sp);
 
         _rails.Add(_currentRail);
+        
+        Debug.Log(CheckIntersection(_currentRail));
         
         return _currentRail;
     }
@@ -90,9 +98,13 @@ public class Constructor
         if(radius != -1)
         {
             localrp.Length = curve.Length;
+            rp.Length = curve.Length;
+            _currentGlobalrp.Length = curve.Length;
         }
 
         _currentRail.UpdateRail(rp:localrp, mp: mp, sp: sp);
+
+        Debug.Log(CheckIntersection(_currentRail));
 
         return _currentRail;
     }
@@ -156,6 +168,8 @@ public class Constructor
 
         Rail removedRail = _rails[_rails.Count - 1];
         _rails.RemoveAt(_rails.Count - 1);
+        if (_railsIntersection.Count > 0)
+            _railsIntersection.RemoveAt(_rails.Count - 1);
 
         if(_rails.Count > 0)
         {
@@ -193,6 +207,23 @@ public class Constructor
         return (_currentGlobalrp, _mp);
     }
 
+    public void testAddFinalRail(Vector3 position, Matrix4x4 basis)
+    {
+        RemoveLastRail();
+        RemoveLastRail();
+        RemoveLastRail();
+        AddRail();
+        _position = position;
+        _basis = basis;
+        _initialPosition = Vector3.zero;
+        _initialBasis = Matrix4x4.identity;
+        _initialBasis[0, 0] = 0f;
+        _initialBasis[0, 1] = 1f;
+        _initialBasis[1, 0] = -1f;
+        _initialBasis[1, 1] = 0f;
+        AddFinalRail();
+    }
+
     public (Rail, Rail) AddFinalRail()
     {
         // TODO: Check if can finish track
@@ -224,24 +255,40 @@ public class Constructor
 
         Matrix4x4 basis = _basis;
         (float firstElevation, float firstRotation) = GetRotationAngles(basis, basis.GetColumn(0), rn);
-        RailProps firstrp = new RailProps(firstElevation, firstRotation, 0f, _currentGlobalrp.Length);
+        RailProps firstrp = new RailProps(firstElevation, firstRotation, 0f, -1);
 
         basis = ThreeRotationMatrix(basis, firstrp.Radians) * basis;
 
         (float secondElevation, float secondRotation) = GetRotationAngles(basis, basis.GetColumn(0), -nf);
 
-        RailProps secondrp = new RailProps(secondElevation, secondRotation, 0f, _currentGlobalrp.Length);
+        RailProps secondrp = new RailProps(secondElevation, secondRotation, 0f, -1);
         basis = ThreeRotationMatrix(basis, secondrp.Radians) * basis;
 
-        float inclination = 0.5f * Angle(basis.GetColumn(1), _initialBasis.GetColumn(1));
-        if (inclination >= 3.1415)
-            inclination = 0;
+        float inclination = Angle(basis.GetColumn(1), _initialBasis.GetColumn(1));
+        // if (inclination >= 3.1415)
+        //     inclination = 0;
+        Matrix4x4 rotationMatrix = RotationMatrix(inclination, _initialBasis.GetColumn(0));
+        if(((Vector3)_initialBasis.GetColumn(1) - rotationMatrix.MultiplyPoint3x4(basis.GetColumn(1))).magnitude > 0.001f)
+            inclination = -inclination;
+        inclination *= 0.5f;
         firstrp.Inclination = inclination;
+
+
+        basis = ThreeRotationMatrix(_basis, firstrp.Radians) * _basis;
+        (secondElevation, secondRotation) = GetRotationAngles(basis, basis.GetColumn(0), -nf);
+        secondrp = new RailProps(secondElevation, secondRotation, 0f, -1);
+        basis = ThreeRotationMatrix(basis, secondrp.Radians) * basis;
+        inclination = Angle(basis.GetColumn(1), _initialBasis.GetColumn(1));
+        // if (inclination >= 3.1415)
+        //     inclination = 0;
+        rotationMatrix = RotationMatrix(inclination, _initialBasis.GetColumn(0));
+        if (((Vector3)_initialBasis.GetColumn(1) - rotationMatrix.MultiplyPoint3x4(basis.GetColumn(1))).magnitude > 0.001f)
+            inclination = -inclination;
         secondrp.Inclination = inclination;
 
-        Rail rail1 = this.UpdateLastRail(rp: _currentGlobalrp + firstrp, radius: radius);
+        Rail rail1 = this.UpdateLastRail(rp: firstrp + _currentGlobalrp, radius: radius);
         this.AddRail();
-        Rail rail2 = this.UpdateLastRail(rp: _currentGlobalrp + secondrp, radius: radius);
+        Rail rail2 = this.UpdateLastRail(rp: secondrp + _currentGlobalrp, radius: radius);
 
         // Sphere debug
         // GameObject mySphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -253,6 +300,69 @@ public class Constructor
         // mySphere.transform.position = pf + radius * nf;
 
         return (rail1, rail2);
+    }
+
+    public bool CheckIntersection(Rail rail)
+    {
+        // TODO: Use k-d Tree
+        for(int i = 1; i < _railsIntersection.Count - 1; i++)
+        {
+            Rail r2 = _railsIntersection[i];
+            float ta1 = 0f;
+            float tb1 = 1f;
+            float ta2 = 0f;
+            float tb2 = 1f;
+
+            Bezier c1 = rail.sp.Curve;
+            Bezier c2 = r2.sp.Curve;
+
+            float minD = 999f;
+
+            while(true)
+            {
+                Vector3 a1 = c1.Sample(ta1);
+                Vector3 b1 = c1.Sample(tb1);
+                Vector3 a2 = c2.Sample(ta2);
+                Vector3 b2 = c2.Sample(tb2);
+
+                float d1 = (a1 - a2).magnitude;
+                float d2 = (a1 - b2).magnitude;
+                float d3 = (b1 - a2).magnitude;
+                float d4 = (b1 - b2).magnitude;
+
+                minD = Mathf.Min(new float[4] { d1, d2, d3, d4 });
+
+                float tm1 = (ta1 + tb1) * 0.5f;
+                float tm2 = (ta2 + tb2) * 0.5f;
+
+                if (d1 == minD)
+                {
+                    tb1 = tm1;
+                    tb2 = tm2;
+                }
+                else if (d2 == minD)
+                {
+                    tb1 = tm1;
+                    ta2 = tm2;
+                }
+                else if (d3 == minD)
+                {
+                    ta1 = tm1;
+                    tb2 = tm2;
+                }
+                else if (d4 == minD)
+                {
+                    ta1 = tm1;
+                    ta2 = tm2;
+                }
+
+                if((a1 - b1).magnitude < 0.1f || (a2 - b2).magnitude < 0.1f || minD < 1f)
+                    break;
+            }
+            if(minD < 1f)
+                return true;
+        }
+        return false;
     }
 
     public GameObject InstantiateRail(Mesh mesh, Material material)

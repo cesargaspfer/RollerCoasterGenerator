@@ -6,6 +6,7 @@ public class Generator
     public Generator(RollerCoaster rollerCoaster)
     {
         _rc = rollerCoaster;
+        // testCoaster();
     }
 
     public void Generate()

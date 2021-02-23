@@ -73,9 +73,22 @@ public class Algebra
 
     public static (float, float) GetRotationAngles(Matrix4x4 basis, Vector3 va, Vector3 vb)
     {
+
         Vector3 pva = Vector3.ProjectOnPlane(va, Vector3.up).normalized;
         Vector3 pvb = Vector3.ProjectOnPlane(vb, Vector3.up).normalized;
+        Debug.Log(pva + " " + pvb);
+        Debug.Log(Mathf.Abs(Vector3.Dot(va, Vector3.up)));
+        Debug.Log(Mathf.Abs(Vector3.Dot(va, Vector3.up)));
+        Debug.Log(Mathf.Abs(Vector3.Dot(vb, Vector3.up)));
+        if(Mathf.Abs(Vector3.Dot(va, Vector3.up)) >= 0.999999f)
+        {
+            Debug.Log("aki");
+            pva = Vector3.ProjectOnPlane((Vector3) basis.GetColumn(1), Vector3.up).normalized;
+        }
         float rotation = Angle(pva, pvb);
+
+        Debug.Log(pva + " " + pvb);
+        Debug.Log("rotation " + rotation);
         if (rotation >= 3.1415)
             rotation = 0;
 

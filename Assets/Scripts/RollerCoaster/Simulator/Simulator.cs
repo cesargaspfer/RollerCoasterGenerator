@@ -111,13 +111,13 @@ public class Simulator
         for(int i = 0; i < _cars.Length; i++)
         {
             (Rail rail, float curveT) = GetCarLocalRailPosition(_cars[i], dt * velocity);
-            aceleration += CalculateAceleration(rail, curveT, velocity);
+            aceleration += CalculateAceleration(rail, curveT, velocity, dt);
         }
         aceleration /= _cars.Length;
         return aceleration;
     }
 
-    private float CalculateAceleration(Rail rail, float curveT, float velocity)
+    private float CalculateAceleration(Rail rail, float curveT, float velocity, float dt)
     {
         // TODO: Define mass inside the car
         float mass = 1f;
@@ -153,9 +153,26 @@ public class Simulator
             }
         }
 
-        if (rail.mp.Type == RailModelProperties.RailType.Brake || rail.mp.Type == RailModelProperties.RailType.Normal)
+        if(rail.mp.Type == RailModelProperties.RailType.Brake || rail.mp.Type == RailModelProperties.RailType.Normal ||
+           (rail.mp.Type == RailModelProperties.RailType.Lever && velocity > 2f) ||
+           (rail.mp.Type == RailModelProperties.RailType.Platform && velocity > 1f))
         {
-            aceleration -= Mathf.Sign(velocity) * 0.001f * Mathf.Min(Mathf.Abs(velocity), 1f) * Mathf.Abs(Vector3.Dot(Vector3.up, basisY)) * 9.8f;
+            if (velocity > 0.07f)
+            {
+                aceleration -= Mathf.Sign(velocity) * 0.005f * Mathf.Max(Mathf.Abs(velocity), 10f) * (0.5f + 0.5f * Mathf.Abs(Vector3.Dot(Vector3.up, basisY))) * 9.8f;
+            }
+            else
+            {
+                float dragAceleration = - Mathf.Sign(velocity) * 0.005f * 10f * (0.5f + 0.5f * Mathf.Abs(Vector3.Dot(Vector3.up, basisY))) * 9.8f;
+                if(Mathf.Abs(2f * dragAceleration) > Mathf.Abs(aceleration))
+                {
+                    aceleration = 0.5f * dragAceleration;
+                }
+                else
+                {
+                    aceleration += dragAceleration;
+                }
+            }
         }
 
         return aceleration / mass;
@@ -308,7 +325,7 @@ public class Simulator
     private float CalculateAcelerationRail(Rail rail, float curveT, float dt, float velocity)
     {
         float newCurveT = rail.sp.Curve.GetNextT(curveT, dt * velocity);
-        float aceleration = CalculateAceleration(rail, newCurveT, velocity) * 0.5f;
+        float aceleration = CalculateAceleration(rail, newCurveT, velocity, dt) * 0.5f;
         return aceleration;
     }
 
