@@ -23,7 +23,6 @@ public class RollerCoaster : MonoBehaviour
     [SerializeField] private Constructor _constructor;
     [SerializeField] private Generator _generator;
     [SerializeField] private Simulator _simulator;
-    [SerializeField] private SaveManager _saveManager;
 
 
     private IEnumerator _carSimulation = null;
@@ -36,7 +35,6 @@ public class RollerCoaster : MonoBehaviour
         _constructor = new Constructor(this, rp, mp, sp);
         _carSimulation = null;
         _simulator = new Simulator(this, 0.01f, 0, 3);
-        _saveManager = new SaveManager();
 
         if (CarsManager.inst == null)
         {
@@ -156,7 +154,7 @@ public class RollerCoaster : MonoBehaviour
 
     public void SaveCoaster(string fileName)
     {
-        _saveManager.Save(fileName, _constructor.Rails.ToArray());
+        SaveManager.SaveBlueprint(fileName, _constructor.Rails.ToArray());
     }
 
     public void LoadCoaster(string fileName)
@@ -168,19 +166,27 @@ public class RollerCoaster : MonoBehaviour
         {
             this.RemoveLastRail(false);
         }
-        SavePack[] savePack = _saveManager.Load(fileName);
+        SavePack[] savePack = SaveManager.LoadBlueprint(fileName);
         for(int i = 0; i < savePack.Length; i++)
         {
             this.AddRail();
-            this.UpdateLastRail(
-                length: savePack[i].rp.Length,
-                railType: (int)savePack[i].Type
-            );
-            this.UpdateLastRailAdd(
-                elevation: savePack[i].rp.Elevation, 
-                rotation: savePack[i].rp.Rotation, 
-                inclination: savePack[i].rp.Inclination
-            );
+            if(!savePack[i].IsFinalRail)
+            {
+                this.UpdateLastRail(
+                    length: savePack[i].rp.Length,
+                    railType: (int)savePack[i].Type
+                );
+                this.UpdateLastRailAdd(
+                    elevation: savePack[i].rp.Elevation, 
+                    rotation: savePack[i].rp.Rotation, 
+                    inclination: savePack[i].rp.Inclination
+                );
+            }
+            else
+            {
+                this.AddFinalRail();
+                return;
+            }
         }
     }
 

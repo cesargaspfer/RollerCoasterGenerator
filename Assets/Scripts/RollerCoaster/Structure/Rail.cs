@@ -18,7 +18,8 @@ public class Rail
     [SerializeField] private RailProps _rp;
     [SerializeField] private ModelProps _mp;
     [SerializeField] private SpaceProps _sp;
-
+    [SerializeField] private bool _isFinalRail;
+    
     private Mesh[] _mesh = null;
     private RailModel _railModel = null;
     private GameObject[] _gameObject;
@@ -26,11 +27,11 @@ public class Rail
 
     private float _inclinationToMatrixLookAt;
 
-    public Rail(Constructor constructor, RailProps rp, ModelProps mp, SpaceProps sp)
+    public Rail(Constructor constructor, RailProps rp, ModelProps mp, SpaceProps sp, int isFinalRail)
     {
         _constructor = constructor;
         _lastLength = -1f;
-        this.UpdateRail(rp, mp, sp);
+        this.UpdateRail(rp, mp, sp, isFinalRail);
     }
 
     public void Destroy()
@@ -44,7 +45,7 @@ public class Rail
         _sp = null;
     }
 
-    public void UpdateRail(RailProps rp = null, ModelProps mp = null, SpaceProps sp = null)
+    public void UpdateRail(RailProps rp = null, ModelProps mp = null, SpaceProps sp = null, int isFinalRail = -1)
     {
         if (rp != null)
             _rp = rp.Clone();
@@ -52,6 +53,9 @@ public class Rail
             _mp = mp.Clone();
         if (sp != null)
             _sp = sp.Clone();
+        if(isFinalRail != -1)
+            _isFinalRail = isFinalRail == 1;
+
         _railModel = GetRailModel(_mp.ModelId);
 
         if (_gameObject == null || mp != null || _lastLength != _rp.Length)
@@ -140,5 +144,10 @@ public class Rail
     public SpaceProps sp
     {
         get { return _sp; }
+    }
+
+    public bool IsFinalRail
+    {
+        get { return _isFinalRail; }
     }
 }

@@ -28,7 +28,7 @@ public class Constructor
     public Constructor(RollerCoaster rollerCoaster, RailProps rp, ModelProps mp, SpaceProps sp)
     {
         _rollerCoaster = rollerCoaster;
-        SaveManager.GetPath();
+        SaveManager.SetPaths();
         _lastGlobalrp = new RailProps(0f, 0f, 0f, rp.Length);
         _currentGlobalrp = rp.Clone();
         _initialGlobalrp = rp.Clone();
@@ -67,11 +67,11 @@ public class Constructor
             _railsIntersection.Add(_rails[_rails.Count - 1]);
         }
 
-        _currentRail = new Rail(this, localrp, _mp, sp);
+        _currentRail = new Rail(this, localrp, _mp, sp, 0);
 
         _rails.Add(_currentRail);
 
-        Debug.Log("Intersected: " + CheckIntersection(_currentRail));
+        // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
         
         return _currentRail;
     }
@@ -94,17 +94,19 @@ public class Constructor
         _finalPosition = finalPosition;
         _finalBasis = finalBasis;
 
+        int isFinalRail = 0;
         sp.Curve = curve;
         if(radius != -1)
         {
             localrp.Length = curve.Length;
             rp.Length = curve.Length;
             _currentGlobalrp.Length = curve.Length;
+            isFinalRail = 1;
         }
 
-        _currentRail.UpdateRail(rp:localrp, mp: mp, sp: sp);
+        _currentRail.UpdateRail(rp:localrp, mp: mp, sp: sp, isFinalRail:isFinalRail);
 
-        Debug.Log("Intersected: " + CheckIntersection(_currentRail));
+        // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
 
         return _currentRail;
     }
