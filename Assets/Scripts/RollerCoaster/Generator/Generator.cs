@@ -18,6 +18,8 @@ public class Generator
             _rc.AddRail();
             _rc.UpdateLastRailAdd(elevation: ((int)Random.Range(-6, 7)) * Mathf.PI / 18f, rotation: ((int) Random.Range(-6, 7)) * Mathf.PI / 18f, inclination: 0f, length: 0, railType: 1);
         }
+        _rc.AddRail();
+        _rc.AddFinalRail();
     }
 
     private void TestCoaster()

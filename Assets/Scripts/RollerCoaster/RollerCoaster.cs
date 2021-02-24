@@ -194,9 +194,9 @@ public class RollerCoaster : MonoBehaviour
 
     // ---------------------------- Intern ---------------------------- //
 
-    public GameObject InstantiateRail(Mesh mesh, Material material)
+    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position)
     {
-        Transform railTransform = Instantiate(_railPrefab, Vector3.zero, Quaternion.identity, _railsParent);
+        Transform railTransform = Instantiate(_railPrefab, position, Quaternion.identity, _railsParent);
         railTransform.GetComponent<MeshFilter>().mesh = mesh;
         railTransform.GetComponent<Renderer>().material = material;
         return railTransform.gameObject;

@@ -367,9 +367,9 @@ public class Constructor
         return false;
     }
 
-    public GameObject InstantiateRail(Mesh mesh, Material material)
+    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position)
     {
-        return _rollerCoaster.InstantiateRail(mesh, material).gameObject;
+        return _rollerCoaster.InstantiateRail(mesh, material, position).gameObject;
     }
 
     public RailProps CurrentGlobalrp

@@ -31,7 +31,7 @@ public class Extruder
             extrudedNormals[i] = TransformPoints(rotationMatrix, newNormals);
 
             // Offsets the points according to the curve
-            Vector3 offset = sp.Curve.Sample(t);
+            Vector3 offset = sp.Curve.Sample(t) - sp.Position;
             for(int j = 0; j < extrudedVertices[i].Length; j++)
             {
                 extrudedVertices[i][j] += offset;

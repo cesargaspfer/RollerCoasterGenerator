@@ -78,7 +78,7 @@ public class Rail
             _lastLength = _rp.Length;
             _gameObject = new GameObject[_mesh.Length];
             for(int i = 0; i < _gameObject.Length; i++)
-                _gameObject[i] = _constructor.InstantiateRail(_mesh[i], materials[i]);
+                _gameObject[i] = _constructor.InstantiateRail(_mesh[i], materials[i], _sp.Position);
         }
 
         _inclinationToMatrixLookAt = GetInclinationToMatrixLookAt(_sp.Basis, ThreeRotationMatrix(_sp.Basis, _rp.Radians) * _sp.Basis);
