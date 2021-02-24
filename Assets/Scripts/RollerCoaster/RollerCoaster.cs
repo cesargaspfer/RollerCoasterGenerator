@@ -1,12 +1,15 @@
 ﻿using System.Collections;
 using UnityEngine;
 using static RailModelProperties;
+using static SaveManager;
 
 public class RollerCoaster : MonoBehaviour
 {
 
     #pragma warning disable 0649
     [SerializeField] private bool _debug;
+    #pragma warning disable 0649
+    [SerializeField] private bool _debugAddFinalRail;
     #pragma warning disable 0649
     [SerializeField] public Transform _railPrefab;
     #pragma warning disable 0649
@@ -20,6 +23,7 @@ public class RollerCoaster : MonoBehaviour
     [SerializeField] private Constructor _constructor;
     [SerializeField] private Generator _generator;
     [SerializeField] private Simulator _simulator;
+    [SerializeField] private SaveManager _saveManager;
 
 
     private IEnumerator _carSimulation = null;
@@ -32,6 +36,7 @@ public class RollerCoaster : MonoBehaviour
         _constructor = new Constructor(this, rp, mp, sp);
         _carSimulation = null;
         _simulator = new Simulator(this, 0.01f, 0, 3);
+        _saveManager = new SaveManager();
 
         if (CarsManager.inst == null)
         {
@@ -39,7 +44,7 @@ public class RollerCoaster : MonoBehaviour
         }
         
         _generator = new Generator(this);
-        if(_debug)
+        if(_debugAddFinalRail)
         {
             var finalRailDebuggerTransform = Instantiate(_finalRailDebugger, -Vector3.right, Quaternion.identity);
             finalRailDebuggerTransform.GetComponent<FinalRailDebugger>().constructor = _constructor;
@@ -74,7 +79,7 @@ public class RollerCoaster : MonoBehaviour
         return _constructor.RemoveLastRail();
     }
 
-    public void UpdateLastRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, int length = -999, int railType = -999)
+    public void UpdateLastRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
     {
         if (!_simulator.IsSimulating)
         {
@@ -87,7 +92,7 @@ public class RollerCoaster : MonoBehaviour
         }
     }
 
-    public void UpdateLastRailAdd(float elevation = -999f, float rotation = -999f, float inclination = -999f, int length = -999, int railType = -999)
+    public void UpdateLastRailAdd(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
     {
         if (!_simulator.IsSimulating)
         {
@@ -147,6 +152,36 @@ public class RollerCoaster : MonoBehaviour
             this.RemoveLastRail(false);
         }
         _generator.Generate();
+    }
+
+    public void SaveCoaster(string fileName)
+    {
+        _saveManager.Save(fileName, _constructor.Rails.ToArray());
+    }
+
+    public void LoadCoaster(string fileName)
+    {
+        if (_simulator.IsSimulating)
+            return;
+        float railsCount = _constructor.Rails.Count;
+        for (int i = 0; i < railsCount; i++)
+        {
+            this.RemoveLastRail(false);
+        }
+        SavePack[] savePack = _saveManager.Load(fileName);
+        for(int i = 0; i < savePack.Length; i++)
+        {
+            this.AddRail();
+            this.UpdateLastRail(
+                length: savePack[i].rp.Length,
+                railType: (int)savePack[i].Type
+            );
+            this.UpdateLastRailAdd(
+                elevation: savePack[i].rp.Elevation, 
+                rotation: savePack[i].rp.Rotation, 
+                inclination: savePack[i].rp.Inclination
+            );
+        }
     }
 
     // TODO: Make functions to change rail model props; car props

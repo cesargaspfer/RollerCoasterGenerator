@@ -6,7 +6,7 @@ public class Generator
     public Generator(RollerCoaster rollerCoaster)
     {
         _rc = rollerCoaster;
-        // testCoaster();
+        TestCoaster();
     }
 
     public void Generate()
@@ -20,7 +20,7 @@ public class Generator
         }
     }
 
-    private void testCoaster()
+    private void TestCoaster()
     {
         float pi = Mathf.PI;
         _rc.AddRail();

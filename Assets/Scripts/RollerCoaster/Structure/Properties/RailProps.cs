@@ -45,6 +45,11 @@ public class RailProps
         return new RailProps(_elevation, _rotation, _inclination, _length);
     }
 
+    public override string ToString()
+    {
+        return _elevation + ";" + _rotation + ";" + _inclination + ";" + _length;
+    }
+
     public static RailProps operator -(RailProps rp1, RailProps rp2)
     {
         RailProps tmp = rp1.Clone();

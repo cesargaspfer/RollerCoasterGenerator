@@ -4,7 +4,7 @@
 public class Bezier
 {
     [SerializeField] private static int _lengthResolution = 20;
-    [SerializeField] private static float _maxDistance = 0.05f;
+    [SerializeField] private static float _maxDistance = 0.01f;
 
     [SerializeField] private Vector3[] _points;
     [SerializeField] private Vector3[] _tangentVectors;

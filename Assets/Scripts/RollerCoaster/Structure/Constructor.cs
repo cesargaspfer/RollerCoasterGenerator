@@ -28,6 +28,7 @@ public class Constructor
     public Constructor(RollerCoaster rollerCoaster, RailProps rp, ModelProps mp, SpaceProps sp)
     {
         _rollerCoaster = rollerCoaster;
+        SaveManager.GetPath();
         _lastGlobalrp = new RailProps(0f, 0f, 0f, rp.Length);
         _currentGlobalrp = rp.Clone();
         _initialGlobalrp = rp.Clone();
@@ -42,7 +43,6 @@ public class Constructor
         _initialBasis = sp.Basis;
         _finalPosition = sp.Position;
         _finalBasis = sp.Basis;
-
         // TODO: others properties
     }
 
@@ -70,8 +70,8 @@ public class Constructor
         _currentRail = new Rail(this, localrp, _mp, sp);
 
         _rails.Add(_currentRail);
-        
-        Debug.Log(CheckIntersection(_currentRail));
+
+        Debug.Log("Intersected: " + CheckIntersection(_currentRail));
         
         return _currentRail;
     }
@@ -104,12 +104,12 @@ public class Constructor
 
         _currentRail.UpdateRail(rp:localrp, mp: mp, sp: sp);
 
-        Debug.Log(CheckIntersection(_currentRail));
+        Debug.Log("Intersected: " + CheckIntersection(_currentRail));
 
         return _currentRail;
     }
 
-    public Rail UpdateLastRailAdd(float elevation = -999f, float rotation = -999f, float inclination = -999f, int length = -999, int railType = -999)
+    public Rail UpdateLastRailAdd(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
     {
         if (_rails.Count == 0)
             return null;
@@ -135,7 +135,7 @@ public class Constructor
         return _currentRail;
     }
 
-    public Rail UpdateLastRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, int length = -999, int railType = -999)
+    public Rail UpdateLastRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
     {
         if (_rails.Count == 0)
             return null;
@@ -207,7 +207,7 @@ public class Constructor
         return (_currentGlobalrp, _mp);
     }
 
-    public void testAddFinalRail(Vector3 position, Matrix4x4 basis)
+    public void TestAddFinalRail(Vector3 position, Matrix4x4 basis)
     {
         RemoveLastRail();
         RemoveLastRail();

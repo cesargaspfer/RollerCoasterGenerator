@@ -19,7 +19,7 @@ public class FinalRailDebugger : MonoBehaviour
             basis[0, 3] = 0;
             basis[1, 3] = 0;
             basis[2, 3] = 0;
-            constructor.testAddFinalRail(lastPosition, basis);
+            constructor.TestAddFinalRail(lastPosition, basis);
         }
     }
 }
