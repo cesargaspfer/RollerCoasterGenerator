@@ -209,4 +209,14 @@ public class RollerCoaster : MonoBehaviour
         car.Initialize(0f, 0, CarsManager.inst.GetCarProps(id));
         return carTransform.gameObject.GetComponent<Car>();
     }
+
+    public Rail GetLastRail()
+    {
+        return _constructor.CurrentRail;
+    }
+
+    public Vector3 GetLastPosition()
+    {
+        return _constructor.FinalPosition;
+    }
 }

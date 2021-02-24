@@ -1,0 +1,109 @@
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.25f, 0f, 5f));
+this.AddRail();
+this.AddFinalRail();
+
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, -Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, -Mathf.PI * 0.25f, 0f, 5f));
+this.AddRail();
+this.AddFinalRail();
+
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(Mathf.PI * 0.25f, Mathf.PI * 0.25f, Mathf.PI * 0.5f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(-Mathf.PI * 0.25f, Mathf.PI * 0.25f, Mathf.PI * 0.5f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(-Mathf.PI / 6f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(Mathf.PI / 6f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.AddFinalRail();
+
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(Mathf.PI * 0.5f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(Mathf.PI * 0.5f, 0f, 0f, 5f));
+this.AddRail();
+this.AddFinalRail();
+
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(-Mathf.PI * 0.5f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(-Mathf.PI * 0.5f, 0f, 0f, 5f));
+this.AddRail();
+this.AddFinalRail();
+
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(-Mathf.PI / 12f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(Mathf.PI / 12f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.AddFinalRail();
+
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(Mathf.PI / 12f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(-Mathf.PI / 12f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.AddFinalRail();
+
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(-Mathf.PI * 0.5f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(Mathf.PI * 0.5f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.AddRail();
+this.AddRail();
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(Mathf.PI * 0.5f, 0f, 0f, 5f));
+this.AddRail();
+this.AddFinalRail();
+
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.25f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(0f, Mathf.PI * 0.25f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(Mathf.PI * 0.5f, 0f, 0f, 5f));
+this.AddRail();
+this.UpdateLastRail(rp: _currentGlobalrp + new RailProps(-Mathf.PI * 0.5f, Mathf.PI * 0.5f, 0f, 5f));
+this.AddRail();
+this.AddFinalRail();
+
+_mp.ModelId = 0;
+for(float elevation = -90f; elevation <= 90f; elevation += 15f)
+{
+for (float rotation = -90f; rotation <= 90f; rotation += 15f)
+{
+_finalPosition = Vector3.zero;
+_finalBasis = Matrix4x4.identity;
+this.AddRail();
+_lastGlobalrp = new RailProps(0f, 0f, 0f, rp.Length);
+_currentGlobalrp = new RailProps(elevation * Mathf.PI / 180f, rotation * Mathf.PI / 180f, 0f, rp.Length);
+
+_finalPosition = Vector3.zero;
+_finalBasis = Matrix4x4.identity;
+this.UpdateRail(rp: _currentGlobalrp);
+}
+}

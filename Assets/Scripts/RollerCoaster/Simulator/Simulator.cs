@@ -126,7 +126,8 @@ public class Simulator
         Vector3 basisX = rail.GetBasisAt(curveT).GetColumn(0);
         Vector3 basisY = rail.GetBasisAt(curveT).GetColumn(1);
 
-        if (rail.mp.Type != RailModelProperties.RailType.Lever)
+        if (rail.mp.Type != RailModelProperties.RailType.Lever||
+           (rail.mp.Type == RailModelProperties.RailType.Lever && velocity > 3f))
             aceleration += Vector3.Dot(-Vector3.up, basisX) * 9.8f;
         
         if (rail.mp.Type == RailModelProperties.RailType.Lever)

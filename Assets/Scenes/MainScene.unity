@@ -5790,6 +5790,10 @@ PrefabInstance:
       propertyPath: _finalRailDebugger
       value: 
       objectReference: {fileID: 6292243100474881726, guid: 4019baf8ed981424698beb3ecf732538, type: 3}
+    - target: {fileID: 4911288397087844844, guid: ed8f1519529579743a67c5f39c0b99a4, type: 3}
+      propertyPath: _debugAddFinalRail
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4911288397087844845, guid: ed8f1519529579743a67c5f39c0b99a4, type: 3}
       propertyPath: m_Name
       value: RollerCoaster

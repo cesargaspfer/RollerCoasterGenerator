@@ -219,17 +219,17 @@ public class Constructor
         _basis = basis;
         _initialPosition = Vector3.zero;
         _initialBasis = Matrix4x4.identity;
-        _initialBasis[0, 0] = 0f;
-        _initialBasis[0, 1] = 1f;
-        _initialBasis[1, 0] = -1f;
-        _initialBasis[1, 1] = 0f;
+        // _initialBasis[0, 0] = 0f;
+        // _initialBasis[0, 1] = 1f;
+        // _initialBasis[1, 0] = -1f;
+        // _initialBasis[1, 1] = 0f;
         AddFinalRail();
     }
 
     public (Rail, Rail) AddFinalRail()
     {
         // TODO: Check if can finish track
-
+        
         Vector3 pi = _position;
         Vector3 ni = _basis.GetColumn(0);
         Vector3 pf = _initialPosition;
@@ -381,4 +381,16 @@ public class Constructor
     {
         get { return _rails; }
     }
+
+    public Rail CurrentRail
+    {
+        get { return _currentRail; }
+    }
+
+    public Vector3 FinalPosition
+    {
+        get { return _finalPosition; }
+    }
+
+    
 }
