@@ -184,7 +184,9 @@ public class Constructor
             _finalBasis = removedRail.sp.Basis;
 
             _currentGlobalrp = _lastGlobalrp;
+            _currentGlobalrp.Length = _currentRail.rp.Length;
             _lastGlobalrp -= _currentRail.rp;
+            _lastGlobalrp.Length = _currentRail.rp.Length;
 
             _mp = _currentRail.mp;
             
@@ -387,10 +389,23 @@ public class Constructor
         get { return _currentRail; }
     }
 
+    public Vector3 InitialPosition
+    {
+        get { return _initialPosition; }
+    }
+
+    public Matrix4x4 InitialBasis
+    {
+        get { return _initialBasis; }
+    }
+
     public Vector3 FinalPosition
     {
         get { return _finalPosition; }
     }
 
-    
+    public Matrix4x4 FinalBasis
+    {
+        get { return _finalBasis; }
+    }
 }

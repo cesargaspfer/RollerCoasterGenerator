@@ -215,8 +215,23 @@ public class RollerCoaster : MonoBehaviour
         return _constructor.CurrentRail;
     }
 
-    public Vector3 GetLastPosition()
+    public Vector3 GetInitialPosition()
+    {
+        return _constructor.InitialPosition;
+    }
+
+    public Matrix4x4 GetInitialBasis()
+    {
+        return _constructor.InitialBasis;
+    }
+
+    public Vector3 GetFinalPosition()
     {
         return _constructor.FinalPosition;
+    }
+
+    public Matrix4x4 GetFinalBasis()
+    {
+        return _constructor.FinalBasis;
     }
 }
