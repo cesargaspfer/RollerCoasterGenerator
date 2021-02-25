@@ -23,27 +23,46 @@ public class Generator
         AddRail(length:4f);
         GenerateLoop();
         float angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        if(angleToPlane > 0f)
+        if(Mathf.Abs(angleToPlane) > 0f)
             GenerateCurveMax90(angleToPlane);
         angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        if (angleToPlane > 0f)
+        if (Mathf.Abs(angleToPlane) > 0f)
             GenerateCurveMax90(angleToPlane);
 
-        AddRail();
-        AddRail();
-        AddRail();
+        GenerateHill(1f);
+        GenerateHill(0.6f);
+        GenerateHill(0.3f);
+
 
         angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        Debug.Log(GetProjectedXfromInitialBasis(initialPosition, initialBasis) + " " + _rc.GetFinalPosition());
+        float signedDistance = GetSignedDistanceFromBasis(initialPosition, initialBasis, 0);
+        // Debug.Log(angleToPlane + " " + signedDistance);
+        if(signedDistance > 0f)
+        {
+            if (Mathf.Abs(angleToPlane) > Mathf.PI)
+                GenerateCurveMax90(angleToPlane);
+            angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
+            if (Mathf.Abs(angleToPlane) > 0f)
+                GenerateCurveMax90(angleToPlane);
+            while(GetSignedDistanceFromBasis(initialPosition, initialBasis, 0) > 0f)
+            {
+                AddRail();
+            }
+        }
+        angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
+        // Debug.Log(angleToPlane);
+        if (Mathf.Abs(angleToPlane) > Mathf.PI * 0.5f)
+        {
+            GenerateCurveMax90(GetBasisAngle(initialPosition, initialBasis));
+        }
+
+
+        // if (Mathf.Abs(angleToPlane) > 0f)
+        //     GenerateCurveMax90(angleToPlane);
+
         
         
-        // angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        // angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        // angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        // angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        // angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        // angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        // angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
+        
         AddRail();
         _rc.AddFinalRail();
         // _rc.UpdateLastRail(railType: 3);
@@ -79,7 +98,7 @@ public class Generator
             piecesOffset = 1;
         int pieces = (int)Random.Range(3, 6);
         int lengthOffset = (4 - pieces) + (3 - (int) elevation);
-        float length = (int) Random.Range(5 + piecesOffset, 7) + lengthOffset;
+        float length = (int) Random.Range(6 + piecesOffset, 9) + lengthOffset;
 
         elevation *= Mathf.PI / 12f;
 
@@ -117,16 +136,28 @@ public class Generator
             pieces = Random.Range(2, 3);
         }
         float length = currentHeight / ((pieces - 1f) * Mathf.Sin(-elevation));
+        int iterations = 0;
         while(length < 4f)
         {
             pieces--;
             length = currentHeight / ((pieces - 1f) * Mathf.Sin(-elevation));
+            iterations++;
+            if(iterations > 20)
+            {
+                Debug.LogError("iterations > 20 in GenerateFall A");
+                break;
+            }
         }
-        int iterations = 0;
+        iterations = 0;
         while(length * (pieces-1) * Mathf.Sin(-elevation) > currentHeight - 0.2f)
         {
             length -= 0.1f;
             iterations++;
+            if(iterations > 20)
+            {
+                Debug.LogError("iterations > 20 in GenerateFall B");
+                break;
+            }
         }
 
         AddRail(elevation: elevation, rotation: rotation, length: length, inclination: inclination, railType: (int)RailType.Normal);
@@ -175,8 +206,34 @@ public class Generator
         AddRail(elevation: elevation, length: 5f * lengthScale, rotation: -orientation * Mathf.PI / 12f);
         AddRail(elevation: elevation, length: 6f * lengthScale);
         AddRail(length: 5f * lengthScale, railType: (int)RailType.Normal);
-
     }
+
+    private void GenerateHill(float scale)
+    {
+        // TODO: Use intencity & velocity
+
+        float elevation = ((int)Random.Range(3, 4));
+        float rotation = 0f;
+        if ((int)Random.Range(-1, 2) > 0)
+        {
+            int rotationRand = Random.Range(-2, 3);
+            rotation = Mathf.Sign(rotationRand) * (Mathf.Abs(rotationRand) + 3 - elevation) * Mathf.PI / 12f;
+        }
+
+        int piecesOffset = 0;
+        if (elevation == 4f)
+            piecesOffset = 1;
+        int pieces = (int)Random.Range(3, 7);
+        int lengthOffset = (4 - pieces) + (3 - (int)elevation);
+        float length = (int)Random.Range(5 + piecesOffset, 9) + lengthOffset;
+
+        elevation *= Mathf.PI / 12f;
+
+        AddRail(elevation: elevation, rotation: rotation, inclination: -rotation, length: length, railType: (int)RailType.Normal);
+        AddRail(elevation: -elevation, rotation: rotation);
+        AddRail(elevation: -elevation, rotation: rotation);
+        AddRail(elevation: elevation, rotation: rotation, inclination: rotation);
+    }    
 
     private void GenerateCurveMax90(float rotation)
     {
@@ -193,25 +250,36 @@ public class Generator
                 AddRail(rotation: rotation);
             AddRail(rotation: rotation, inclination: rotation);
         }
-        else
+        else if (pieces == 2)
         {
             AddRail(rotation: rotation, length: length, railType: (int)RailType.Normal);
             AddRail(rotation: rotation);
         }
+        else
+        {
+            AddRail(rotation: rotation, length: length, railType: (int)RailType.Normal);
+        }
+    }
 
+    private void AddRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
+    {
+        _rc.AddRail();
+        _rc.UpdateLastRailAdd(elevation: elevation, rotation: rotation, inclination: inclination);
+        _rc.UpdateLastRail(length: length, railType: railType);
     }
 
     private float GetAngleToInitialBasisPlane(Vector3 targetPosition, Matrix4x4 targetBasis)
     {
         Vector3 currentPosition = _rc.GetFinalPosition();
         Matrix4x4 currentBasis = _rc.GetFinalBasis();
+
         Vector3 cx = currentBasis.GetColumn(0);
         Vector3 tx = targetBasis.GetColumn(0);
 
         Vector3 pc = new Vector3(currentPosition.x, 0f, currentPosition.z);
         Vector3 pt = new Vector3(targetPosition.x, 0f, targetPosition.z);
 
-        Vector3 pcx = new Vector3(cx.x, 0f, cx.z);
+        Vector3 pcx = (new Vector3(cx.x, 0f, cx.z)).normalized;
         Vector3 ptx = (new Vector3(tx.x, 0f, tx.z)).normalized;
 
         Vector3 dir = pt - pc;
@@ -223,39 +291,69 @@ public class Generator
         {
             rotation = -rotation;
         }
-        Debug.Log(rotation);
 
         return rotation;
     }
 
-    private float GetProjectedXfromInitialBasis(Vector3 targetPosition, Matrix4x4 targetBasis)
+    private float GetSignedDistanceFromBasis(Vector3 targetPosition, Matrix4x4 targetBasis, int orientation)
     {
         Vector3 currentPosition = _rc.GetFinalPosition();
+
+        Vector3 tx = targetBasis.GetColumn(orientation);
+        Vector3 pc;
+        Vector3 pt;
+        Vector3 ptx;
+        
+        pc = new Vector3(currentPosition.x, 0f, currentPosition.z);
+        pt = new Vector3(targetPosition.x, 0f, targetPosition.z);
+        ptx = (new Vector3(tx.x, 0f, tx.z)).normalized;
+
+        // if (orientation == 0)
+        // {
+        //     pc = new Vector3(0f, currentPosition.y, currentPosition.z);
+        //     pt = new Vector3(0f, targetPosition.y, targetPosition.z);
+        //     ptx = (new Vector3(0f, tx.y, tx.z)).normalized;
+        // }
+        // else if (orientation == 1)
+        // {
+        // }
+        // else
+        // {
+        //     pc = new Vector3(currentPosition.x, currentPosition.y, 0f);
+        //     pt = new Vector3(targetPosition.x, targetPosition.y, 0f);
+        //     ptx = (new Vector3(tx.x, tx.y, 0f)).normalized;
+        // }
+
+        Vector3 dir = (pc - pt).normalized;
+
+        float signal = Vector3.Dot(dir, ptx) >= 0f ? 1f : -1f;
+
+        return signal * (pc - pt).magnitude;
+    }
+
+    private float GetBasisAngle(Vector3 targetPosition, Matrix4x4 targetBasis)
+    {
+        Matrix4x4 currentBasis = _rc.GetFinalBasis();
+        Vector3 cx = currentBasis.GetColumn(0);
         Vector3 tx = targetBasis.GetColumn(0);
 
-        Vector3 pc = new Vector3(currentPosition.x, 0f, currentPosition.z);
-        Vector3 pt = new Vector3(targetPosition.x, 0f, targetPosition.z);
-
+        Vector3 pcx = (new Vector3(cx.x, 0f, cx.z)).normalized;
         Vector3 ptx = (new Vector3(tx.x, 0f, tx.z)).normalized;
 
-        Vector3 dir = (pt - pc).normalized;
-        Vector3 projX = ptx * Vector3.Dot(dir, ptx) / dir.magnitude;
+        float rotation = Angle(pcx, ptx);
+        Matrix4x4 tmpRotationMatrix = RotationMatrix(rotation, Vector3.up);
+        if ((pcx - tmpRotationMatrix.MultiplyPoint3x4(ptx)).magnitude > 0.01f)
+        {
+            rotation = -rotation;
+        }
+        Debug.Log(GetSignedDistanceFromBasis(targetPosition, targetBasis, 2));
 
-        float signal = Vector3.Dot(dir, projX) >= 1f ? 1f : -1f;
+        if(rotation > 3.1415f && GetSignedDistanceFromBasis(targetPosition, targetBasis, 2) > 0f)
+        {
+            rotation = -rotation;
+        }
 
-        return signal * (pt - pc).magnitude;
-    }
-
-    private void GenerateHill()
-    {
-
-    }
-
-    private void AddRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
-    {
-        _rc.AddRail();
-        _rc.UpdateLastRailAdd(elevation: elevation, rotation:rotation, inclination:inclination);
-        _rc.UpdateLastRail(length: length, railType: railType);
+        return rotation;
     }
 
     private void TestCoaster()

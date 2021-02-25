@@ -10,6 +10,8 @@ public class CameraHandler : MonoBehaviour
 
 
     // General Properties
+    #pragma warning disable 0649
+    [SerializeField] private RollerCoaster _rollerCoaster;
     [SerializeField] private bool _screenBorderAllowed = true;
     [SerializeField] private float _screenBorder = 0.025f;
     [SerializeField] private float _movementVelocity = 5f;
@@ -21,6 +23,8 @@ public class CameraHandler : MonoBehaviour
     // Camera Properties
     [SerializeField] private CameraMode _currentCameraMode = CameraMode.Normal;
     [SerializeField] private Vector3 _currentTargetPosition = Vector3.zero;
+    [SerializeField] private Vector3 _lastTransformPosition;
+    [SerializeField] private Quaternion _lastTransformRotation;
     // TODO: Change
     [SerializeField] private Quaternion _normalQuaternion;
     [SerializeField] private float _currentZoom = 10f;
@@ -90,6 +94,29 @@ public class CameraHandler : MonoBehaviour
             // Update the camera position
             _camera.transform.position = _currentTargetPosition;
             _camera.transform.Translate(Vector3.forward * -_currentZoom);
+        }
+    }
+
+    public void ChangeCameraMode()
+    {
+        if (_currentCameraMode == CameraMode.Normal)
+        {
+            Transform car = _rollerCoaster.GetFirstCar();
+            if(car == null)
+                return;
+            _currentCameraMode = CameraMode.FirstPerson;
+            _lastTransformPosition = gameObject.transform.position;
+            _lastTransformRotation = gameObject.transform.rotation;
+            gameObject.transform.SetParent(car);
+            gameObject.transform.localPosition = new Vector3(0.1f, 1.3f, 0f);
+            gameObject.transform.localEulerAngles = new Vector3(0f, 90f, 0f);
+        }
+        else
+        {
+            _currentCameraMode = CameraMode.Normal;
+            gameObject.transform.SetParent(null);
+            gameObject.transform.position = _lastTransformPosition;
+            gameObject.transform.rotation = _lastTransformRotation;
         }
     }
 
@@ -253,5 +280,10 @@ public class CameraHandler : MonoBehaviour
     public void SetCanZoom(bool value)
     {
         _canZoom = value;
+    }
+
+    public CameraMode GetCameraMode()
+    {
+        return _currentCameraMode;
     }
 }

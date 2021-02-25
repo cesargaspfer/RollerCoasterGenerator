@@ -6,8 +6,17 @@ public class UIManager : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] public RollerCoaster _rollerCoaster;
     #pragma warning disable 0649
+    [SerializeField] public CameraHandler _cameraHandler;
+    #pragma warning disable 0649
+    [SerializeField] public Transform _pannel;
+    #pragma warning disable 0649
     [SerializeField] public InputField[] _railProps;
     [SerializeField] public Dropdown _railTypeDropdown;
+
+    public void ChangeCameraMode()
+    {
+        _pannel.gameObject.SetActive(_cameraHandler.GetCameraMode() == CameraHandler.CameraMode.Normal);
+    }
 
     public void RemoveRailButtonClicked()
     {
@@ -21,6 +30,14 @@ public class UIManager : MonoBehaviour
         _railProps[3].text = "" + rp.Length;
 
         _railTypeDropdown.value = (int) mp.Type;
+    }
+
+    public void StopSimulation()
+    {
+        if(_cameraHandler.GetCameraMode() == CameraHandler.CameraMode.FirstPerson)
+            _cameraHandler.ChangeCameraMode();
+        _rollerCoaster.StopCarSimulation();
+
     }
     
     public void UpdateRailElevation(string elevation)

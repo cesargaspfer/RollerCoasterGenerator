@@ -234,4 +234,9 @@ public class RollerCoaster : MonoBehaviour
     {
         return _constructor.FinalBasis;
     }
+
+    public Transform GetFirstCar()
+    {
+        return _simulator.FirstCar;
+    }
 }

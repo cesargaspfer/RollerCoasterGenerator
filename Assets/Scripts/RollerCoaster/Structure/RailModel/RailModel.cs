@@ -45,6 +45,9 @@ public abstract class RailModel
         for (int i = 0; i < esr.Length; i++)
             materials[i] = _srm[i].GetMaterial(mp.Type);
 
+        for(int i = 0; i < meshes.Length; i++)
+            meshes[i].RecalculateBounds();
+            
         return (meshes, materials);
     }
 }

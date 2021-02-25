@@ -187,7 +187,7 @@ public class Simulator
             _cars[i] = null;
             GameObject.Destroy(tmpCar.instantiatedObject);
         }
-
+        _cars = new Car[0];
         _isSimulating = false;
     }
 
@@ -371,5 +371,19 @@ public class Simulator
     public bool IsSimulating
     {
         get { return _isSimulating; }
+    }
+
+    public Transform FirstCar
+    {
+        get { 
+            if(_cars != null && _cars.Length > 0)
+            {
+                return _cars[0].instantiatedObject.transform;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }
