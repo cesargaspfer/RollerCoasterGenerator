@@ -1,27 +1,56 @@
 ﻿using UnityEngine;
 using static Algebra;
+using static ImaginarySphere;
 using static RailModelProperties;
 
 public class Generator
 {
+    private struct Status
+    {
+        public RailPhysics rp;
+        public Vector3 finalPos;
+        public Matrix4x4 finalBasis;
+        public float height
+        {
+            get { return finalPos.y; }
+        }
+
+        public Status(RailPhysics rpValue, Vector3 finalPosValue, Matrix4x4 finalBasisValue)
+        {
+            rp = rpValue;
+            finalPos = finalPosValue;
+            finalBasis = finalBasisValue;
+        }
+    }
+
+    public Vector3 initialPosition;
+    public Matrix4x4 initialBasis;
+
     private RollerCoaster _rc;
+    private Status _status;
+
     public Generator(RollerCoaster rollerCoaster)
     {
         _rc = rollerCoaster;
-        Generate();
+        // Generate();
         // _rc.GenerateCoaster();
     }
 
     public void Generate()
     {
         int intencity = 0;
-        Vector3 initialPosition = _rc.GetInitialPosition();
-        Matrix4x4 initialBasis = _rc.GetInitialBasis(); 
+        initialPosition = _rc.GetInitialPosition();
+        initialBasis = _rc.GetInitialBasis();
         GeneratePlataform();
         GenerateLever(intencity);
         GenerateFall(intencity);
         AddRail(length:4f);
-        GenerateLoop();
+        int loops = Random.Range(2, 3);
+        for (int i = 0; i < loops; i++)
+        {
+            if(_status.rp.Final.Velocity / 8.5f >= 1f)
+                GenerateLoop();
+        }
         float angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
         if(Mathf.Abs(angleToPlane) > 0f)
             GenerateCurveMax90(angleToPlane);
@@ -29,9 +58,11 @@ public class Generator
         if (Mathf.Abs(angleToPlane) > 0f)
             GenerateCurveMax90(angleToPlane);
 
-        GenerateHill(1f);
-        GenerateHill(0.6f);
-        GenerateHill(0.3f);
+        int hills = Random.Range(0, 4);
+        for(int i = 0; i < hills; i++)
+        {
+            GenerateHill();
+        }
 
 
         angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
@@ -44,9 +75,16 @@ public class Generator
             angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
             if (Mathf.Abs(angleToPlane) > 0f)
                 GenerateCurveMax90(angleToPlane);
+            int iterations = 0;
             while(GetSignedDistanceFromBasis(initialPosition, initialBasis, 0) > 0f)
             {
                 AddRail();
+                iterations++;
+                if(iterations > 20)
+                {
+                    Debug.LogError("iterations > 20 in Generate");
+                    break;
+                }
             }
         }
         angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
@@ -74,6 +112,11 @@ public class Generator
         // }
         // _rc.AddRail();
         // _rc.AddFinalRail();
+    }
+
+    private void UpdateStatus()
+    {
+        _status = new Status(_rc.GetLastRailPhysics(), _rc.GetFinalPosition(), _rc.GetFinalBasis());
     }
 
     private void GeneratePlataform()
@@ -124,41 +167,27 @@ public class Generator
                
         float inclination = -rotation;
 
-        elevation *= Mathf.PI / 12f;
-        currentHeight -= Random.Range(0f, currentHeight / 6f);
-        currentHeight -= 0.1f;
 
-        // H = sin(elevation) * length * (pieces - 1)
-        float maxLenght = currentHeight  / (Mathf.Sin(-elevation));
         int pieces = Random.Range(3, 9);
         if(elevation < -4f)
         {
             pieces = Random.Range(2, 3);
         }
-        float length = currentHeight / ((pieces - 1f) * Mathf.Sin(-elevation));
-        int iterations = 0;
-        while(length < 4f)
-        {
-            pieces--;
-            length = currentHeight / ((pieces - 1f) * Mathf.Sin(-elevation));
-            iterations++;
-            if(iterations > 20)
-            {
-                Debug.LogError("iterations > 20 in GenerateFall A");
-                break;
-            }
-        }
-        iterations = 0;
-        while(length * (pieces-1) * Mathf.Sin(-elevation) > currentHeight - 0.2f)
-        {
-            length -= 0.1f;
-            iterations++;
-            if(iterations > 20)
-            {
-                Debug.LogError("iterations > 20 in GenerateFall B");
-                break;
-            }
-        }
+
+        elevation *= Mathf.PI / 12f;
+        currentHeight -= Random.Range(0f, currentHeight / 4f);
+
+        SpaceProps sp = new SpaceProps(_status.finalPos, _status.finalBasis);
+        RailProps rp = new RailProps(elevation, rotation, inclination, 1f);
+        (_, Matrix4x4 finalBasis, Vector3 finalPosition) = CalculateImaginarySphere(sp, rp);
+        float h1 = _status.finalPos.y - finalPosition.y;
+
+        sp = new SpaceProps(_status.finalPos, finalBasis);
+        rp = new RailProps(0f, rotation, inclination, 1f);
+        (_, _, finalPosition) = CalculateImaginarySphere(sp, rp);
+        float h2 = _status.finalPos.y - finalPosition.y;
+
+        float length = currentHeight / (2f * h1 + (pieces - 2) * h2);
 
         AddRail(elevation: elevation, rotation: rotation, length: length, inclination: inclination, railType: (int)RailType.Normal);
         bool changed = false;
@@ -197,7 +226,8 @@ public class Generator
     private void GenerateLoop()
     {
         int orientation = Random.Range(-1, 1) * 2 + 1;
-        float lengthScale = 1;
+        float lengthScale = _status.rp.Final.Velocity / 8.5f;
+        lengthScale = Random.Range(Mathf.Max(lengthScale * 0.75f, 1f), lengthScale);
 
         float elevation = Mathf.PI * 0.5f;
         AddRail(length: 5f * lengthScale, railType: (int)RailType.Normal);
@@ -208,7 +238,7 @@ public class Generator
         AddRail(length: 5f * lengthScale, railType: (int)RailType.Normal);
     }
 
-    private void GenerateHill(float scale)
+    private void GenerateHill()
     {
         // TODO: Use intencity & velocity
 
@@ -219,15 +249,19 @@ public class Generator
             int rotationRand = Random.Range(-2, 3);
             rotation = Mathf.Sign(rotationRand) * (Mathf.Abs(rotationRand) + 3 - elevation) * Mathf.PI / 12f;
         }
-
-        int piecesOffset = 0;
-        if (elevation == 4f)
-            piecesOffset = 1;
-        int pieces = (int)Random.Range(3, 7);
-        int lengthOffset = (4 - pieces) + (3 - (int)elevation);
-        float length = (int)Random.Range(5 + piecesOffset, 9) + lengthOffset;
-
         elevation *= Mathf.PI / 12f;
+
+        float maxHeight = _status.rp.Final.Velocity * ( _status.rp.Final.Velocity / (19.6f * 0.9f) );
+
+        SpaceProps sp = new SpaceProps(_status.finalPos, _status.finalBasis);
+        RailProps rp = new RailProps(elevation, rotation, -rotation, 1f);
+        (_, Matrix4x4 finalBasis, Vector3 finalPosition) = CalculateImaginarySphere(sp, rp);
+        float heigth = finalPosition.y - _status.finalPos.y;
+
+        float length = maxHeight / (2f * heigth);
+
+        length = Random.Range(length * 0.75f, length);
+
 
         AddRail(elevation: elevation, rotation: rotation, inclination: -rotation, length: length, railType: (int)RailType.Normal);
         AddRail(elevation: -elevation, rotation: rotation);
@@ -239,33 +273,25 @@ public class Generator
     {
         rotation = Mathf.Sign(rotation) * Mathf.Min(Mathf.Abs(rotation), Mathf.PI * 0.5f);
 
-        int pieces = Random.Range(1, 4);
-        float length = Random.Range(5f, 8f);
+        int pieces = Random.Range(2, 4);
+        
+        float length = ( (_status.rp.Final.Velocity * 2f) / ( (float) pieces) ) * ( Mathf.Abs(rotation) * 2f / Mathf.PI );
+        length = Mathf.Max(length, 1f);
+
         rotation /= (float) pieces;
 
-        if(pieces >= 2)
-        {
-            AddRail(rotation: rotation, inclination:-rotation, length: length, railType: (int)RailType.Normal);
-            for (int i = 1; i < pieces - 1; i++)
-                AddRail(rotation: rotation);
-            AddRail(rotation: rotation, inclination: rotation);
-        }
-        else if (pieces == 2)
-        {
-            AddRail(rotation: rotation, length: length, railType: (int)RailType.Normal);
+        AddRail(rotation: rotation, inclination:-rotation, length: length, railType: (int)RailType.Normal);
+        for (int i = 1; i < pieces - 1; i++)
             AddRail(rotation: rotation);
-        }
-        else
-        {
-            AddRail(rotation: rotation, length: length, railType: (int)RailType.Normal);
-        }
+        AddRail(rotation: rotation, inclination: rotation);
     }
 
     private void AddRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
     {
-        _rc.AddRail();
-        _rc.UpdateLastRailAdd(elevation: elevation, rotation: rotation, inclination: inclination);
-        _rc.UpdateLastRail(length: length, railType: railType);
+        _rc.AddRail(false);
+        _rc.UpdateLastRailAdd(elevation: elevation, rotation: rotation, inclination: inclination, simulateRail: false);
+        _rc.UpdateLastRail(length: length, railType: railType, simulateRail: true);
+        UpdateStatus();
     }
 
     private float GetAngleToInitialBasisPlane(Vector3 targetPosition, Matrix4x4 targetBasis)
@@ -346,7 +372,7 @@ public class Generator
         {
             rotation = -rotation;
         }
-        Debug.Log(GetSignedDistanceFromBasis(targetPosition, targetBasis, 2));
+        // Debug.Log(GetSignedDistanceFromBasis(targetPosition, targetBasis, 2));
 
         if(rotation > 3.1415f && GetSignedDistanceFromBasis(targetPosition, targetBasis, 2) > 0f)
         {

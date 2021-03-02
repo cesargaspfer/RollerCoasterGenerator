@@ -106,7 +106,7 @@ public class Rail
     public Matrix4x4 GetBasisAt(float t)
     {
         // float t = position / (float)_rp.Length;
-        Matrix4x4 rotationMatrix = ThreeRotationMatrix(sp.Basis, t * rp.Radians);
+        Matrix4x4 rotationMatrix = ThreeRotationMatrix(sp.Basis, t * _rp.Radians);
         // Matrix4x4 rotationMatrix = MatrixLookAt(sp.Basis, sp.Curve.GetTangentAt(t), t * _inclinationToMatrixLookAt);
         Matrix4x4 finalMatrix = rotationMatrix * _sp.Basis;
         return finalMatrix;

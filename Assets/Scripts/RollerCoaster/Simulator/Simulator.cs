@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using static Algebra;
 using static CarsManager;
@@ -30,7 +30,7 @@ public class Simulator
         _carId = carId;
         _carQuantity = carQuantity;
         _isSimulating = false;
-        RailPhysics.Props rpp = new RailPhysics.Props(0f, Vector3.zero);
+        RailPhysics.Props rpp = new RailPhysics.Props(0.01f, Vector3.zero);
         _initialrp = new RailPhysics(rpp);
         _initialrp.Max = rpp;
         _initialrp.Final = rpp;
@@ -129,7 +129,7 @@ public class Simulator
         if (rail.mp.Type != RailModelProperties.RailType.Lever||
            (rail.mp.Type == RailModelProperties.RailType.Lever && velocity > 3f))
             aceleration += Vector3.Dot(-Vector3.up, basisX) * 9.8f;
-        
+
         if (rail.mp.Type == RailModelProperties.RailType.Lever)
         {
             if(velocity < 2f)
@@ -160,11 +160,11 @@ public class Simulator
         {
             if (velocity > 0.07f)
             {
-                aceleration -= Mathf.Sign(velocity) * 0.005f * Mathf.Max(Mathf.Abs(velocity), 10f) * (0.5f + 0.5f * Mathf.Abs(Vector3.Dot(Vector3.up, basisY))) * 9.8f;
+                aceleration -= Mathf.Sign(velocity) * 0.004f * Mathf.Max(Mathf.Abs(velocity), 10f) * (0.7f + 0.3f * Mathf.Abs(Vector3.Dot(Vector3.up, basisY))) * 9.8f;
             }
             else
             {
-                float dragAceleration = - Mathf.Sign(velocity) * 0.005f * 10f * (0.5f + 0.5f * Mathf.Abs(Vector3.Dot(Vector3.up, basisY))) * 9.8f;
+                float dragAceleration = - Mathf.Sign(velocity) * 0.004f * 10f * (0.7f + 0.3f * Mathf.Abs(Vector3.Dot(Vector3.up, basisY))) * 9.8f;
                 if(Mathf.Abs(2f * dragAceleration) > Mathf.Abs(aceleration))
                 {
                     aceleration = 0.5f * dragAceleration;
@@ -228,7 +228,7 @@ public class Simulator
 
     // ------------------- Rail Simulation Props ------------------- //
 
-    public void AddRail(Rail rail)
+    public void AddRail(Rail rail, bool simulateRail = false)
     {
         RailPhysics lastrp;
         if(_rails.Count == 0)
@@ -239,18 +239,21 @@ public class Simulator
         {
             (_, lastrp) = _rails[_rails.Count - 1];
         }
+        
+        RailPhysics railPhysics = null;
 
-        RailPhysics railPhysics = SimulateRail(lastrp, rail);
+        if(simulateRail)
+            railPhysics = SimulateRail(lastrp, rail);
 
         _rails.Add((rail, railPhysics));
     }
 
-    public void UpdateLastRail()
+    public void UpdateLastRail(Rail rail)
     {
         if (_rails.Count == 0)
             return;
 
-        (Rail rail, _) = _rails[_rails.Count - 1];
+        // (Rail rail, _) = _rails[_rails.Count - 1];
         RailPhysics lastrp;
         if (_rails.Count == 1)
         {
@@ -281,6 +284,7 @@ public class Simulator
         float velocity = lastrp.Final.Velocity;
         float curveT = 0f;
         float scalarPosition = 0f;
+        int interations = 0;
         while(true)
         {
             RailPhysics.Props currentrpp;
@@ -288,7 +292,12 @@ public class Simulator
             velocity = currentrpp.Velocity;
             scalarPosition += velocity * _dtres;
 
-            if(velocity <= 0 || scalarPosition > rail.rp.Length || curveT > 1f)
+            if(velocity <= 0.05)
+            {
+                interations++;
+            }
+
+            if(velocity <= 0 || scalarPosition > rail.rp.Length || curveT > 1f || interations > 25)
             {
                 currentRailPhysics.Final = currentrpp;
                 currentRailPhysics.CarCompletedSegment = velocity > 0;
@@ -300,8 +309,10 @@ public class Simulator
             float MaxGForceY = Mathf.Abs(currentRailPhysics.Max.GForce.y) > Mathf.Abs(currentrpp.GForce.y) ? currentRailPhysics.Max.GForce.y : currentrpp.GForce.y;
             float MaxGForceZ = Mathf.Abs(currentRailPhysics.Max.GForce.y) > Mathf.Abs(currentrpp.GForce.y) ? currentRailPhysics.Max.GForce.y : currentrpp.GForce.y;
             currentRailPhysics.Max.GForce = new Vector3(MaxGForceX, MaxGForceY, MaxGForceZ);
+            currentRailPhysics.Max.Velocity = Mathf.Max(currentRailPhysics.Max.Velocity, velocity);
         }
 
+        // Debug.Log(currentRailPhysics);
         return currentRailPhysics;
     }
 
@@ -315,12 +326,14 @@ public class Simulator
 
         float deltaResultantAceleration = (deltaTime / 6f) * (k1 + 2f * k2 + 2f * k3 + k4);
 
+        Vector3 basisX = rail.GetBasisAt(curveT).GetColumn(0);
+
         float newVelocity = velocity + deltaResultantAceleration;
 
-        curveT = rail.sp.Curve.GetNextT(curveT, deltaTime * deltaResultantAceleration);
+        curveT = rail.sp.Curve.GetNextT(curveT, deltaTime * newVelocity);
 
         // TODO: Calculate G-Force
-        return (new RailPhysics.Props(velocity, Vector3.zero), curveT);
+        return (new RailPhysics.Props(newVelocity, Vector3.zero), curveT);
     }
 
     private float CalculateAcelerationRail(Rail rail, float curveT, float dt, float velocity)
@@ -375,7 +388,8 @@ public class Simulator
 
     public Transform FirstCar
     {
-        get { 
+        get
+        { 
             if(_cars != null && _cars.Length > 0)
             {
                 return _cars[0].instantiatedObject.transform;
@@ -384,6 +398,16 @@ public class Simulator
             {
                 return null;
             }
+        }
+    }
+
+    public RailPhysics LastRailPhysics
+    {
+        get
+        {
+            if(_rails.Count == 0) return null;
+            (_,  RailPhysics lastRailPhysics) = _rails[_rails.Count - 1];
+            return lastRailPhysics;
         }
     }
 }

@@ -16,6 +16,12 @@ public class RailPhysics
             _defined = true;
         }
 
+        public override string ToString()
+        {
+            // return "Velocity: " + _velocity + " G-Force: " + _GForce;
+            return "Velocity: " + _velocity; 
+        }
+
         public float Velocity
         {
             get { return _velocity; }
@@ -43,6 +49,12 @@ public class RailPhysics
     public RailPhysics (Props initial)
     {
         _initial = initial;
+    }
+
+    public override string ToString()
+    {
+        // return "Initial: " + _initial + "\nMax: " + _max + "\nFinal: " + _final;
+        return "Initial: " + _initial + "\nFinal: " + _final;
     }
 
     public Props Initial

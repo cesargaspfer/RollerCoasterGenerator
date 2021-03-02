@@ -34,7 +34,7 @@ public class RollerCoaster : MonoBehaviour
         SpaceProps sp = new SpaceProps(Vector3.up, Matrix4x4.identity);
         _constructor = new Constructor(this, rp, mp, sp);
         _carSimulation = null;
-        _simulator = new Simulator(this, 0.01f, 0, 3);
+        _simulator = new Simulator(this, 0.01f, 0, 1);
 
         if (CarsManager.inst == null)
         {
@@ -49,12 +49,12 @@ public class RollerCoaster : MonoBehaviour
         }
     }
 
-    public void AddRail()
+    public void AddRail(bool simulateRail = false)
     {
         if(!_simulator.IsSimulating)
         {
             Rail rail = _constructor.AddRail();
-            _simulator.AddRail(rail);
+            _simulator.AddRail(rail, simulateRail);
         }
         else
         {
@@ -65,7 +65,7 @@ public class RollerCoaster : MonoBehaviour
     public void AddFinalRail()
     {
         (Rail rail1, Rail rail2) = _constructor.AddFinalRail();
-        _simulator.UpdateLastRail();
+        _simulator.UpdateLastRail(rail1);
         _simulator.AddRail(rail2);
     }
 
@@ -77,12 +77,13 @@ public class RollerCoaster : MonoBehaviour
         return _constructor.RemoveLastRail();
     }
 
-    public void UpdateLastRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
+    public void UpdateLastRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999, bool simulateRail = false)
     {
         if (!_simulator.IsSimulating)
         {
-            _constructor.UpdateLastRail(elevation, rotation, inclination, length, railType);
-            _simulator.UpdateLastRail();
+            Rail rail = _constructor.UpdateLastRail(elevation, rotation, inclination, length, railType);
+            if(simulateRail)
+                _simulator.UpdateLastRail(rail);
         }
         else
         {
@@ -90,17 +91,24 @@ public class RollerCoaster : MonoBehaviour
         }
     }
 
-    public void UpdateLastRailAdd(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
+    public void UpdateLastRailAdd(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999, bool simulateRail = false)
     {
         if (!_simulator.IsSimulating)
         {
-            _constructor.UpdateLastRailAdd(elevation, rotation, inclination, length, railType);
-            _simulator.UpdateLastRail();
+            Rail rail = _constructor.UpdateLastRailAdd(elevation, rotation, inclination, length, railType);
+            if(simulateRail)
+                _simulator.UpdateLastRail(rail);
         }
         else
         {
             // TODO: Warn player? *Restart simulation?* *Restart simulation if cars are in final rail?*
         }
+    }
+
+    public void SimulateLastRail()
+    {
+        if(_constructor.CurrentRail != null)
+            _simulator.UpdateLastRail(_constructor.CurrentRail);
     }
 
     public void StartCarSimulation()
@@ -213,6 +221,11 @@ public class RollerCoaster : MonoBehaviour
     public Rail GetLastRail()
     {
         return _constructor.CurrentRail;
+    }
+
+    public RailPhysics GetLastRailPhysics()
+    {
+        return _simulator.LastRailPhysics;
     }
 
     public Vector3 GetInitialPosition()
