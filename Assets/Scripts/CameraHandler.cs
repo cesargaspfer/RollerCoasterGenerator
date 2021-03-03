@@ -16,7 +16,7 @@ public class CameraHandler : MonoBehaviour
     [SerializeField] private float _screenBorder = 0.025f;
     [SerializeField] private float _movementVelocity = 5f;
     [SerializeField] private Vector2 _zoomLimit = new Vector2(2f, 50f);
-    [SerializeField] private float _zoomMaxAceleration = 0.3f;
+    [SerializeField] private float _zoomMaxAcceleration = 0.3f;
     [SerializeField] private float _zoomMaxVelocity = 0.04f;
     [SerializeField] private float _maxZoomTimeOffset = 0.15f;    
 
@@ -32,7 +32,7 @@ public class CameraHandler : MonoBehaviour
     
     private Camera _camera;
     private Vector3 _previousMousePosition = Vector3.zero;
-    private float _zoomCurrentAceleration = 0f;
+    private float _zoomCurrentAcceleration = 0f;
     private float _zoomCurrentVelocity = 0f;
     private Vector3 _screenResAdj;
 
@@ -176,10 +176,10 @@ public class CameraHandler : MonoBehaviour
     {
         if(Input.mouseScrollDelta.y != 0f && _canZoom)
         {
-            _zoomCurrentAceleration = - Mathf.Sign(Input.mouseScrollDelta.y) * _zoomMaxAceleration * Mathf.Pow(_currentZoom, 0.3f);
-            _zoomCurrentVelocity += _zoomCurrentAceleration * Time.deltaTime * 2;
+            _zoomCurrentAcceleration = - Mathf.Sign(Input.mouseScrollDelta.y) * _zoomMaxAcceleration * Mathf.Pow(_currentZoom, 0.3f);
+            _zoomCurrentVelocity += _zoomCurrentAcceleration * Time.deltaTime * 2;
             if(Mathf.Abs(_zoomCurrentVelocity) > _zoomMaxVelocity * Mathf.Pow(_currentZoom, 0.9f))
-                _zoomCurrentVelocity = Mathf.Sign(_zoomCurrentAceleration) * _zoomMaxVelocity;
+                _zoomCurrentVelocity = Mathf.Sign(_zoomCurrentAcceleration) * _zoomMaxVelocity;
             _currentZoom += _zoomCurrentVelocity;
             if (_currentZoom < _zoomLimit[0])
                 _currentZoom = _zoomLimit[0];
@@ -200,16 +200,16 @@ public class CameraHandler : MonoBehaviour
                     }
                     else
                     {
-                        _zoomCurrentAceleration = - _zoomCurrentAceleration;
+                        _zoomCurrentAcceleration = - _zoomCurrentAcceleration;
                         _zoomState = false;
                     }
                 }
-                _zoomCurrentVelocity += _zoomCurrentAceleration * Time.deltaTime;
+                _zoomCurrentVelocity += _zoomCurrentAcceleration * Time.deltaTime;
                 if (Mathf.Abs(_zoomCurrentVelocity) > _zoomMaxVelocity * Mathf.Pow(_currentZoom, 1.5f))
-                    _zoomCurrentVelocity = Mathf.Sign(_zoomCurrentAceleration) * _zoomMaxVelocity;
-                if(!_zoomState && (Mathf.Abs(_zoomCurrentVelocity) < 0.05f || Mathf.Sign(_zoomCurrentAceleration) == Mathf.Sign(_zoomCurrentVelocity)))
+                    _zoomCurrentVelocity = Mathf.Sign(_zoomCurrentAcceleration) * _zoomMaxVelocity;
+                if(!_zoomState && (Mathf.Abs(_zoomCurrentVelocity) < 0.05f || Mathf.Sign(_zoomCurrentAcceleration) == Mathf.Sign(_zoomCurrentVelocity)))
                 {
-                    _zoomCurrentAceleration = 0f;
+                    _zoomCurrentAcceleration = 0f;
                     _zoomCurrentVelocity = 0f;
                 }
                 _currentZoom += _zoomCurrentVelocity;
@@ -218,7 +218,7 @@ public class CameraHandler : MonoBehaviour
                     _currentZoom = _zoomLimit[0];
                     if(_zoomCurrentVelocity < 0)
                     {
-                        _zoomCurrentAceleration = 0f;
+                        _zoomCurrentAcceleration = 0f;
                         _zoomCurrentVelocity = 0f;
                     }
                 }
@@ -227,7 +227,7 @@ public class CameraHandler : MonoBehaviour
                     _currentZoom = _zoomLimit[1];
                     if(_zoomCurrentVelocity > 0)
                     {
-                        _zoomCurrentAceleration = 0f;
+                        _zoomCurrentAcceleration = 0f;
                         _zoomCurrentVelocity = 0f;
                     }
                 }
