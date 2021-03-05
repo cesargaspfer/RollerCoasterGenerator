@@ -1,6 +1,6 @@
 ﻿using UnityEditor;
 using UnityEngine;
-
+// TODO: Delete
 [CustomEditor(typeof(MeshFilter))]
 public class NormalsVisualizer : Editor
 {

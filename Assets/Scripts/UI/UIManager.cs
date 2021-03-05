@@ -16,8 +16,11 @@ public class UIManager : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private Transform _menuPannel;
     #pragma warning disable 0649
-    [SerializeField] private InputField[] _railProps;
+    [SerializeField] private InputField _nameInput;
+    #pragma warning disable 0649
     [SerializeField] private Dropdown _railTypeDropdown;
+    [SerializeField] private Dropdown _heatmapDropdown;
+
     private Animator _mpAnim;
     private Animator _menuAnim;
 
@@ -27,8 +30,16 @@ public class UIManager : MonoBehaviour
         _menuAnim = _menuPannel.GetComponent<Animator>();
     }
 
+    void Start()
+    {
+        _rollerCoaster.Initialize();
+        ShowPannel(0);
+    }
+
     // ---------------------------- Move Pannel ---------------------------- //
 
+    #pragma warning disable 0649
+    [SerializeField] private Vector2 _mainPannelSize = new Vector2(320f, 580f);
     private Vector2 _positionOffset = Vector3.zero;
     private float _yScale;
 
@@ -42,7 +53,10 @@ public class UIManager : MonoBehaviour
     public void OnDragOnTop()
     {
         Vector3 mousePosition = _camera.ScreenToViewportPoint(Input.mousePosition);
-        _pannel.GetComponent<RectTransform>().anchoredPosition = (new Vector2((mousePosition[0] - 0.5f) * 1600, (mousePosition[1] - 0.5f) * 1600 / _yScale)) + _positionOffset;
+        Vector2 tmpPosition = (new Vector2((mousePosition[0] - 0.5f) * 1600, (mousePosition[1] - 0.5f) * 1600 / _yScale)) + _positionOffset;
+        float x = Mathf.Min(Mathf.Max(tmpPosition.x, -800 + _mainPannelSize[0] * 0.5f), 800 - _mainPannelSize[0] * 0.5f);
+        float y = Mathf.Min(Mathf.Max(tmpPosition.y, -800 / _yScale + _mainPannelSize[1]), 800 / _yScale);
+        _pannel.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
     }
 
     // ---------------------------- Main Pannel Animation Buttons ---------------------------- //
@@ -58,10 +72,14 @@ public class UIManager : MonoBehaviour
     public void ShowPannel(int constructorPannelState)
     {
         if(_isAnimating) return;
+        _railTypeDropdown.value = 0;
+        _heatmapDropdown.value = 0;
         _constructorPannelState = constructorPannelState;
         if (_constructorPannelState == 0)
         {
             _mpAnim.Play("MainState");
+            _rollerCoaster.AddRail(true);
+            ConstructionArrows.inst.Initialize(_rollerCoaster);
         }
         else
         {
@@ -88,6 +106,9 @@ public class UIManager : MonoBehaviour
             _mpAnim.Play("HideMainPannel");
         else
             _mpAnim.Play("HideGenerationPannel");
+
+        ConstructionArrows.inst.ActiveArrows(false);
+
         yield return new WaitForSeconds(1f);
         _isAnimating = false;
     }
@@ -97,6 +118,9 @@ public class UIManager : MonoBehaviour
         if(_isAnimating || _pannelState == 0) return;
         _pannelState = 0;
         _mpAnim.Play("ChangeFromTerrain");
+        if (_constructorPannelState == 0)
+            ConstructionArrows.inst.ActiveArrows(true);
+
         StartCoroutine(AnimationTime(0.5f));
 
     }
@@ -106,6 +130,8 @@ public class UIManager : MonoBehaviour
         if(_isAnimating || _pannelState == 1) return;
         _pannelState = 1;
         _mpAnim.Play("ChangeToTerrain");
+        if (_constructorPannelState == 0)
+            ConstructionArrows.inst.ActiveArrows(false);
         StartCoroutine(AnimationTime(0.5f));
 
     }
@@ -149,6 +175,9 @@ public class UIManager : MonoBehaviour
     public void SimulateButtonPressed()
     {
         if(_isAnimating) return;
+
+        _rollerCoaster.StartCarSimulation();
+
         if (_constructorPannelState == 0)
             _mpAnim.Play("ChangeToSimulation");
         else
@@ -159,6 +188,11 @@ public class UIManager : MonoBehaviour
     public void StopSimulationButtonPressed()
     {
         if(_isAnimating) return;
+
+        if (_cameraHandler.GetCameraMode() == CameraHandler.CameraMode.FirstPerson)
+            _cameraHandler.ChangeCameraMode();
+        _rollerCoaster.StopCarSimulation();
+
         if (_constructorPannelState == 0)
             _mpAnim.Play("ChangeFromSimulation");
         else
@@ -238,7 +272,47 @@ public class UIManager : MonoBehaviour
 
     // ---------------------------- Main Pannel Normal Buttons ---------------------------- //
 
+    public void AddRailButtonPressed()
+    {
+        _rollerCoaster.AddRail();
+        ConstructionArrows.inst.ActiveArrows(true);
+        ConstructionArrows.inst.UpdateArrows();
+        // TODO: Update RailProps
+    }
 
+    public void AutoCompleteButtonPressed()
+    {
+        ConstructionArrows.inst.ActiveArrows(false);
+        _rollerCoaster.AddFinalRail();
+        // TODO: Update RailProps
+    }
+
+    public void RemoveRailButtonClicked()
+    {
+        (RailProps rp, ModelProps mp) = _rollerCoaster.RemoveLastRail();
+        ConstructionArrows.inst.ActiveArrows(true);
+        ConstructionArrows.inst.UpdateArrows();
+        if (rp == null)
+            // TODO: Warn player that he can't remove rail
+            return;
+        // TODO: Update RailProps
+    }
+
+    public void GenerateCoasterButtonPressed()
+    {
+        _rollerCoaster.GenerateCoaster();
+    }
+
+    public void ChangeCameraButtonPressed()
+    {
+        _cameraHandler.ChangeCameraMode();
+    }
+
+    public void UpdateRailType(int type)
+    {
+        // TODO: Don't call this when pannel is shown
+        _rollerCoaster.UpdateLastRail(railType: type);
+    }
 
     // ---------------------------- Pause Pannel Normal Buttons ---------------------------- //
 
@@ -292,7 +366,8 @@ public class UIManager : MonoBehaviour
     public void MenuSaveCoasterButtonPressed()
     {
         if (_isAnimating) return;
-        // TODO
+        _rollerCoaster.SaveCoaster(_nameInput.text);
+        // TODO: Warn player if it was saved
     }
 
     public void MenuExitButtonPressed()
@@ -329,37 +404,9 @@ public class UIManager : MonoBehaviour
         _isAnimating = false;
     }
 
-
-
-    // -------------------------------------------------------- //
-    //TODO: Remove
-
-    public void ChangeCameraMode()
-    {
-        _pannel.gameObject.SetActive(_cameraHandler.GetCameraMode() == CameraHandler.CameraMode.Normal);
-    }
-
-    public void RemoveRailButtonClicked()
-    {
-        (RailProps rp, ModelProps mp) = _rollerCoaster.RemoveLastRail();
-        if (rp == null)
-            // TODO: Warn player that he can't remove rail
-            return;
-        _railProps[0].text = "" + Rad2DegRound(rp.Elevation);
-        _railProps[1].text = "" + Rad2DegRound(rp.Rotation);
-        _railProps[2].text = "" + Rad2DegRound(rp.Inclination);
-        _railProps[3].text = "" + rp.Length;
-
-        _railTypeDropdown.value = (int) mp.Type;
-    }
-
-    public void StopSimulation()
-    {
-        if(_cameraHandler.GetCameraMode() == CameraHandler.CameraMode.FirstPerson)
-            _cameraHandler.ChangeCameraMode();
-        _rollerCoaster.StopCarSimulation();
-
-    }
+    
+    // ---------------------------- Change Rail Properties Functions ---------------------------- //
+    // TODO
     
     public void UpdateRailElevation(string elevation)
     {
@@ -415,11 +462,6 @@ public class UIManager : MonoBehaviour
             return;
         }
         _rollerCoaster.UpdateLastRail(length: convertedString);
-    }
-
-    public void UpdateRailType(int type)
-    {
-        _rollerCoaster.UpdateLastRail(railType: type);
     }
 
     private string Rad2DegRound(float angle)

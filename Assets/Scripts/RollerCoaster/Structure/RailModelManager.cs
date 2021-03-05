@@ -14,10 +14,11 @@ public class RailModelManager
 
     private static void GenerateRailModels()
     {
-        _railModels = new RailModel[2]
+        _railModels = new RailModel[3]
         {
             new BasicRailModel(),
             new ThreeCylindersRailModel(),
+            new ArrowRailModel(),
         };
     }
 }

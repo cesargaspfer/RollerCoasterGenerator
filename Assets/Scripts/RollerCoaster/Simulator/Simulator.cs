@@ -263,9 +263,8 @@ public class Simulator
         {
             (_, lastrp) = _rails[_rails.Count - 2];
         }
-
+        
         RailPhysics railPhysics = SimulateRail(lastrp, rail);
-
 
         _rails[_rails.Count - 1] = (rail, railPhysics);
     }

@@ -26,8 +26,9 @@ public class RollerCoaster : MonoBehaviour
 
 
     private IEnumerator _carSimulation = null;
-    
-    void Start()
+
+    // TODO: Add arguments
+    public void Initialize()
     {
         RailProps rp = new RailProps(0f, 0f, 0f, 5); 
         ModelProps mp = new ModelProps(1, RailType.Platform, 10);
