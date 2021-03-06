@@ -16,9 +16,21 @@ public class ConstructionArrows : MonoBehaviour
         }
     }
 
+    #pragma warning disable 0649
+    [SerializeField] private Camera _camera;
     private RollerCoaster _rc;
     private bool _isActive = false;
     private float _lastLength = -1;
+
+
+    private RailProps _lastGlobalrp;
+    private RailProps _currentGlobalrp;
+    private Vector3 _previousMousePosition = Vector3.zero;
+    private Vector2 _dirX = Vector3.zero;
+    private Vector2 _dirY = Vector3.zero;
+    private Vector2 _dirZ = Vector3.zero;
+    private float _rotated = 0f;
+    
     public void Initialize(RollerCoaster rollerCoaster)
     {
         _rc = rollerCoaster;
@@ -31,12 +43,31 @@ public class ConstructionArrows : MonoBehaviour
     {
         Rail rail = _rc.GetLastRail();
         this.transform.position = _rc.GetFinalPosition();
-        this.transform.rotation = rail.GetQuaternionAt(1f);
+
+        RailProps rp = _rc.GetCurrentGlobalrp();
+        // TODO: 0: rotation & elevation
+        // TODO: 1: rotation
+        // this.transform.GetChild(1).transform.rotation = ThreeRotationMatrix(Matrix4x4.identity, );
+        // Matrix4x4 rotationMatrix = GetRotationBasisAt(t);
+        // return ExtractRotationFromMatrix(ref rotationMatrix);
+
+        this.transform.GetChild(2).transform.rotation = rail.GetQuaternionAt(1f);
+        this.transform.GetChild(3).transform.rotation = rail.GetQuaternionAt(1f);
+
+        // Vector3 tmpEulerAngles = this.transform.GetChild(2).transform.eulerAngles;
+        // tmpEulerAngles = new Vector3(-this.transform.eulerAngles.x + 90f, tmpEulerAngles.y, -this.transform.eulerAngles.z);
+        // this.transform.GetChild(2).transform.eulerAngles = tmpEulerAngles;
+        // tmpEulerAngles = this.transform.GetChild(3).transform.eulerAngles;
+        // tmpEulerAngles = new Vector3(-this.transform.eulerAngles.x + 90f, tmpEulerAngles.y, -this.transform.eulerAngles.z);
+        // this.transform.GetChild(3).transform.eulerAngles = tmpEulerAngles;
 
         if(_lastLength != rail.rp.Length)
         {
             _lastLength = rail.rp.Length;
-            RailProps rp = new RailProps(Mathf.PI * 0.25f, 0f, 0f, 0.9f * _lastLength);
+
+            // TODO: Improve arrows length
+            // RailProps rp = new RailProps(Mathf.PI * 0.25f, 0f, 0f, 0.9f * _lastLength);
+            RailProps rp = new RailProps(Mathf.PI * 0.25f, 0f, 0f, 5f + 0.05f * _lastLength);
             ModelProps mp = new ModelProps(2, 0, 7);
             SpaceProps sp = new SpaceProps(Vector3.zero, Matrix4x4.identity);
             (Bezier curve, Matrix4x4 finalBasis, Vector3 finalPosition) = CalculateImaginarySphere(sp, rp);
@@ -49,20 +80,32 @@ public class ConstructionArrows : MonoBehaviour
 
             (mesh, materials) = railModel.GenerateMeshes(rp, mp, sp, mesh);
 
-            for (int i = 0; i < 6; i++)
-                this.transform.GetChild(i).GetComponent<MeshFilter>().mesh = mesh[0];
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 2; j++)
+                {
+                    this.transform.GetChild(i).GetChild(j).GetComponent<MeshFilter>().mesh = mesh[0];
+                    this.transform.GetChild(i).GetChild(j).GetComponent<MeshCollider>().sharedMesh = mesh[0];
+                    this.transform.GetChild(i).GetChild(j).GetComponent<MeshCollider>().convex = true;
+                }
+            }
 
-            this.transform.GetChild(4).transform.localPosition = new Vector3(0f, _lastLength, 0f);
-            this.transform.GetChild(5).transform.localPosition = new Vector3(0f, _lastLength, 0f);
+            // TODO: Improve arrows length
+            // this.transform.GetChild(4).transform.localPosition = new Vector3(0f, _lastLength, 0f);
+            // this.transform.GetChild(5).transform.localPosition = new Vector3(0f, _lastLength, 0f);
+            this.transform.GetChild(2).GetChild(0).transform.localPosition = new Vector3(0f, 5f + 0.05f * _lastLength, 0f);
+            this.transform.GetChild(2).GetChild(1).transform.localPosition = new Vector3(0f, 5f + 0.05f * _lastLength, 0f);
 
-            rp = new RailProps(0f, 0f, 0f, 3f);
+            rp = new RailProps(0f, 0f, 0f, 5f + 0.05f * _lastLength);
             (curve, finalBasis, finalPosition) = CalculateImaginarySphere(sp, rp);
             sp.Curve = curve;
             materials = null;
             mesh = null;
             (mesh, materials) = railModel.GenerateMeshes(rp, mp, sp, mesh);
-            this.transform.GetChild(6).GetComponent<MeshFilter>().mesh = mesh[0];
-            this.transform.GetChild(7).GetComponent<MeshFilter>().mesh = mesh[1];
+            this.transform.GetChild(3).GetChild(0).GetComponent<MeshFilter>().mesh = mesh[0];
+            this.transform.GetChild(3).GetChild(0).GetComponent<MeshCollider>().sharedMesh = mesh[0];
+            this.transform.GetChild(3).GetChild(0).GetComponent<MeshCollider>().convex = true;
+            this.transform.GetChild(3).GetChild(1).GetComponent<MeshFilter>().mesh = mesh[1];
         }
 
     }
@@ -71,8 +114,117 @@ public class ConstructionArrows : MonoBehaviour
     {
         if(_isActive == active) return;
         _isActive = active;
-        for(int i = 0; i < 8; i++)
-            this.transform.GetChild(i).gameObject.SetActive(active);
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 2; j++)
+            this.transform.GetChild(i).GetChild(j).gameObject.SetActive(active);
+    }
+
+
+
+    public void OnPointerDownOnArrow(int arrowId)
+    {
+        ActiveOtherArrows(false, arrowId);
+
+        UpdateOrientations();
+        _rotated = 0f;
+    }
+
+    public void UpdateOrientations()
+    {
+        Vector3 pos = _rc.GetFinalPosition();
+        Matrix4x4 basis = _rc.GetFinalBasis();
+
+        Vector3 worldX = pos + (Vector3)basis.GetColumn(0);
+        Vector3 worldY = pos + (Vector3)basis.GetColumn(1);
+        Vector3 worldZ = pos + (Vector3)basis.GetColumn(2);
+
+        Vector2 viewportPos = _camera.ScreenToViewportPoint(_camera.WorldToScreenPoint(pos));
+        Vector2 viewportX = _camera.ScreenToViewportPoint(_camera.WorldToScreenPoint(worldX));
+        Vector2 viewportY = _camera.ScreenToViewportPoint(_camera.WorldToScreenPoint(worldY));
+        Vector2 viewportZ = _camera.ScreenToViewportPoint(_camera.WorldToScreenPoint(worldZ));
+
+        _dirX = (viewportPos - viewportX);
+        _dirY = (viewportPos - viewportY).normalized;
+        _dirZ = (viewportPos - viewportZ).normalized;
+
+        _previousMousePosition = _camera.ScreenToViewportPoint(Input.mousePosition);
+        _lastGlobalrp = _rc.GetLastGlobalrp().Clone();
+        _currentGlobalrp = _rc.GetCurrentGlobalrp().Clone() - _lastGlobalrp;
+
+    }
+
+    public void OnDragOnArrow(int arrowId)
+    {
+        Vector3 mousePosition = _camera.ScreenToViewportPoint(Input.mousePosition);
+        Vector2 mouseoffset = _previousMousePosition - mousePosition;
+
+        
+        bool changed = false;
+        if (arrowId == 0)
+        {
+            float scalarProjY = Vector2.Dot(mouseoffset, _dirY);
+            Vector2 projectedY = scalarProjY * _dirY;
+            float magY = Mathf.Sign(scalarProjY) * projectedY.magnitude;
+
+            float angle =  magY * 2f * Mathf.PI;
+            angle = Mathf.Max(-0.5f * Mathf.PI, Mathf.Min(0.5f * Mathf.PI, _currentGlobalrp.Elevation + angle));
+
+            _rc.UpdateLastRail(elevation: _lastGlobalrp.Elevation + angle);
+            changed = true;
+        }
+        else if (arrowId == 1)
+        {
+            float scalarProjZ = Vector2.Dot(mouseoffset, _dirZ);        
+            Vector2 projectedZ = scalarProjZ * _dirZ;
+            float magZ = Mathf.Sign(scalarProjZ) * projectedZ.magnitude;
+
+            float angle = -magZ * 2f * Mathf.PI;
+            angle = Mathf.Max(-0.5f * Mathf.PI, Mathf.Min(0.5f * Mathf.PI, _currentGlobalrp.Rotation + angle));
+
+            _rc.UpdateLastRail(rotation: _lastGlobalrp.Rotation + angle);
+            changed = true;
+        }
+        else if (arrowId == 2)
+        {
+            float scalarProjZ = Vector2.Dot(mouseoffset, _dirZ);        
+            Vector2 projectedZ = scalarProjZ * _dirZ;
+            float magZ = Mathf.Sign(scalarProjZ) * projectedZ.magnitude;
+
+            float angle = magZ * 2f * Mathf.PI;
+            angle = Mathf.Max(-0.5f * Mathf.PI, Mathf.Min(0.5f * Mathf.PI, _currentGlobalrp.Inclination + angle));
+
+            _rc.UpdateLastRail(inclination: _lastGlobalrp.Inclination + angle);
+            changed = true;
+        }
+        else if (arrowId == 3)
+        {
+            float scalarProjX = Vector2.Dot(mouseoffset, _dirX);
+            Vector2 projectedX = scalarProjX * _dirX / (_dirX.magnitude * _dirX.magnitude);
+            float magX = Mathf.Sign(scalarProjX) * projectedX.magnitude;
+
+            float length = Mathf.Max(0f, _currentGlobalrp.Length + magX / _dirX.magnitude);
+
+            _rc.UpdateLastRail(length: length);
+            changed = true;
+        }
+
+        if (changed)
+        {
+            UpdateArrows();
+        }
+    }
+
+    public void OnPointerUpOnArrow(int arrowId)
+    {
+        ActiveOtherArrows(true, arrowId);
+        
+    }
+
+    public void ActiveOtherArrows(bool active, int except)
+    {
+        ActiveArrows(active);
+        this.transform.GetChild(except).GetChild(0).gameObject.SetActive(true);
+        this.transform.GetChild(except).GetChild(1).gameObject.SetActive(true);
     }
 
     public bool IsActive

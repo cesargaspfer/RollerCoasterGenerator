@@ -38,21 +38,17 @@ public class ArrowSRMCylinder : SubRailModel
         Vector3[][] vertices = esr.Points;
         Vector3[][] normals = esr.Normals;
 
-        for(int i = 0; i < vertices.Length; i++)
-        {
-            if (i < vertices.Length - 3)
-                for (int j = 0; j < vertices[0].Length; j++)
-                    vertices[i][j] -= normals[i][j] * 0.8f;
-            else if (i == vertices.Length - 3)
-                for (int j = 0; j < vertices[0].Length; j++)
-                    vertices[i][j] = vertices[i + 1][j] - normals[i][j] * 0.8f;
-            else if (i == vertices.Length - 2)
-                for (int j = 0; j < vertices[0].Length; j++)
-                    vertices[i][j] -= normals[i][j] * 0.5f;
-            else if (i == vertices.Length - 1)
-                for (int j = 0; j < vertices[0].Length; j++)
-                    vertices[i][j] -= normals[i][j];
-        }
+        int tmpIndex = vertices.Length - 1;
+        for (int j = 0; j < vertices[0].Length; j++)
+            vertices[tmpIndex][j] = vertices[tmpIndex - 1][j] - normals[tmpIndex - 1][j];
+
+        tmpIndex--;
+        for (int j = 0; j < vertices[0].Length; j++)
+            vertices[tmpIndex][j] = vertices[tmpIndex - 1][j] - normals[tmpIndex - 1][j] * 0.5f;
+
+        for(int i = 0; i < vertices.Length - 2; i++)
+            for (int j = 0; j < vertices[0].Length; j++)
+                vertices[i][j] -= normals[i][j] * 0.8f;
 
         // Declaring the variables
         Mesh mesh = new Mesh();

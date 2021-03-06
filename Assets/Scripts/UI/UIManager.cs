@@ -85,7 +85,7 @@ public class UIManager : MonoBehaviour
         {
             _mpAnim.Play("GenerationState");
         }
-        StartCoroutine(AnimationTime(1f));
+        StartCoroutine(AnimationTime(0.5f));
     }
 
     public void HidePannel()
@@ -100,7 +100,7 @@ public class UIManager : MonoBehaviour
         if (_pannelState == 1)
         {
             _mpAnim.Play("ChangeFromTerrain");
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.25f);
         }
         if (_constructorPannelState == 0)
             _mpAnim.Play("HideMainPannel");
@@ -109,7 +109,7 @@ public class UIManager : MonoBehaviour
 
         ConstructionArrows.inst.ActiveArrows(false);
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         _isAnimating = false;
     }
 
@@ -121,7 +121,7 @@ public class UIManager : MonoBehaviour
         if (_constructorPannelState == 0)
             ConstructionArrows.inst.ActiveArrows(true);
 
-        StartCoroutine(AnimationTime(0.5f));
+        StartCoroutine(AnimationTime(0.25f));
 
     }
 
@@ -132,7 +132,7 @@ public class UIManager : MonoBehaviour
         _mpAnim.Play("ChangeToTerrain");
         if (_constructorPannelState == 0)
             ConstructionArrows.inst.ActiveArrows(false);
-        StartCoroutine(AnimationTime(0.5f));
+        StartCoroutine(AnimationTime(0.25f));
 
     }
 
@@ -141,7 +141,7 @@ public class UIManager : MonoBehaviour
         if(_isAnimating || _isRailPropsGlobal) return;
         _isRailPropsGlobal = true;
         _mpAnim.Play("ChangeFromLocalProperties");
-        StartCoroutine(AnimationTime(0.5f));
+        StartCoroutine(AnimationTime(0.25f));
 
     }
 
@@ -150,7 +150,7 @@ public class UIManager : MonoBehaviour
         if(_isAnimating || !_isRailPropsGlobal) return;
         _isRailPropsGlobal = false;
         _mpAnim.Play("ChangeToLocalProperties");
-        StartCoroutine(AnimationTime(0.5f));
+        StartCoroutine(AnimationTime(0.25f));
 
     }
 
@@ -159,7 +159,7 @@ public class UIManager : MonoBehaviour
         if(_isAnimating || _isBlueprintActive) return;
         _isBlueprintActive = true;
         _mpAnim.Play("ChangeToBlueprint");
-        StartCoroutine(AnimationTime(1.5f));
+        StartCoroutine(AnimationTime(0.75f));
 
     }
 
@@ -168,7 +168,7 @@ public class UIManager : MonoBehaviour
         if(_isAnimating || !_isBlueprintActive) return;
         _isBlueprintActive = false;
         _mpAnim.Play("ChangeFromBlueprint");
-        StartCoroutine(AnimationTime(1.5f));
+        StartCoroutine(AnimationTime(0.75f));
 
     }
 
@@ -182,7 +182,7 @@ public class UIManager : MonoBehaviour
             _mpAnim.Play("ChangeToSimulation");
         else
             _mpAnim.Play("GeneratorToSimulation");
-        StartCoroutine(AnimationTime(1f));
+        StartCoroutine(AnimationTime(0.5f));
     }
 
     public void StopSimulationButtonPressed()
@@ -197,7 +197,7 @@ public class UIManager : MonoBehaviour
             _mpAnim.Play("ChangeFromSimulation");
         else
             _mpAnim.Play("SimulationToGenerator");
-        StartCoroutine(AnimationTime(1f));
+        StartCoroutine(AnimationTime(0.5f));
     }
 
     // ---------------------------- Pause Pannel Animation Buttons ---------------------------- //
@@ -213,7 +213,7 @@ public class UIManager : MonoBehaviour
         _menuPannel.GetChild(0).GetChild(0).GetChild(0).gameObject.SetActive(true);
         _menuPannel.GetChild(0).GetChild(0).GetChild(1).gameObject.SetActive(false);
         _menuAnim.Play("ShowPauseMenu");
-        StartCoroutine(AnimationTime(0.75f));
+        StartCoroutine(AnimationTime(0.375f));
 
     }
 
@@ -225,7 +225,7 @@ public class UIManager : MonoBehaviour
         _menuPannel.GetChild(0).GetChild(0).GetChild(0).gameObject.SetActive(false);
         _menuPannel.GetChild(0).GetChild(0).GetChild(1).gameObject.SetActive(true);
         _menuAnim.Play("ShowPauseMenu");
-        StartCoroutine(AnimationTime(0.75f));
+        StartCoroutine(AnimationTime(0.375f));
 
     }
 
@@ -233,7 +233,7 @@ public class UIManager : MonoBehaviour
     {
         if(_isAnimating) return;
         _menuAnim.Play("FromSecondPannel");
-        StartCoroutine(AnimationTime(0.5f));
+        StartCoroutine(AnimationTime(0.25f));
         
     }
 
@@ -245,7 +245,7 @@ public class UIManager : MonoBehaviour
         _menuPannel.GetChild(0).GetChild(1).GetChild(3).gameObject.SetActive(false);
         _menuPannel.GetChild(0).GetChild(1).GetChild(_MenuState + 1).gameObject.SetActive(true);
         _menuAnim.Play("ToSecondPannel");
-        StartCoroutine(AnimationTime(0.5f));
+        StartCoroutine(AnimationTime(0.25f));
     }
 
     private void HideMenu()
@@ -258,7 +258,7 @@ public class UIManager : MonoBehaviour
     {
         _isAnimating = true;
         _menuAnim.Play("HidePauseMenu");
-        yield return new WaitForSeconds(0.75f);
+        yield return new WaitForSeconds(0.375f);
         _menuPannel.gameObject.SetActive(false);
         _isAnimating = false;
     }
@@ -397,13 +397,12 @@ public class UIManager : MonoBehaviour
     {
         _isAnimating = true;
         _menuAnim.Play("HidePauseMenu");
-        yield return new WaitForSeconds(0.75f);
+        yield return new WaitForSeconds(0.375f);
         _menuPannel.GetChild(0).GetChild(0).GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
         _menuPannel.GetChild(0).GetChild(1).GetComponent<RectTransform>().anchoredPosition = new Vector2(410f, 0f);
         _menuPannel.gameObject.SetActive(false);
         _isAnimating = false;
     }
-
     
     // ---------------------------- Change Rail Properties Functions ---------------------------- //
     // TODO

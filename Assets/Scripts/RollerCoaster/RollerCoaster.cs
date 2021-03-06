@@ -149,6 +149,11 @@ public class RollerCoaster : MonoBehaviour
         return _constructor.CurrentGlobalrp;
     }
 
+    public RailProps GetLastGlobalrp()
+    {
+        return _constructor.LastGlobalrp;
+    }
+
     public void GenerateCoaster()
     {
         if(_simulator.IsSimulating)

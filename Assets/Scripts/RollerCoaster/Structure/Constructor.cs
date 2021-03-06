@@ -379,6 +379,11 @@ public class Constructor
         get { return _currentGlobalrp; }
     }
 
+    public RailProps LastGlobalrp
+    {
+        get { return _lastGlobalrp; }
+    }
+
     public List<Rail> Rails
     {
         get { return _rails; }
