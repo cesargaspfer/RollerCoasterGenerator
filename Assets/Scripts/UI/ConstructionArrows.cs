@@ -44,12 +44,15 @@ public class ConstructionArrows : MonoBehaviour
         Rail rail = _rc.GetLastRail();
         this.transform.position = _rc.GetFinalPosition();
 
-        RailProps rp = _rc.GetCurrentGlobalrp();
-        // TODO: 0: rotation & elevation
-        // TODO: 1: rotation
-        // this.transform.GetChild(1).transform.rotation = ThreeRotationMatrix(Matrix4x4.identity, );
-        // Matrix4x4 rotationMatrix = GetRotationBasisAt(t);
-        // return ExtractRotationFromMatrix(ref rotationMatrix);
+        RailProps currentrp = _rc.GetCurrentGlobalrp();
+        RailProps tmprp = new RailProps(currentrp.Elevation, currentrp.Rotation, 0f, 1f);
+        Matrix4x4 rotationMatrix = ThreeRotationMatrix(Matrix4x4.identity, tmprp.Radians);
+        this.transform.GetChild(0).transform.rotation = ExtractRotationFromMatrix(ref rotationMatrix);
+
+        currentrp = _rc.GetCurrentGlobalrp();
+        tmprp = new RailProps(0f, currentrp.Rotation, 0f, 1f);
+        rotationMatrix = ThreeRotationMatrix(Matrix4x4.identity, tmprp.Radians);
+        this.transform.GetChild(1).transform.rotation = ExtractRotationFromMatrix(ref rotationMatrix);
 
         this.transform.GetChild(2).transform.rotation = rail.GetQuaternionAt(1f);
         this.transform.GetChild(3).transform.rotation = rail.GetQuaternionAt(1f);
@@ -134,9 +137,19 @@ public class ConstructionArrows : MonoBehaviour
         Vector3 pos = _rc.GetFinalPosition();
         Matrix4x4 basis = _rc.GetFinalBasis();
 
+        RailProps currentrp = _rc.GetCurrentGlobalrp();
+        RailProps tmprp = new RailProps(currentrp.Elevation, currentrp.Rotation, 0f, 1f);
+        Matrix4x4 rotationMatrix = ThreeRotationMatrix(Matrix4x4.identity, tmprp.Radians);
+        
+        Vector3 worldY = pos + (Vector3) rotationMatrix.GetColumn(1);
+
+        currentrp = _rc.GetCurrentGlobalrp();
+        tmprp = new RailProps(0f, currentrp.Rotation, 0f, 1f);
+        rotationMatrix = ThreeRotationMatrix(Matrix4x4.identity, tmprp.Radians);
+        this.transform.GetChild(1).transform.rotation = ExtractRotationFromMatrix(ref rotationMatrix);
+        Vector3 worldZ = pos + (Vector3)rotationMatrix.GetColumn(2);
+
         Vector3 worldX = pos + (Vector3)basis.GetColumn(0);
-        Vector3 worldY = pos + (Vector3)basis.GetColumn(1);
-        Vector3 worldZ = pos + (Vector3)basis.GetColumn(2);
 
         Vector2 viewportPos = _camera.ScreenToViewportPoint(_camera.WorldToScreenPoint(pos));
         Vector2 viewportX = _camera.ScreenToViewportPoint(_camera.WorldToScreenPoint(worldX));
