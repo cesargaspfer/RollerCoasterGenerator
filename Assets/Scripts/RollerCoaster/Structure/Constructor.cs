@@ -11,7 +11,7 @@ public class Constructor
     [SerializeField] private RailProps _currentGlobalrp;
     [SerializeField] private RailProps _lastGlobalrp;
     [SerializeField] private ModelProps _mp;
-    [SerializeField] private float _length;
+    [SerializeField] private float _totalLength;    
     [SerializeField] private Vector3 _position;
     [SerializeField] private Matrix4x4 _basis;
     [SerializeField] private Vector3 _finalPosition;
@@ -33,7 +33,7 @@ public class Constructor
         _currentGlobalrp = rp.Clone();
         _initialGlobalrp = rp.Clone();
         _mp = mp;
-        _length = rp.Length;
+        _totalLength = 0f;
         _rails = new List<Rail>();
         _railsIntersection = new List<Rail>();
         _currentRail = null;
@@ -69,7 +69,13 @@ public class Constructor
 
         _currentRail = new Rail(this, localrp, _mp, sp, 0);
 
+        if (_rails.Count >= 1)
+        {
+            _totalLength += _rails[_rails.Count - 1].rp.Length;
+        }
+
         _rails.Add(_currentRail);
+
 
         // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
         
@@ -172,6 +178,8 @@ public class Constructor
         _rails.RemoveAt(_rails.Count - 1);
         if (_railsIntersection.Count > 0)
             _railsIntersection.RemoveAt(_rails.Count - 1);
+
+        _totalLength -= removedRail.rp.Length;
 
         if(_rails.Count > 0)
         {
@@ -413,4 +421,9 @@ public class Constructor
     {
         get { return _finalBasis; }
     }
+
+    public float TotalLength
+    {
+        get { return _totalLength; }
+    }    
 }

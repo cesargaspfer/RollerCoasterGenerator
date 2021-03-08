@@ -13,6 +13,7 @@ public class CameraHandler : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private RollerCoaster _rollerCoaster;
     [SerializeField] private bool _screenBorderAllowed = true;
+    private bool _lastScreenBorderAllowed = true;
     [SerializeField] private float _screenBorder = 0.025f;
     [SerializeField] private float _movementVelocity = 5f;
     [SerializeField] private Vector2 _zoomLimit = new Vector2(2f, 50f);
@@ -28,7 +29,7 @@ public class CameraHandler : MonoBehaviour
     // TODO: Change
     [SerializeField] private Quaternion _normalQuaternion;
     [SerializeField] private float _currentZoom = 10f;
-    [SerializeField] private bool _canZoom = true;
+    [SerializeField] private bool _canMove = true;
     
     private Camera _camera;
     private Vector3 _previousMousePosition = Vector3.zero;
@@ -45,10 +46,11 @@ public class CameraHandler : MonoBehaviour
         _camera.transform.Rotate(Vector3.right, 30f);
         _camera.transform.Rotate(Vector3.up, 15f, Space.World);
         _camera.transform.Translate(Vector3.forward * -_currentZoom);
+        
 
+        _lastScreenBorderAllowed = _screenBorderAllowed;
         if(_screenBorderAllowed)
             Cursor.lockState = CursorLockMode.Confined;
-
         
         if (Screen.height < Screen.width)
         {
@@ -59,27 +61,12 @@ public class CameraHandler : MonoBehaviour
             _screenResAdj = new Vector3(1f, ((float)Screen.height) / ((float)Screen.width), 1f);
         }
 
-        _canZoom = true;
+        _canMove = true;
     }
 
-    void Update ()
+    void LateUpdate ()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (Cursor.lockState == CursorLockMode.Confined)
-            {
-                Cursor.lockState = CursorLockMode.None;
-                _screenBorderAllowed = false;
-                _canZoom = false;
-            }
-            else
-            {
-                Cursor.lockState = CursorLockMode.Confined;
-                _screenBorderAllowed = true;
-                _canZoom = true;
-            }
-        }
-        if(_currentCameraMode == CameraMode.Normal)
+        if(_currentCameraMode == CameraMode.Normal && _canMove)
         {
             if (!Input.GetMouseButton(2))
             {
@@ -174,7 +161,7 @@ public class CameraHandler : MonoBehaviour
     float _zoomTimeOffset = 0f;
     private void UpdateCameraZoom()
     {
-        if(Input.mouseScrollDelta.y != 0f && _canZoom)
+        if(Input.mouseScrollDelta.y != 0f)
         {
             _zoomCurrentAcceleration = - Mathf.Sign(Input.mouseScrollDelta.y) * _zoomMaxAcceleration * Mathf.Pow(_currentZoom, 0.3f);
             _zoomCurrentVelocity += _zoomCurrentAcceleration * Time.deltaTime * 2;
@@ -277,9 +264,25 @@ public class CameraHandler : MonoBehaviour
         }
     }
 
-    public void SetCanZoom(bool value)
+    public void SetCanMove(bool value)
     {
-        _canZoom = value;
+        if(_canMove == value) return;
+        
+        if(value)
+        {
+            _screenBorderAllowed = _lastScreenBorderAllowed;
+            if(_screenBorderAllowed)
+                Cursor.lockState = CursorLockMode.Confined;
+            else
+                Cursor.lockState = CursorLockMode.None;
+        }
+        else
+        {
+            _lastScreenBorderAllowed = _screenBorderAllowed;
+            Cursor.lockState = CursorLockMode.None;
+            _screenBorderAllowed = false;
+        }
+        _canMove = value;
     }
 
     public CameraMode GetCameraMode()

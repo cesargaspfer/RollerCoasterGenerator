@@ -40,6 +40,7 @@ public class Car : MonoBehaviour
     [SerializeField] protected int _currentSegment;
     [SerializeField] protected int _currentLap;
     [SerializeField] protected float _currentCurveT;
+    [SerializeField] protected Vector3 _gForce;
 
     public void Initialize(float scalarPosition, int currentSegment, CarProps carProps)
     {
@@ -49,6 +50,7 @@ public class Car : MonoBehaviour
         _currentLap = 0;
         _currentCurveT = 0;
         _carProps = carProps;
+        // TODO: _gForce
     }
 
     public void UpdatePhysics(float scalarPosition, float velocity, int currentSegment, int currentLap, float currentCurveT)
@@ -58,6 +60,7 @@ public class Car : MonoBehaviour
         _currentSegment = currentSegment;
         _currentLap = currentLap;
         _currentCurveT = currentCurveT;
+        // TODO: _gForce
     }
 
     public void Transform(Vector3 position, Quaternion rotation)
@@ -99,5 +102,10 @@ public class Car : MonoBehaviour
     public float CurrentCurveT
     {
         get { return _currentCurveT; }
+    }
+
+    public Vector3 GForce
+    {
+        get { return _gForce; }
     }
 }

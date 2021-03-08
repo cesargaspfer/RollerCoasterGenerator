@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System;
 
 public class Algebra
 {
@@ -190,8 +191,16 @@ public class Algebra
         upwards.y = matrix.m11;
         upwards.z = matrix.m21;
 
+        Quaternion rotation;
+
+        // TODO: Check if there are more Quaternions cases
+        if(matrix.ValidTRS())
+            rotation = matrix.rotation;
+        else
+            rotation = new Quaternion(0f, 0f, 1f, 0f);
+
         // return Quaternion.LookRotation(forward, upwards);
-        return matrix.rotation;
+        return rotation;
     }
 
     public static Matrix4x4 MatrixLookAt(Matrix4x4 from, Vector3 to, float inclination)

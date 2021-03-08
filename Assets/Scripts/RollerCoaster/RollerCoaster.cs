@@ -258,4 +258,9 @@ public class RollerCoaster : MonoBehaviour
     {
         return _simulator.FirstCar;
     }
+
+    public float GetTotalLength()
+    {
+        return _constructor.TotalLength;
+    }
 }
