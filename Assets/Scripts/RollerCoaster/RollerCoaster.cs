@@ -168,7 +168,7 @@ public class RollerCoaster : MonoBehaviour
 
     public void SaveCoaster(string fileName)
     {
-        SaveManager.SaveBlueprint(fileName, _constructor.Rails.ToArray());
+        SaveManager.SaveCoaster(fileName, _constructor.Rails.ToArray());
     }
 
     public void LoadCoaster(string fileName)

@@ -115,13 +115,15 @@ public class SaveManager
             Directory.CreateDirectory(_pathResources);
     }
 
-    public static void SaveCoaster(string fileName, Rail[] rails)
+    public static void SaveCoaster(string coasterName, Rail[] rails)
     {
         SetPaths();
         byte[] content = Encode(rails);
         try
         {
-            File.WriteAllBytes(_pathRollerCoaster + fileName + ".bytes", content);
+            Directory.CreateDirectory(_pathRollerCoaster + "/" + coasterName);
+            ScreenCapture.CaptureScreenshot(_pathRollerCoaster + "/" + coasterName + "/Screenshot.png");
+            File.WriteAllBytes(_pathRollerCoaster + "/" + coasterName + "/data.bytes", content);
         }
         catch (Exception ex)
         {
@@ -130,13 +132,13 @@ public class SaveManager
         }
     }
 
-    public static SavePack[] LoadCoaster(string fileName)
+    public static SavePack[] LoadCoaster(string coasterName)
     {
         SetPaths();
         byte[] content;
         try
         {
-            content = File.ReadAllBytes(_pathRollerCoaster + fileName + ".bytes");
+            content = File.ReadAllBytes(_pathRollerCoaster + "/" + coasterName + "/data.bytes");
         }
         catch (Exception ex)
         {

@@ -406,7 +406,7 @@ public class Simulator
     {
         get
         {
-            if(_rails.Count == 0) return null;
+            if(_rails.Count == 0) return _initialrp;
             (_,  RailPhysics lastRailPhysics) = _rails[_rails.Count - 1];
             return lastRailPhysics;
         }

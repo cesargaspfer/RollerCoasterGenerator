@@ -39,6 +39,11 @@ public class UIManager : MonoBehaviour
     [SerializeField] private UIRailProps _UIRailProps;
     #pragma warning disable 0649
     [SerializeField] private UIRailPhysics _UIRailPhysics;
+    #pragma warning disable 0649
+    [SerializeField] private Transform _screenshotCamera;
+    #pragma warning disable 0649
+    [SerializeField] private Transform _flash;
+    
     [SerializeField] private bool _isPaused = false;
     [SerializeField] private bool _exitedMenu = false;
 
@@ -64,6 +69,8 @@ public class UIManager : MonoBehaviour
         else
         {
             _rollerCoaster.Initialize();
+            _rollerCoaster.AddRail(true);
+            ConstructionArrows.inst.Initialize(_rollerCoaster);
             _isPaused = false;
             _exitedMenu = true;
             _cameraHandler.SetCanMove(true);
@@ -379,14 +386,28 @@ public class UIManager : MonoBehaviour
 
     // ---------------------------- Pause Pannel Normal Buttons ---------------------------- //
 
+    private bool _showArrowsWhenUnpause = false;
     public void Pause()
     {
         ShowPause();
+        _isPaused = true;
+        if(ConstructionArrows.inst.IsActive)
+        {
+            _showArrowsWhenUnpause = true;
+            ConstructionArrows.inst.ActiveArrows(false);
+        }
+
     }
 
     public void Unpause()
     {
         if (_isAnimating) return;
+        _isPaused = false;
+        if (_showArrowsWhenUnpause)
+        {
+            _showArrowsWhenUnpause = false;
+            ConstructionArrows.inst.ActiveArrows(true);
+        }
         HideMenu();
     }
 
@@ -429,8 +450,30 @@ public class UIManager : MonoBehaviour
     public void MenuSaveCoasterButtonPressed()
     {
         if (_isAnimating) return;
-        _rollerCoaster.SaveCoaster(_nameInput.text);
+        // TODO: Change Name
+        _screenshotCamera.gameObject.SetActive(true);
+        _screenshotCamera.GetChild(0).GetComponent<Text>().text = _nameInput.text;
+        _menuPannel.gameObject.SetActive(false);
+        _pannel.gameObject.SetActive(false);
+        _cameraHandler.SetCanMove(true);
+    }
+
+    public void Save()
+    {
+        StartCoroutine(SaveAnimation());
         // TODO: Warn player if it was saved
+    }
+
+    private IEnumerator SaveAnimation()
+    {
+        _screenshotCamera.gameObject.SetActive(false);
+        yield return null;
+        _rollerCoaster.SaveCoaster(_nameInput.text);
+        yield return null;
+        _pannel.gameObject.SetActive(true);
+        _menuPannel.gameObject.SetActive(true);
+        _cameraHandler.SetCanMove(false);
+        _flash.GetComponent<Animator>().Play("Flash");
     }
 
     public void MenuExitButtonPressed()

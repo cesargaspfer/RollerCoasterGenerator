@@ -234,6 +234,7 @@ public class ConstructionArrows : MonoBehaviour
         bool changed = false;
         if (arrowId == 0)
         {
+            if (_dirY.magnitude == 0f) return;
             float scalarProjY = Vector2.Dot(mouseoffset, _dirY);
             Vector2 projectedY = scalarProjY * _dirY;
             float magY = Mathf.Sign(scalarProjY) * projectedY.magnitude;
@@ -252,6 +253,7 @@ public class ConstructionArrows : MonoBehaviour
         }
         else if (arrowId == 1)
         {
+            if (_dirZ.magnitude == 0f) return;
             float scalarProjZ = Vector2.Dot(mouseoffset, _dirZ);        
             Vector2 projectedZ = scalarProjZ * _dirZ;
             float magZ = Mathf.Sign(scalarProjZ) * projectedZ.magnitude;
@@ -270,6 +272,7 @@ public class ConstructionArrows : MonoBehaviour
         }
         else if (arrowId == 2)
         {
+            if (_dirInclination.magnitude == 0f) return;
             float scalarProjZ = Vector2.Dot(mouseoffset, _dirInclination);        
             Vector2 projectedZ = scalarProjZ * _dirInclination;
             float magZ = Mathf.Sign(scalarProjZ) * projectedZ.magnitude;
@@ -288,6 +291,7 @@ public class ConstructionArrows : MonoBehaviour
         }
         else if (arrowId == 3)
         {
+            if (_dirX.magnitude == 0f) return;
             float scalarProjX = Vector2.Dot(mouseoffset, _dirX);
             Vector2 projectedX = scalarProjX * _dirX / (_dirX.magnitude * _dirX.magnitude);
             float magX = Mathf.Sign(scalarProjX) * projectedX.magnitude;
