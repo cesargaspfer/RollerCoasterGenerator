@@ -47,6 +47,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private LoadPannel _loadPannel;
     #pragma warning disable 0649
     [SerializeField] private GameObject _settingsButton;
+    #pragma warning disable 0649
+    [SerializeField] private UISettings _UISettings;
+    
     
     [SerializeField] private bool _isPaused = false;
     [SerializeField] private bool _exitedMenu = false;
@@ -62,6 +65,7 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        _UISettings.Initialize();
         if(!_debugMode)
         {
             ShowMenu();

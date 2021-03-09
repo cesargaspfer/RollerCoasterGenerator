@@ -171,12 +171,12 @@ public class RollerCoaster : MonoBehaviour
         _generator.Generate();
     }
 
-    public bool SaveCoaster(string fileName)
+    public bool SaveCoaster(string coasterName)
     {
-        return SaveManager.SaveCoaster(fileName, _constructor.Rails.ToArray());
+        return SaveManager.SaveCoaster(coasterName, _constructor.Rails.ToArray());
     }
 
-    public void LoadCoaster(string fileName)
+    public void LoadCoaster(string coasterName)
     {
         if (_simulator.IsSimulating)
             StopCarSimulation();
@@ -187,7 +187,7 @@ public class RollerCoaster : MonoBehaviour
         {
             this.RemoveLastRail(false);
         }
-        SavePack[] savePack = SaveManager.LoadCoaster(fileName);
+        SavePack[] savePack = SaveManager.LoadCoaster(coasterName);
         for(int i = 0; i < savePack.Length; i++)
         {
             this.AddRail();
