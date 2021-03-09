@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -115,7 +116,7 @@ public class SaveManager
             Directory.CreateDirectory(_pathResources);
     }
 
-    public static void SaveCoaster(string coasterName, Rail[] rails)
+    public static bool SaveCoaster(string coasterName, Rail[] rails)
     {
         SetPaths();
         byte[] content = Encode(rails);
@@ -124,11 +125,13 @@ public class SaveManager
             Directory.CreateDirectory(_pathRollerCoaster + "/" + coasterName);
             ScreenCapture.CaptureScreenshot(_pathRollerCoaster + "/" + coasterName + "/Screenshot.png");
             File.WriteAllBytes(_pathRollerCoaster + "/" + coasterName + "/data.bytes", content);
+            return true;
         }
         catch (Exception ex)
         {
             // TODO: Treat error
             Debug.LogError(ex.ToString());
+            return false;
         }
     }
 
@@ -167,6 +170,42 @@ public class SaveManager
     {
         TextAsset asset = Resources.Load("Blueprints/" + fileName) as TextAsset;
         return Decode(asset.bytes);
+    }
+
+    public static bool CoasterExists(string coasterName)
+    {
+        if (!Directory.Exists(_pathRollerCoaster + "/" + coasterName)) return false;
+        if (!File.Exists(_pathRollerCoaster + "/" + coasterName + "/Screenshot.png")) return false;
+        if (!File.Exists(_pathRollerCoaster + "/" + coasterName + "/data.bytes")) return false;
+        return true;
+    }
+    
+    public static (string[], Sprite[]) LoadCoastersImages()
+    {
+        SetPaths();
+        List<string> coastersNames = new List<string>();
+        List<Sprite> coastersScreenshots = new List<Sprite>();
+        foreach(string dir in Directory.GetDirectories(_pathRollerCoaster))
+        {
+            if (!File.Exists(dir + "/Screenshot.png")) continue;
+            if (!File.Exists(dir + "/data.bytes")) continue;
+
+            string coasterName = dir.Substring(_pathRollerCoaster.Length);
+
+            Texture2D screenshotTexture;
+            byte[] textureData;
+
+            textureData = File.ReadAllBytes(dir + "/Screenshot.png");
+            screenshotTexture = new Texture2D(2, 2);
+            if (!screenshotTexture.LoadImage(textureData))
+                continue;
+
+            Sprite coasterScreenshot = Sprite.Create(screenshotTexture, new Rect(0, 0, screenshotTexture.width, screenshotTexture.height), new Vector2(0, 0), 100);
+
+            coastersNames.Add(coasterName);
+            coastersScreenshots.Add(coasterScreenshot);
+        }
+        return (coastersNames.ToArray(), coastersScreenshots.ToArray());
     }
 
     private static byte[] Encode(Rail[] rails)

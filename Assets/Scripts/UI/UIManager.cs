@@ -43,6 +43,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Transform _screenshotCamera;
     #pragma warning disable 0649
     [SerializeField] private Transform _flash;
+    #pragma warning disable 0649
+    [SerializeField] private LoadPannel _loadPannel;
+    #pragma warning disable 0649
+    [SerializeField] private GameObject _settingsButton;
     
     [SerializeField] private bool _isPaused = false;
     [SerializeField] private bool _exitedMenu = false;
@@ -68,6 +72,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
+            _settingsButton.SetActive(true);
             _rollerCoaster.Initialize();
             _rollerCoaster.AddRail(true);
             ConstructionArrows.inst.Initialize(_rollerCoaster);
@@ -125,19 +130,21 @@ public class UIManager : MonoBehaviour
     [SerializeField] private bool _isRailPropsGlobal = true;
     [SerializeField] private bool _isBlueprintActive = false;
     [SerializeField] private bool _isSimulating = false;
+    [SerializeField] private int _lasRailType = 0;
     
 
-    public void ShowPannel(int constructorPannelState)
+    public void ShowPannel(int constructorPannelState, bool loaded)
     {
         if(_isAnimating) return;
-        _railTypeDropdown.value = 0;
+        _railTypeDropdown.value = _lasRailType;
         _heatmapDropdown.value = 0;
         _constructorPannelState = constructorPannelState;
+
         if (_constructorPannelState == 0)
         {
             _mpAnim.Play("MainState");
-            _rollerCoaster.AddRail(true);
             ConstructionArrows.inst.Initialize(_rollerCoaster);
+            ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
         }
         else
         {
@@ -150,6 +157,7 @@ public class UIManager : MonoBehaviour
     public void HidePannel()
     {
         if(_isAnimating) return;
+        _lasRailType = _railTypeDropdown.value;
         StartCoroutine(HidePannelCoroutine());
     }
 
@@ -178,7 +186,7 @@ public class UIManager : MonoBehaviour
         _pannelState = 0;
         _mpAnim.Play("ChangeFromTerrain");
         if (_constructorPannelState == 0)
-            ConstructionArrows.inst.ActiveArrows(true);
+            ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
 
         StartCoroutine(AnimationTime(0.25f));
 
@@ -227,7 +235,7 @@ public class UIManager : MonoBehaviour
     {
         if(_isAnimating || !_isBlueprintActive) return;
         _isBlueprintActive = false;
-        ConstructionArrows.inst.ActiveArrows(true);
+        ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
         _mpAnim.Play("ChangeFromBlueprint");
         StartCoroutine(AnimationTime(0.75f));
 
@@ -256,7 +264,7 @@ public class UIManager : MonoBehaviour
         if (_cameraHandler.GetCameraMode() == CameraHandler.CameraMode.FirstPerson)
             _cameraHandler.ChangeCameraMode();
         _isSimulating = false;
-        ConstructionArrows.inst.ActiveArrows(true);
+        ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
         _UIRailPhysics.UpdateValues(_rollerCoaster, false);
         _rollerCoaster.StopCarSimulation();
 
@@ -269,11 +277,13 @@ public class UIManager : MonoBehaviour
 
     // ---------------------------- Pause Pannel Animation Buttons ---------------------------- //
 
-    // _MenuState: 0 to Select, 1 to Options, 2 to Credits 
-    [SerializeField] private int _MenuState = 0;
+    // _MenuState: 0 to Select, 1 to Options, 2 to Credits, 3 to Save, 4 to Load
+    [SerializeField] private int _MenuState = -1;
 
     public void ShowMenu()
     {
+        _settingsButton.SetActive(false);
+        _MenuState = -1;
         // TODO: Check if it's not interfering in nothing else
         _cameraHandler.SetCanMove(false);
         StopAllCoroutines();
@@ -287,12 +297,21 @@ public class UIManager : MonoBehaviour
 
     private void ShowPause()
     {
+        _settingsButton.SetActive(false);
+        _MenuState = -1;
         // TODO: Check if it's not interfering in nothing else
         _cameraHandler.SetCanMove(false);
         StopAllCoroutines();
         _menuPannel.gameObject.SetActive(true);
         _menuPannel.GetChild(0).GetChild(0).GetChild(0).gameObject.SetActive(false);
         _menuPannel.GetChild(0).GetChild(0).GetChild(1).gameObject.SetActive(true);
+
+        _menuPannel.GetChild(0).GetChild(1).GetChild(1).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(2).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(3).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(4).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(5).gameObject.SetActive(false);
+
         _menuAnim.Play("ShowPauseMenu");
         StartCoroutine(AnimationTime(0.375f));
 
@@ -301,7 +320,15 @@ public class UIManager : MonoBehaviour
     private void GoToFirstMenuPannel()
     {
         if(_isAnimating) return;
-        _menuAnim.Play("FromSecondPannel");
+        if(_MenuState != 4)
+            _menuAnim.Play("FromSecondPannel");
+        else
+        {
+            if(_exitedMenu)
+                ShowPannel(_lastPannelState, false);
+            _menuAnim.Play("FromLoadCoaster");
+        }
+        _MenuState = -1;
         StartCoroutine(AnimationTime(0.25f));
         
     }
@@ -312,14 +339,35 @@ public class UIManager : MonoBehaviour
         _menuPannel.GetChild(0).GetChild(1).GetChild(1).gameObject.SetActive(false);
         _menuPannel.GetChild(0).GetChild(1).GetChild(2).gameObject.SetActive(false);
         _menuPannel.GetChild(0).GetChild(1).GetChild(3).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(4).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(5).gameObject.SetActive(false);
         _menuPannel.GetChild(0).GetChild(1).GetChild(_MenuState + 1).gameObject.SetActive(true);
         _menuAnim.Play("ToSecondPannel");
+        StartCoroutine(AnimationTime(0.25f));
+    }
+
+    private void GoToLoadCoaster()
+    {
+        if (_isAnimating) return;
+        _MenuState = 4;
+        _menuPannel.GetChild(0).GetChild(1).GetChild(1).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(2).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(3).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(4).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(5).gameObject.SetActive(true);
+        _menuAnim.Play("ToLoadCoaster");
+        if (_exitedMenu)
+        {
+            _lastPannelState = _pannelState;
+            HidePannel();
+        }
         StartCoroutine(AnimationTime(0.25f));
     }
 
     private void HideMenu()
     {
         if(_isAnimating) return;
+        _settingsButton.SetActive(true);
         _cameraHandler.SetCanMove(true);
         StartCoroutine(HideMenuCoroutine());
     }
@@ -327,7 +375,10 @@ public class UIManager : MonoBehaviour
     private IEnumerator HideMenuCoroutine()
     {
         _isAnimating = true;
-        _menuAnim.Play("HidePauseMenu");
+        if (_MenuState != 4)
+            _menuAnim.Play("HidePauseMenu");
+        else
+            _menuAnim.Play("CloseLoadPannel");
         yield return new WaitForSeconds(0.375f);
         _menuPannel.gameObject.SetActive(false);
         _isAnimating = false;
@@ -344,6 +395,7 @@ public class UIManager : MonoBehaviour
 
     public void AddRailButtonPressed()
     {
+        if(_rollerCoaster.IsComplete()) return;
         _rollerCoaster.AddRail(true);
         ConstructionArrows.inst.ActiveArrows(true);
         ConstructionArrows.inst.UpdateArrows();
@@ -387,6 +439,8 @@ public class UIManager : MonoBehaviour
     // ---------------------------- Pause Pannel Normal Buttons ---------------------------- //
 
     private bool _showArrowsWhenUnpause = false;
+    private int _lastPannelState = -1;
+
     public void Pause()
     {
         ShowPause();
@@ -406,7 +460,8 @@ public class UIManager : MonoBehaviour
         if (_showArrowsWhenUnpause)
         {
             _showArrowsWhenUnpause = false;
-            ConstructionArrows.inst.ActiveArrows(true);
+            if(_pannelState == 0)
+                ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
         }
         HideMenu();
     }
@@ -429,6 +484,7 @@ public class UIManager : MonoBehaviour
     {
         if (_isAnimating) return;
         _MenuState = 0;
+        _pannelState = 0;
         GoToSecondMenuPannel();
     }
 
@@ -436,18 +492,51 @@ public class UIManager : MonoBehaviour
     {
         if (_isAnimating) return;
         _MenuState = 0;
+        _pannelState = 1;
         GoToSecondMenuPannel();
     }
 
     public void MenuLoadCoasterButtonPressed()
     {
         if (_isAnimating) return;
-        // _MenuState = 3;
-        // GoToSecondMenuPannel();
-        // TODO
+        if(_exitedMenu)
+        {
+            StopSimulationButtonPressed();
+            _isAnimating = false;
+            ConstructionArrows.inst.ActiveArrows(false);
+        }
+        _loadPannel.Initialize(_rollerCoaster);
+        GoToLoadCoaster();
+    }
+
+    public void LoadCoaster(string coasterName)
+    {
+        if(!_exitedMenu)
+            _rollerCoaster.Initialize();
+        _rollerCoaster.LoadCoaster(coasterName);
+        _lasRailType = (int) _rollerCoaster.GetLastRail().mp.Type;
+        ConstructionArrows.inst.Initialize(_rollerCoaster);
+        _isPaused = false;
+        _exitedMenu = true;
+        _cameraHandler.SetCanMove(true);
+        ShowPannel(0, true);
+        _isAnimating = false;
+        Unpause();
     }
 
     public void MenuSaveCoasterButtonPressed()
+    {
+        if (_isAnimating) return;
+        _MenuState = 3;
+        _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(0).gameObject.SetActive(true);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(1).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(2).gameObject.SetActive(false);
+        _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(0).GetChild(3).GetComponent<InputField>().text = _nameInput.text;
+        _flash.gameObject.SetActive(true);
+        GoToSecondMenuPannel();
+    }
+
+    public void MenuContinueSaveButtonPressed()
     {
         if (_isAnimating) return;
         // TODO: Change Name
@@ -468,11 +557,18 @@ public class UIManager : MonoBehaviour
     {
         _screenshotCamera.gameObject.SetActive(false);
         yield return null;
-        _rollerCoaster.SaveCoaster(_nameInput.text);
+        bool saved = _rollerCoaster.SaveCoaster(_nameInput.text);
         yield return null;
         _pannel.gameObject.SetActive(true);
         _menuPannel.gameObject.SetActive(true);
         _cameraHandler.SetCanMove(false);
+
+        _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(0).gameObject.SetActive(false);
+        if (saved)
+            _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(1).gameObject.SetActive(true);
+        else
+            _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(2).gameObject.SetActive(true);
+
         _flash.GetComponent<Animator>().Play("Flash");
     }
 
@@ -502,8 +598,12 @@ public class UIManager : MonoBehaviour
     private IEnumerator MenuContinueCoroutine()
     {
         _rollerCoaster.Initialize();
+        if(_pannelState == 0)
+            _rollerCoaster.AddRail(true);
+        else
+            _rollerCoaster.GenerateCoaster();
         // TODO: Show the right Pannel
-        ShowPannel(0);
+        ShowPannel(_pannelState, false);
         _isAnimating = true;
         _isPaused = false;
         _exitedMenu = true;
@@ -513,6 +613,7 @@ public class UIManager : MonoBehaviour
         _menuPannel.GetChild(0).GetChild(0).GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
         _menuPannel.GetChild(0).GetChild(1).GetComponent<RectTransform>().anchoredPosition = new Vector2(410f, 0f);
         _menuPannel.gameObject.SetActive(false);
+        _settingsButton.SetActive(true);
         _isAnimating = false;
     }
 

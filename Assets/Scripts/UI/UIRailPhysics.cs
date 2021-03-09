@@ -26,12 +26,16 @@ public class UIRailPhysics : MonoBehaviour
 
             RailPhysics railPhysics = rc.GetLastRailPhysics();
 
-            _valuesPannel.GetChild(1).GetComponent<Text>().text = Mathf.Round(railPhysics.Final.Velocity * 10f) / 10f + "<size=24>k/h</size>";
-            _valuesPannel.GetChild(3).GetComponent<Text>().text = Mathf.Round(railPhysics.Max.GForce.y * 10f) / 10f + "<size=24>g</size>";
-            _valuesPannel.GetChild(5).GetComponent<Text>().text = Mathf.Round(railPhysics.Max.GForce.x * 10f) / 10f + "<size=24>g</size>";
-            _valuesPannel.GetChild(7).GetComponent<Text>().text = Mathf.Round(railPhysics.Max.GForce.z * 10f) / 10f + "<size=24>g</size>";
-            _valuesPannel.GetChild(9).GetComponent<Text>().text = Mathf.Round(rc.GetFinalPosition().y * 10f) / 10f + "<size=28>m</size>";
-            _valuesPannel.GetChild(11).GetComponent<Text>().text = Mathf.Round((rc.GetTotalLength() + rc.GetCurrentGlobalrp().Length) * 10f) / 10f + "<size=28>m</size>";
+            // TODO: Load Async
+            if(railPhysics != null && railPhysics.Final != null)
+            {
+                _valuesPannel.GetChild(1).GetComponent<Text>().text = Mathf.Round(railPhysics.Final.Velocity * 10f) / 10f + "<size=24>k/h</size>";
+                _valuesPannel.GetChild(3).GetComponent<Text>().text = Mathf.Round(railPhysics.Max.GForce.y * 10f) / 10f + "<size=24>g</size>";
+                _valuesPannel.GetChild(5).GetComponent<Text>().text = Mathf.Round(railPhysics.Max.GForce.x * 10f) / 10f + "<size=24>g</size>";
+                _valuesPannel.GetChild(7).GetComponent<Text>().text = Mathf.Round(railPhysics.Max.GForce.z * 10f) / 10f + "<size=24>g</size>";
+                _valuesPannel.GetChild(9).GetComponent<Text>().text = Mathf.Round(rc.GetFinalPosition().y * 10f) / 10f + "<size=28>m</size>";
+                _valuesPannel.GetChild(11).GetComponent<Text>().text = Mathf.Round((rc.GetTotalLength() + rc.GetCurrentGlobalrp().Length) * 10f) / 10f + "<size=28>m</size>";
+            }
         }
     }
 

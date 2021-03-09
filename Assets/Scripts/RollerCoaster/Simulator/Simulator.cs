@@ -244,8 +244,6 @@ public class Simulator
 
         if(simulateRail)
             railPhysics = SimulateRail(lastrp, rail);
-            
-        Debug.Log(simulateRail + " " + railPhysics);
 
         _rails.Add((rail, railPhysics));
     }
