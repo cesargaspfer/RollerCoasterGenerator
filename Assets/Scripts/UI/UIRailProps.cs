@@ -15,15 +15,15 @@ public class UIRailProps : MonoBehaviour
         RailProps currentrp = rc.GetCurrentGlobalrp();
         RailProps localrp = currentrp - rc.GetLastGlobalrp();
 
-        _globalPropsParent.GetChild(1).GetComponent<Text>().text = AdjustAngle(currentrp.Elevation) + "°";
-        _globalPropsParent.GetChild(3).GetComponent<Text>().text = AdjustAngle(currentrp.Rotation) + "°";
-        _globalPropsParent.GetChild(5).GetComponent<Text>().text = AdjustAngle(-currentrp.Inclination) + "°";
-        _globalPropsParent.GetChild(7).GetComponent<Text>().text = currentrp.Length + "<size=28>m</size>";
+        _globalPropsParent.GetChild(1).GetComponent<Text>().text = AdjustAngle(currentrp.Elevation).ToString("0.0") + "°";
+        _globalPropsParent.GetChild(3).GetComponent<Text>().text = AdjustAngle(currentrp.Rotation).ToString("0.0") + "°";
+        _globalPropsParent.GetChild(5).GetComponent<Text>().text = AdjustAngle(-currentrp.Inclination).ToString("0.0") + "°";
+        _globalPropsParent.GetChild(7).GetComponent<Text>().text = currentrp.Length.ToString("0.0") + "<size=28>m</size>";
 
-        _localPropsParent.GetChild(1).GetComponent<Text>().text = AdjustAngle(localrp.Elevation) + "°";
-        _localPropsParent.GetChild(3).GetComponent<Text>().text = AdjustAngle(localrp.Rotation) + "°";
-        _localPropsParent.GetChild(5).GetComponent<Text>().text = AdjustAngle(-localrp.Inclination) + "°";
-        _localPropsParent.GetChild(7).GetComponent<Text>().text = localrp.Length + "<size=28>m</size>";
+        _localPropsParent.GetChild(1).GetComponent<Text>().text = AdjustAngle(localrp.Elevation).ToString("0.0") + "°";
+        _localPropsParent.GetChild(3).GetComponent<Text>().text = AdjustAngle(localrp.Rotation).ToString("0.0") + "°";
+        _localPropsParent.GetChild(5).GetComponent<Text>().text = AdjustAngle(-localrp.Inclination).ToString("0.0") + "°";
+        _localPropsParent.GetChild(7).GetComponent<Text>().text = localrp.Length.ToString("0.0") + "<size=28>m</size>";
 
         _railTypeDropdown.value = (int) rc.GetLastRail().mp.Type;
     }

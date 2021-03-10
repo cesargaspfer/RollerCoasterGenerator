@@ -35,6 +35,7 @@ public class Car : MonoBehaviour
     }
 
     [SerializeField] protected CarProps _carProps;
+    [SerializeField] protected float _totalPosition;
     [SerializeField] protected float _scalarPosition;
     [SerializeField] protected float _velocity;
     [SerializeField] protected int _currentSegment;
@@ -50,16 +51,18 @@ public class Car : MonoBehaviour
         _currentLap = 0;
         _currentCurveT = 0;
         _carProps = carProps;
+        _totalPosition = 0f;
         // TODO: _gForce
     }
 
-    public void UpdatePhysics(float scalarPosition, float velocity, int currentSegment, int currentLap, float currentCurveT)
+    public void UpdatePhysics(float scalarPosition, float velocity, int currentSegment, int currentLap, float currentCurveT, float distance)
     {
         _scalarPosition = scalarPosition;
         _velocity = velocity;
         _currentSegment = currentSegment;
         _currentLap = currentLap;
         _currentCurveT = currentCurveT;
+        _totalPosition += distance;
         // TODO: _gForce
     }
 
@@ -82,6 +85,11 @@ public class Car : MonoBehaviour
     public float ScalarPosition
     {
         get { return _scalarPosition; }
+    }
+
+    public float TotalPosition
+    {
+        get { return _totalPosition; }
     }
 
     public float Velocity

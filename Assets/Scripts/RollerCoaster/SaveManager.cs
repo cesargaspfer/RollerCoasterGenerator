@@ -180,7 +180,7 @@ public class SaveManager
         return true;
     }
     
-    public static (string[], Sprite[]) LoadCoastersImages()
+    public static (string[], Sprite[]) LoadCoastersNamesAndImages()
     {
         SetPaths();
         List<string> coastersNames = new List<string>();
@@ -206,6 +206,65 @@ public class SaveManager
             coastersScreenshots.Add(coasterScreenshot);
         }
         return (coastersNames.ToArray(), coastersScreenshots.ToArray());
+    }
+
+    public static Sprite[] LoadCoastersImages()
+    {
+        SetPaths();
+        List<Sprite> coastersScreenshots = new List<Sprite>();
+        foreach (string dir in Directory.GetDirectories(_pathRollerCoaster))
+        {
+            if (!File.Exists(dir + "/Screenshot.png")) continue;
+            if (!File.Exists(dir + "/data.bytes")) continue;
+
+            Texture2D screenshotTexture;
+            byte[] textureData;
+
+            textureData = File.ReadAllBytes(dir + "/Screenshot.png");
+            screenshotTexture = new Texture2D(2, 2);
+            if (!screenshotTexture.LoadImage(textureData))
+                continue;
+
+            Sprite coasterScreenshot = Sprite.Create(screenshotTexture, new Rect(0, 0, screenshotTexture.width, screenshotTexture.height), new Vector2(0, 0), 100);
+
+            coastersScreenshots.Add(coasterScreenshot);
+        }
+        return coastersScreenshots.ToArray();
+    }
+
+    public static Sprite LoadCoasterImage(string coasterName)
+    {
+        SetPaths();
+        if (!File.Exists(_pathRollerCoaster + "/" + coasterName + "/Screenshot.png")) return null;
+
+        Texture2D screenshotTexture;
+        byte[] textureData;
+
+        textureData = File.ReadAllBytes(_pathRollerCoaster + "/" + coasterName + "/Screenshot.png");
+        screenshotTexture = new Texture2D(2, 2);
+        if (!screenshotTexture.LoadImage(textureData))
+            return null;
+
+        Sprite coasterScreenshot = Sprite.Create(screenshotTexture, new Rect(0, 0, screenshotTexture.width, screenshotTexture.height), new Vector2(0, 0), 100);
+
+        return coasterScreenshot;
+    }
+
+    public static string[] LoadCoastersNames()
+    {
+        SetPaths();
+        List<string> coastersNames = new List<string>();
+        List<Sprite> coastersScreenshots = new List<Sprite>();
+        foreach (string dir in Directory.GetDirectories(_pathRollerCoaster))
+        {
+            if (!File.Exists(dir + "/Screenshot.png")) continue;
+            if (!File.Exists(dir + "/data.bytes")) continue;
+
+            string coasterName = dir.Substring(_pathRollerCoaster.Length);
+
+            coastersNames.Add(coasterName);
+        }
+        return coastersNames.ToArray();
     }
 
     private static byte[] Encode(Rail[] rails)

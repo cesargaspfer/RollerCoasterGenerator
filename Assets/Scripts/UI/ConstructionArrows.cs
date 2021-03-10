@@ -123,7 +123,7 @@ public class ConstructionArrows : MonoBehaviour
 
     public void ActiveArrows(bool active)
     {
-        if(_isActive == active)
+        if(_isActive == active && active)
         {
             if (_rc.GetLastGlobalrp().Inclination <= -0.025f || _rc.GetLastGlobalrp().Inclination >= 0.025f)
             {
@@ -143,7 +143,7 @@ public class ConstructionArrows : MonoBehaviour
                 for (int j = 0; j < 2; j++)
                 this.transform.GetChild(i).GetChild(j).gameObject.SetActive(active);
 
-            if (_rc.GetLastGlobalrp().Inclination <= -0.025f || _rc.GetLastGlobalrp().Inclination >= 0.025f)
+            if (active && (_rc.GetLastGlobalrp().Inclination <= -0.025f || _rc.GetLastGlobalrp().Inclination >= 0.025f))
             {
                 this.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
                 this.transform.GetChild(0).GetChild(1).gameObject.SetActive(false);

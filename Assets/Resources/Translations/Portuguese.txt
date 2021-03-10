@@ -1,1 +1,58 @@
-teste|teste
+TODO|TODO
+constructor|Construtor
+terrain|Terreno
+railType|Tipo de Trilho
+rtPlataform|Plataforma
+rtNormal|Normal
+rtLever|Alavanca
+rtBrakes|Freios
+global|Global
+local|Local
+elevation|Elevação
+rotation|Rotação
+inclination|Inclinação
+length|Tamanho
+velocity|Velocidade
+maxGVertical|Max G-Vertical
+maxGFrontal|Max G-Frontal
+maxGLateral|Max G-Lateral
+height|Altura
+totalLength|Tamanho Total
+heatmap|Mapa de Calor
+none|Nenhum
+addRail|Adicionar Trilho
+blueprints|Trechos Pré-Prontos
+autocomplete|Autocompletar
+removeRail|Remover Trilho
+simulate|Simular
+changeCamera|Mudar Câmera
+stopSimulation|Parar Simulação
+addBlueprint|Adicionar Trechos Pré-Prontos
+cancelBlueprint|Cancelar Trechos Pré-Prontos
+type|Tipo
+subtype|Subtipo
+generate|Gerar uma Nova Montanha-Russa
+coasterName|Nome da Montanha-Russa
+menuConstruct|Construir uma Montanha-Russa
+menuGenerate|Gerar uma Montanha-Russa
+menuLoad|Carragar Montanha-Russa
+options|Opções
+credits|Creditos
+exit|Sair
+pauseReturn|Retornar à Montanha-Russa
+menuSave|Salvar essa Montanha-Russa
+returnToMenu|Retornar ao Menu Principal
+back|Voltar
+continue|Continuar
+selectCoasterType|Selecione um Tipo de Montanha-Russa:
+coasterTypeNormal|Normal
+vSync|Sincronização Vertical:
+enableSound|Permitir Som:
+selectLanguage|Língua:
+creditsText|Créditos<br><br>Desenvolvido por<br><b>César Gasparini Fernandes</b><br>Orientado por<br><b>Marcel Parolin Jackowski</b>
+save|Salvar
+typeCoasterName|Digite o nome da montanha-russa:
+saveSuccess|Montanha-russa salva com sucesso!
+saveError|Falha ao salvar a montanha-russa!
+load|Carregar
+noCoasterFound|Nenhuma montanha-russa encontrada.

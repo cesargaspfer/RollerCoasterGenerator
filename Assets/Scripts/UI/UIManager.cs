@@ -84,6 +84,9 @@ public class UIManager : MonoBehaviour
             _exitedMenu = true;
             _cameraHandler.SetCanMove(true);
         }
+        float pannelX = PlayerPrefs.GetFloat("pannelX", -620);
+        float pannelY = PlayerPrefs.GetFloat("pannelY", 380);
+        _pannel.GetComponent<RectTransform>().anchoredPosition = new Vector2(pannelX, pannelY);
     }
 
     void Update()
@@ -122,6 +125,12 @@ public class UIManager : MonoBehaviour
         float x = Mathf.Min(Mathf.Max(tmpPosition.x, -800 + _mainPannelSize[0] * 0.5f), 800 - _mainPannelSize[0] * 0.5f);
         float y = Mathf.Min(Mathf.Max(tmpPosition.y, -800 / _yScale + _mainPannelSize[1]), 800 / _yScale);
         _pannel.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
+    }
+
+    public void OnPointerUpOnTop()
+    {
+        PlayerPrefs.SetFloat("pannelX", _pannel.GetComponent<RectTransform>().anchoredPosition.x);
+        PlayerPrefs.SetFloat("pannelY", _pannel.GetComponent<RectTransform>().anchoredPosition.y);
     }
 
     // ---------------------------- Main Pannel Animation Buttons ---------------------------- //
@@ -524,6 +533,7 @@ public class UIManager : MonoBehaviour
         _exitedMenu = true;
         _cameraHandler.SetCanMove(true);
         ShowPannel(0, true);
+        _UIRailPhysics.UpdateValues(_rollerCoaster, false);
         _isAnimating = false;
         Unpause();
     }
@@ -611,9 +621,12 @@ public class UIManager : MonoBehaviour
         _isAnimating = true;
         _isPaused = false;
         _exitedMenu = true;
-        _cameraHandler.SetCanMove(true);
+        _nameInput.text = Translator.inst.GetTranslation("coasterName");
         _menuAnim.Play("HidePauseMenu");
+        _cameraHandler.SetCanMove(true);
         yield return new WaitForSeconds(0.375f);
+        _cameraHandler.SetCanMove(true);
+        _nameInput.text = Translator.inst.GetTranslation("coasterName");
         _menuPannel.GetChild(0).GetChild(0).GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, 0f);
         _menuPannel.GetChild(0).GetChild(1).GetComponent<RectTransform>().anchoredPosition = new Vector2(410f, 0f);
         _menuPannel.gameObject.SetActive(false);

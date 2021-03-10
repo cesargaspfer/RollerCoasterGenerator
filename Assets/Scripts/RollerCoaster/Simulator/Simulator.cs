@@ -82,7 +82,7 @@ public class Simulator
             Vector3 vectorPos = curve.Sample(currentCurveT);
             Quaternion rotation = currentRail.GetQuaternionAt(currentCurveT);
 
-            _cars[i].UpdatePhysics(currentPos, 0f, currentSegment, currentLap, currentCurveT);
+            _cars[i].UpdatePhysics(currentPos, 0f, currentSegment, currentLap, currentCurveT, distance);
             _cars[i].Transform(vectorPos, rotation);
         }
 
@@ -221,14 +221,14 @@ public class Simulator
             float currentCurveT = curve.GetNextT(lastT, distance);
             Vector3 vectorPos = curve.Sample(currentCurveT);
             Quaternion rotation = currentRail.GetQuaternionAt(currentCurveT);
-            _cars[i].UpdatePhysics(currentPos, velocity, currentSegment, currentLap, currentCurveT);
+            _cars[i].UpdatePhysics(currentPos, velocity, currentSegment, currentLap, currentCurveT, distance);
             _cars[i].Transform(vectorPos, rotation);
         }
     }
 
     // ------------------- Rail Simulation Props ------------------- //
 
-    public void AddRail(Rail rail, bool simulateRail = false)
+    public void AddRail(Rail rail, bool simulateRail = true)
     {
         RailPhysics lastrp;
         if(_rails.Count == 0)

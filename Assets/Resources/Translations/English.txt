@@ -1,1 +1,58 @@
-teste|test
+TODO|TODO
+constructor|Constructor
+terrain|Terrain
+railType|Rail Type
+rtPlataform|Plataform
+rtNormal|Normal
+rtLever|Lever
+rtBrakes|Brakes
+global|Global
+local|Local
+elevation|Elevation
+rotation|Rotation
+inclination|Inclination
+length|Length
+velocity|Velocity
+maxGVertical|Max G-Vertical
+maxGFrontal|Max G-Frontal
+maxGLateral|Max G-Lateral
+height|Height
+totalLength|Total Length
+heatmap|Heatmap
+none|None
+addRail|Add Rail
+blueprints|Blueprints
+autocomplete|Autocomplete
+removeRail|Remove Rail
+simulate|Simulate
+changeCamera|Change Camera
+stopSimulation|Stop Simulation
+addBlueprint|Add Blueprint
+cancelBlueprint|Cancel Blueprint
+type|Type
+subtype|Subtype
+generate|Generate a New Roller Coaster
+coasterName|Roller Coaster Name
+menuConstruct|Construct a New Roller Coaster
+menuGenerate|Generate a Roller Coaster
+menuLoad|Load a Roller Coaster
+options|Options
+credits|Credits
+exit|Exit
+pauseReturn|Return to the Roller Coaster
+menuSave|Save this Roller Coaster
+returnToMenu|Return to Main Menu
+back|Back
+continue|Continue
+selectCoasterType|Select the Roller Coaster Type:
+coasterTypeNormal|Normal
+vSync|V-Sync:
+enableSound|Enable Sound:
+selectLanguage|Language:
+creditsText|Credits<br><br>Developed by<br><b>César Gasparini Fernandes</b><br>Oriented by<br><b>Marcel Parolin Jackowski</b>
+save|Save
+typeCoasterName|Enter the name of the roller coaster:
+saveSuccess|Roller coaster successfully saved!
+saveError|Failed to save the roller coaster!
+load|Load
+noCoasterFound|No roller coasters found.

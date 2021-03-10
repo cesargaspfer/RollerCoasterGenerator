@@ -212,9 +212,24 @@ public class RollerCoaster : MonoBehaviour
         }
     }
 
-    public (string[], Sprite[]) LoadCoastersImages()
+    public (string[], Sprite[]) LoadCoastersNamesAndImages()
+    {
+        return SaveManager.LoadCoastersNamesAndImages();
+    }
+
+    public Sprite[] LoadCoastersImages()
     {
         return SaveManager.LoadCoastersImages();
+    }
+
+    public Sprite LoadCoasterImage(string coasterName)
+    {
+        return SaveManager.LoadCoasterImage(coasterName);
+    }
+
+    public string[] LoadCoastersNames()
+    {
+        return SaveManager.LoadCoastersNames();
     }
 
     // TODO: Make functions to change rail model props; car props

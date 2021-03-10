@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Globalization;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,12 +30,12 @@ public class UIRailPhysics : MonoBehaviour
             // TODO: Load Async
             if(railPhysics != null && railPhysics.Final != null)
             {
-                _valuesPannel.GetChild(1).GetComponent<Text>().text = Mathf.Round(railPhysics.Final.Velocity * 10f) / 10f + "<size=24>k/h</size>";
-                _valuesPannel.GetChild(3).GetComponent<Text>().text = Mathf.Round(railPhysics.Max.GForce.y * 10f) / 10f + "<size=24>g</size>";
-                _valuesPannel.GetChild(5).GetComponent<Text>().text = Mathf.Round(railPhysics.Max.GForce.x * 10f) / 10f + "<size=24>g</size>";
-                _valuesPannel.GetChild(7).GetComponent<Text>().text = Mathf.Round(railPhysics.Max.GForce.z * 10f) / 10f + "<size=24>g</size>";
-                _valuesPannel.GetChild(9).GetComponent<Text>().text = Mathf.Round(rc.GetFinalPosition().y * 10f) / 10f + "<size=28>m</size>";
-                _valuesPannel.GetChild(11).GetComponent<Text>().text = Mathf.Round((rc.GetTotalLength() + rc.GetCurrentGlobalrp().Length) * 10f) / 10f + "<size=28>m</size>";
+                _valuesPannel.GetChild(1).GetComponent<Text>().text = railPhysics.Final.Velocity.ToString("0.0") + "<size=24>m/s</size>";
+                _valuesPannel.GetChild(3).GetComponent<Text>().text = railPhysics.Max.GForce.y.ToString("0.0") + "<size=24>g</size>";
+                _valuesPannel.GetChild(5).GetComponent<Text>().text = railPhysics.Max.GForce.x.ToString("0.0") + "<size=24>g</size>";
+                _valuesPannel.GetChild(7).GetComponent<Text>().text = railPhysics.Max.GForce.z.ToString("0.0") + "<size=24>g</size>";
+                _valuesPannel.GetChild(9).GetComponent<Text>().text = rc.GetFinalPosition().y.ToString("0.0") + "<size=28>m</size>";
+                _valuesPannel.GetChild(11).GetComponent<Text>().text = (rc.GetTotalLength() + rc.GetCurrentGlobalrp().Length).ToString("0.0") + "<size=28>m</size>";
             }
         }
     }
@@ -48,12 +49,12 @@ public class UIRailPhysics : MonoBehaviour
             Car car = rc.GetFirstCar().GetComponent<Car>();
             float height = rc.GetFirstCar().transform.position.y;
 
-            _valuesPannel.GetChild(1).GetComponent<Text>().text = Mathf.Round(car.Velocity * 10f) / 10f + "<size=24>k/h</size>";
-            _valuesPannel.GetChild(3).GetComponent<Text>().text = Mathf.Round(car.GForce.y * 10f) / 10f + "<size=24>g</size>";
-            _valuesPannel.GetChild(5).GetComponent<Text>().text = Mathf.Round(car.GForce.x * 10f) / 10f + "<size=24>g</size>";
-            _valuesPannel.GetChild(7).GetComponent<Text>().text = Mathf.Round(car.GForce.z * 10f) / 10f + "<size=24>g</size>";
-            _valuesPannel.GetChild(9).GetComponent<Text>().text = Mathf.Round(height * 10f) / 10f + "<size=28>m</size>";
-            _valuesPannel.GetChild(11).GetComponent<Text>().text = Mathf.Round(car.ScalarPosition * 10f) / 10f + "<size=28>m</size>";
+            _valuesPannel.GetChild(1).GetComponent<Text>().text = car.Velocity.ToString("0.0") + "<size=24>m/s</size>";
+            _valuesPannel.GetChild(3).GetComponent<Text>().text = car.GForce.y.ToString("0.0")  + "<size=24>g</size>";
+            _valuesPannel.GetChild(5).GetComponent<Text>().text = car.GForce.x.ToString("0.0")  + "<size=24>g</size>";
+            _valuesPannel.GetChild(7).GetComponent<Text>().text = car.GForce.z.ToString("0.0")  + "<size=24>g</size>";
+            _valuesPannel.GetChild(9).GetComponent<Text>().text = height.ToString("0.0")  + "<size=28>m</size>";
+            _valuesPannel.GetChild(11).GetComponent<Text>().text = car.TotalPosition.ToString("0.0") + "<size=28>m</size>";
             yield return null;
         }
     }

@@ -15,13 +15,15 @@ public class LoadPannel : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private GameObject _loadButton;
 
+    private RollerCoaster _rollerCoaster;
     private string[] _coastersNames;
-    private Sprite[] _coastersScreenshots;
     private int _selectedId;
 
     public void Initialize(RollerCoaster rollerCoaster)
     {
-        (_coastersNames, _coastersScreenshots) = rollerCoaster.LoadCoastersImages();
+        _rollerCoaster = rollerCoaster;
+
+        _coastersNames = _rollerCoaster.LoadCoastersNames();
 
         foreach(Transform gm in _buttonsContent)
         {
@@ -47,7 +49,7 @@ public class LoadPannel : MonoBehaviour
             _loadButton.SetActive(false);
             _coasterImage.sprite = null;
             // TODO: Translate
-            _coasterName.text = "Nenhuma montanha-russa encontrada.";
+            _coasterName.text = Translator.inst.GetTranslation("noCoasterFound");
         }
         else
         {
@@ -59,7 +61,7 @@ public class LoadPannel : MonoBehaviour
     public void LoadCoasterButtonClicked(int id)
     {
         _coasterName.text = _coastersNames[id];
-        _coasterImage.sprite = _coastersScreenshots[id];
+        _coasterImage.sprite = _rollerCoaster.LoadCoasterImage(_coastersNames[id]);
         _selectedId = id;
     }
 
