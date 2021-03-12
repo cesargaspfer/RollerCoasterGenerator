@@ -16,8 +16,12 @@ velocity|Velocidade
 maxGVertical|Max G-Vertical
 maxGFrontal|Max G-Frontal
 maxGLateral|Max G-Lateral
+GVertical|G-Vertical
+GFrontal|G-Frontal
+GLateral|G-Lateral
 height|Altura
 totalLength|Tamanho Total
+totalCarLength|Percorrido
 heatmap|Mapa de Calor
 none|Nenhum
 addRail|Adicionar Trilho

@@ -4,7 +4,12 @@ using static RailModelProperties;
 public class BasicSRMCylinder : SubRailModel
 {
     private int _modelResolution = 6;
-    private float _radius = 0.25f;
+    private float _radius = 0.75f;
+
+    public override Material GetMaterial(RailType type)
+    {
+        return Resources.Load("Materials/RollerCoaster/Heatmap", typeof(Material)) as Material;
+    }
 
     public override int GetExtrusionResolution(float lenght, ModelProps mp)
     {

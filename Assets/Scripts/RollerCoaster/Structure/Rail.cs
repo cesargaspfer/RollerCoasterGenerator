@@ -24,7 +24,10 @@ public class Rail
     private Mesh[] _mesh = null;
     private RailModel _railModel = null;
     private GameObject[] _gameObject;
+    private GameObject[] _heatmapGO;
+    private RailPhysics.Props[] _physicsAlongRail;
     private float _lastLength;
+    
 
     private float _inclinationToMatrixLookAt;
 
@@ -32,6 +35,7 @@ public class Rail
     {
         _constructor = constructor;
         _lastLength = -1f;
+        _heatmapGO = new GameObject[2];
         this.UpdateRail(rp, mp, sp, isFinalRail);
     }
 
@@ -39,6 +43,8 @@ public class Rail
     {
         for(int i = 0; i < _gameObject.Length; i++)
             GameObject.Destroy(_gameObject[i]);
+        GameObject.Destroy(_heatmapGO[0]);
+        GameObject.Destroy(_heatmapGO[1]);
         _mesh = null;
         _railModel = null;
         _rp = null;
@@ -88,7 +94,16 @@ public class Rail
         Vector3 x1 = GetBasisAt(1f).GetColumn(0);
 
         _radius = _rp.Length / Angle(x0, x1);
-        Debug.Log(_radius);
+
+        
+        (Mesh[] heatmapMesh, Material[] heatmapMaterials) = GetRailModel(0).GenerateMeshes(_rp, _mp, _sp, null);
+        if(_heatmapGO != null)
+        {
+            GameObject.Destroy(_heatmapGO[0]);
+            GameObject.Destroy(_heatmapGO[1]);
+        }
+        _heatmapGO[0] = _constructor.InstantiateRail(heatmapMesh[0], heatmapMaterials[0], _sp.Position, isHeatmap: true);
+        _heatmapGO[1] = _constructor.InstantiateRail(heatmapMesh[1], heatmapMaterials[1], _sp.Position, isHeatmap: true);
     }
 
     public CarStatus IsInRail(float position)
@@ -102,7 +117,7 @@ public class Rail
 
     public (Vector3, CarStatus) GetPositionInRail(float position)
     {
-        if(position >= _rp.Length)
+        if(position > _rp.Length)
             return (Vector3.zero, CarStatus.Foward);
         if(position < 0)
             return (Vector3.zero, CarStatus.Backward);
@@ -136,6 +151,69 @@ public class Rail
     {
         float t = position / (float) _rp.Length;
         return _sp.Curve.GetTangentAt(t);
+    }
+
+    public void SetPhysicsAlongRail(RailPhysics.Props[] physicsAlongRail)
+    {
+        _physicsAlongRail = physicsAlongRail;
+    }
+
+
+    public void SetHeatmap(int type)
+    {
+        Mesh mesh = _heatmapGO[0].GetComponent<MeshFilter>().mesh;
+        Vector3[] vertices = mesh.vertices;
+        Color[] colors = new Color[vertices.Length];
+        int resolution = BasicRMProperties.modelResolution;
+        for (int i = 0; i <= (int) rp.Length; i++)
+        {
+            Color color = GetHeatmapColor(type, i);
+            for(int j = 0; j < resolution; j++)
+            {
+                colors[i * resolution + j] = color;
+            }
+        }
+        mesh.colors = colors;
+
+        mesh = _heatmapGO[1].GetComponent<MeshFilter>().mesh;
+        vertices = mesh.vertices;
+        colors = new Color[vertices.Length];
+        for (int i = 0; i < 2; i++)
+        {
+            Color color = GetHeatmapColor(type, i * (int)rp.Length);
+            for (int j = 0; j < vertices.Length / 2; j++)
+            {
+                colors[i * resolution + j] = color;
+            }
+        }
+        mesh.colors = colors;
+    }
+
+    private Color GetHeatmapColor(int type, int t)
+    {
+        switch (type)
+        {
+            case 0:
+                return Color.white;
+            case 1:
+                return Color.Lerp(new Color(0.05f, 0.05f, 0.05f), new Color(0.95f, 0.95f, 0.95f), _physicsAlongRail[t].Velocity / 20f);
+            case 2:
+                return LerpGForce(_physicsAlongRail[t].GForce.y);
+            case 3:
+                return LerpGForce(_physicsAlongRail[t].GForce.x);
+            case 4:
+                return LerpGForce(_physicsAlongRail[t].GForce.z);
+            case 5:
+                (Vector3 position, CarStatus _) = GetPositionInRail(t);
+                return Color.Lerp(new Color(0.05f, 0.05f, 0.05f), new Color(0.95f, 0.95f, 0.95f), position.y / 50f);
+            default:
+                return Color.white;
+        }
+    }
+
+    private Color LerpGForce(float value)
+    {
+        return Color.Lerp(new Color(0.05f, 0.05f, 0.05f), new Color(0.95f, 0.95f, 0.95f), value / 20f + 0.5f);
     }
 
     public RailProps rp

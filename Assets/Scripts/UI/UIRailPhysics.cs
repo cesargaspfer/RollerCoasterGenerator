@@ -9,6 +9,27 @@ public class UIRailPhysics : MonoBehaviour
     [SerializeField] private Transform _valuesPannel;
     private bool _isCarSimulating;
 
+    public void Translate()
+    {
+        this.transform.GetChild(0).GetComponent<Text>().text = Translator.inst.GetTranslation("velocity") + ":";
+        this.transform.GetChild(8).GetComponent<Text>().text = Translator.inst.GetTranslation("height") + ":";
+        
+        if(_isCarSimulating)
+        {
+            this.transform.GetChild(2).GetComponent<Text>().text = Translator.inst.GetTranslation("GVertical") + ":";
+            this.transform.GetChild(4).GetComponent<Text>().text = Translator.inst.GetTranslation("GFrontal") + ":";
+            this.transform.GetChild(6).GetComponent<Text>().text = Translator.inst.GetTranslation("GLateral") + ":";
+            this.transform.GetChild(10).GetComponent<Text>().text = Translator.inst.GetTranslation("totalCarLength") + ":";
+        }
+        else
+        {
+            this.transform.GetChild(2).GetComponent<Text>().text = Translator.inst.GetTranslation("maxGVertical") + ":";
+            this.transform.GetChild(4).GetComponent<Text>().text = Translator.inst.GetTranslation("maxGFrontal") + ":";
+            this.transform.GetChild(6).GetComponent<Text>().text = Translator.inst.GetTranslation("maxGLateral") + ":";
+            this.transform.GetChild(10).GetComponent<Text>().text = Translator.inst.GetTranslation("totalLength") + ":";
+        }
+    }
+
     public void UpdateValues(RollerCoaster rc, bool isSimulating)
     {
         if (isSimulating)
@@ -38,6 +59,8 @@ public class UIRailPhysics : MonoBehaviour
                 _valuesPannel.GetChild(11).GetComponent<Text>().text = (rc.GetTotalLength() + rc.GetCurrentGlobalrp().Length).ToString("0.0") + "<size=28>m</size>";
             }
         }
+        
+        Translate();
     }
 
     private IEnumerator CarSimulationValuesUpdate(RollerCoaster rc)

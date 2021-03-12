@@ -238,9 +238,6 @@ public class Simulator
                 float Ac = (velocity * velocity) / lastRail.Radius;
                 centripetalAcceleration = Ac * AcDir;
                 Debug.Log(Ac + "\t" + velocity + "\t" + lastRail.Radius);
-                // Debug.Log(Ac + "\t" + (2f * lastRail.rp.Length / Mathf.PI) + "\t" + AcDir);
-                // Debug.Log(Ac + "\t" + d / (Mathf.Sqrt(2f * (1f - Mathf.Cos(angle)))) + "\t" + d / angle + "\t" + d + "\t" + angle);
-                // Debug.Log(Ac + "\t" + d / (2f * Mathf.Sin(angle)) + "\t" + d / angle + "\t" + d + "\t" + angle);
 
             }
 
@@ -275,7 +272,11 @@ public class Simulator
         RailPhysics railPhysics = null;
 
         if(simulateRail)
-            railPhysics = SimulateRail(lastrp, rail);
+        {
+            RailPhysics.Props[] physicsAlongRail = null;
+            (railPhysics, physicsAlongRail) = SimulateRail(lastrp, rail);
+            rail.SetPhysicsAlongRail(physicsAlongRail);
+        }
 
         _rails.Add((rail, railPhysics));
     }
@@ -296,8 +297,9 @@ public class Simulator
             (_, lastrp) = _rails[_rails.Count - 2];
         }
         
-        RailPhysics railPhysics = SimulateRail(lastrp, rail);
+        (RailPhysics railPhysics, RailPhysics.Props[]  physicsAlongRail) = SimulateRail(lastrp, rail);
 
+        rail.SetPhysicsAlongRail(physicsAlongRail);
         _rails[_rails.Count - 1] = (rail, railPhysics);
     }
 
@@ -308,10 +310,13 @@ public class Simulator
         _rails.RemoveAt(_rails.Count - 1);
     }
 
-    public RailPhysics SimulateRail(RailPhysics lastrp, Rail rail)
+    public (RailPhysics, RailPhysics.Props[]) SimulateRail(RailPhysics lastrp, Rail rail)
     {
         RailPhysics currentRailPhysics = new RailPhysics(lastrp.Final);
         currentRailPhysics.Max = new RailPhysics.Props(0, Vector3.zero);
+
+        RailPhysics.Props[] physicsAlongRail = new RailPhysics.Props[(int) rail.rp.Length + 1];
+        int nextPositionToSaveProps = 0;
         float velocity = lastrp.Final.Velocity;
         float curveT = 0f;
         float scalarPosition = 0f;
@@ -322,6 +327,15 @@ public class Simulator
             (currentrpp, curveT) = StepSimulateRail(rail, curveT, velocity, _dtres);
             velocity = currentrpp.Velocity;
             scalarPosition += velocity * _dtres;
+            
+            if(scalarPosition >= nextPositionToSaveProps)
+            {
+                // TODO: Interpolate
+                while(nextPositionToSaveProps <= scalarPosition && nextPositionToSaveProps < physicsAlongRail.Length)
+                {
+                    physicsAlongRail[nextPositionToSaveProps++] = currentrpp;
+                }
+            }
 
             if(velocity <= 0.05)
             {
@@ -332,6 +346,13 @@ public class Simulator
             {
                 currentRailPhysics.Final = currentrpp;
                 currentRailPhysics.CarCompletedSegment = velocity > 0;
+                if (scalarPosition < rail.rp.Length)
+                {
+                    while (nextPositionToSaveProps < physicsAlongRail.Length)
+                    {
+                        physicsAlongRail[nextPositionToSaveProps++] = currentrpp;
+                    }
+                }
                 break;
             }
 
@@ -344,7 +365,7 @@ public class Simulator
         }
 
         // Debug.Log(currentRailPhysics);
-        return currentRailPhysics;
+        return (currentRailPhysics, physicsAlongRail);
     }
 
     private (RailPhysics.Props, float) StepSimulateRail(Rail rail, float curveT, float velocity, float deltaTime)
@@ -361,10 +382,40 @@ public class Simulator
 
         float newVelocity = velocity + deltaResultantAcceleration;
 
-        curveT = rail.sp.Curve.GetNextT(curveT, deltaTime * newVelocity);
+        float newCurveT = rail.sp.Curve.GetNextT(curveT, deltaTime * newVelocity);
 
         // TODO: Calculate G-Force
-        return (new RailPhysics.Props(newVelocity, Vector3.zero), curveT);
+        Bezier curve = rail.sp.Curve;
+
+        (Vector3 p0, Rail.CarStatus _) = rail.GetPositionInRail(curveT);
+        Matrix4x4 b0 = rail.GetBasisAt(curveT);
+        Vector3 x0 = b0.GetColumn(0);
+        (Vector3 p1, Rail.CarStatus _) = rail.GetPositionInRail(newCurveT);
+        Matrix4x4 b1 = rail.GetBasisAt(newCurveT);
+        Vector3 x1 = b1.GetColumn(0);
+
+        Vector3 centripetalAcceleration = Vector3.zero;
+        float angle = Angle(x0, x1);
+        float d = (p1 - p0).magnitude;
+        if (angle != 0f && Mathf.Abs(angle) < Mathf.PI * 0.5f && d / angle < 1f)
+        {
+            Vector3 AcDir = -(Vector3.Cross(x0, Vector3.Cross(x0, x1))).normalized;
+            float Ac = (velocity * velocity) / rail.Radius;
+            centripetalAcceleration = Ac * AcDir;
+            // Debug.Log(Ac + "\t" + velocity + "\t" + rail.Radius);
+
+        }
+
+        Vector3 frontalAcceleration = deltaResultantAcceleration * deltaTime * b0.GetColumn(0);
+        Vector3 finalAcceleration = (frontalAcceleration + centripetalAcceleration - Vector3.down * 9.8f);
+
+        float Afx = Vector3.Dot(finalAcceleration, b0.GetColumn(0));
+        float Afy = Vector3.Dot(finalAcceleration, b0.GetColumn(1));
+        float Afz = Vector3.Dot(finalAcceleration, b0.GetColumn(2));
+
+        Vector3 gForce = new Vector3(Afx, Afy, Afz) * 0.1020408f;
+
+        return (new RailPhysics.Props(newVelocity, gForce), newCurveT);
     }
 
     private float CalculateAccelerationRail(Rail rail, float curveT, float dt, float velocity)

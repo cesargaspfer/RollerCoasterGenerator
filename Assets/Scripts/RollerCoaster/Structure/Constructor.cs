@@ -24,6 +24,7 @@ public class Constructor
     private Vector3 _initialPosition;
     private Matrix4x4 _initialBasis;
     [SerializeField] private RailProps _initialGlobalrp;
+    [SerializeField] private int _heatmapValue;
 
     public Constructor(RollerCoaster rollerCoaster, RailProps rp, ModelProps mp, SpaceProps sp)
     {
@@ -43,6 +44,7 @@ public class Constructor
         _initialBasis = sp.Basis;
         _finalPosition = sp.Position;
         _finalBasis = sp.Basis;
+        _heatmapValue = 0;
         // TODO: others properties
     }
 
@@ -76,7 +78,8 @@ public class Constructor
 
         _rails.Add(_currentRail);
 
-
+        if(_heatmapValue != 0)
+            _currentRail.SetHeatmap(_heatmapValue);
         // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
         
         return _currentRail;
@@ -111,6 +114,9 @@ public class Constructor
         }
 
         _currentRail.UpdateRail(rp:localrp, mp: mp, sp: sp, isFinalRail:isFinalRail);
+
+        if (_heatmapValue != 0)
+            _currentRail.SetHeatmap(_heatmapValue);
 
         // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
 
@@ -236,7 +242,7 @@ public class Constructor
         AddFinalRail();
     }
 
-    public (Rail, Rail) AddFinalRail()
+    public (Rail, Rail) AddFinalRail(int railType = -1)
     {
         // TODO: Check if can finish track
         
@@ -298,9 +304,15 @@ public class Constructor
             inclination = -inclination;
         secondrp.Inclination = inclination;
 
-        Rail rail1 = this.UpdateLastRail(rp: firstrp + _currentGlobalrp, radius: radius);
+        if(railType != -1)
+        {
+            _mp = _mp.Clone();
+            _mp.Type = (RailModelProperties.RailType) railType;
+        }
+
+        Rail rail1 = this.UpdateLastRail(rp: firstrp + _currentGlobalrp, mp: _mp, radius: radius);
         this.AddRail();
-        Rail rail2 = this.UpdateLastRail(rp: secondrp + _currentGlobalrp, radius: radius);
+        Rail rail2 = this.UpdateLastRail(rp: secondrp + _currentGlobalrp, mp: _mp, radius: radius);
 
         // Sphere debug
         // GameObject mySphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
@@ -377,9 +389,18 @@ public class Constructor
         return false;
     }
 
-    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position)
+    public void SetHeatmap(int type)
     {
-        return _rollerCoaster.InstantiateRail(mesh, material, position).gameObject;
+        _heatmapValue = type;
+        for (int i = 0; i < _rails.Count; i++)
+        {
+            _rails[i].SetHeatmap(type);
+        }
+    }
+
+    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position, bool isHeatmap = false)
+    {
+        return _rollerCoaster.InstantiateRail(mesh, material, position, isHeatmap: isHeatmap).gameObject;
     }
 
     public RailProps CurrentGlobalrp

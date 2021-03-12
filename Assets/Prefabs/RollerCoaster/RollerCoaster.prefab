@@ -30,6 +30,7 @@ Transform:
   m_Children:
   - {fileID: 4911288398285613533}
   - {fileID: 7694178263477432059}
+  - {fileID: 8968903338768220241}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -45,10 +46,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 092626b76876a3542822d302f9246c7d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _debug: 0
+  _debugAddFinalRail: 0
   _railPrefab: {fileID: 7734706777115030726, guid: dd34e03fae0983246978e130bab859c4, type: 3}
   _railsParent: {fileID: 4911288398285613533}
   _carsParent: {fileID: 7694178263477432059}
+  _heatmapsParent: {fileID: 8968903338768220241}
   _carManagerPrefab: {fileID: 1164025782957210887, guid: 63cf28dd13250654a89004b300a56aa0, type: 3}
+  _finalRailDebugger: {fileID: 0}
   _constructor:
     _currentGlobalrp:
       _elevation: 0
@@ -64,7 +69,7 @@ MonoBehaviour:
       _modelId: 0
       _type: 0
       _resolution: 0
-    _length: 0
+    _totalLength: 0
     _position: {x: 0, y: 0, z: 0}
     _basis:
       e00: 0
@@ -102,6 +107,22 @@ MonoBehaviour:
       e32: 0
       e33: 0
     _rails: []
+    _railsIntersection: []
+    _initialGlobalrp:
+      _elevation: 0
+      _rotation: 0
+      _inclination: 0
+      _length: 0
+  _simulator:
+    _cars: []
+    _dtres: 0
+    _carId: 0
+    _carQuantity: 0
+    _isSimulating: 0
+  _isComplete: 0
+  _carSimulationPause: 0
+  _isHeatmapActive: 0
+  _heatmapValue: 0
 --- !u!1 &4911288398285613534
 GameObject:
   m_ObjectHideFlags: 0
@@ -131,6 +152,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4911288397087844843}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &6917731353544496405
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8968903338768220241}
+  m_Layer: 0
+  m_Name: Heatmaps
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8968903338768220241
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6917731353544496405}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4911288397087844843}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8897203551432015434
 GameObject:

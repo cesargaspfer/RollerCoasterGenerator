@@ -93,6 +93,8 @@ public class Translator : MonoBehaviour
 
         // ------------------------------------- Main Pannel ------------------------------------- //
 
+        UIManager.inst.TranslateLegend();
+
         _topPannel.GetChild(1).GetChild(0).GetChild(0).GetComponent<Text>().text = _translations["constructor"];
         _topPannel.GetChild(1).GetChild(1).GetChild(0).GetComponent<Text>().text = _translations["terrain"];
 
@@ -113,21 +115,16 @@ public class Translator : MonoBehaviour
             _railProps.GetChild(1).GetChild(2 + i).GetChild(6).GetComponent<Text>().text = _translations["length"] + ":";
         }
 
-        _simulatorProps.GetChild(0).GetChild(0).GetComponent<Text>().text = _translations["velocity"] + ":";
-        _simulatorProps.GetChild(0).GetChild(2).GetComponent<Text>().text = _translations["maxGVertical"] + ":";
-        _simulatorProps.GetChild(0).GetChild(4).GetComponent<Text>().text = _translations["maxGFrontal"] + ":";
-        _simulatorProps.GetChild(0).GetChild(6).GetComponent<Text>().text = _translations["maxGLateral"] + ":";
-        _simulatorProps.GetChild(0).GetChild(8).GetComponent<Text>().text = _translations["height"] + ":";
-        _simulatorProps.GetChild(0).GetChild(10).GetComponent<Text>().text = _translations["totalLength"] + ":";
+        _simulatorProps.GetChild(0).GetComponent<UIRailPhysics>().Translate();
 
         _simulatorProps.GetChild(1).GetChild(0).GetComponent<Text>().text = _translations["heatmap"] + ":";
 
         // TODO: Translate heatmap's options
         _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[0].text = _translations["none"];
         _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[1].text = _translations["velocity"];
-        _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[2].text = _translations["maxGVertical"];
-        _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[3].text = _translations["maxGFrontal"];
-        _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[4].text = _translations["maxGLateral"];
+        _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[2].text = _translations["GVertical"];
+        _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[3].text = _translations["GFrontal"];
+        _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[4].text = _translations["GLateral"];
         _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[5].text = _translations["height"];
 
         _constructorButtons.GetChild(0).GetChild(0).GetComponent<Text>().text = _translations["addRail"];

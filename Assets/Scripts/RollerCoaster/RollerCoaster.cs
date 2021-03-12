@@ -17,6 +17,8 @@ public class RollerCoaster : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] public Transform _carsParent;
     #pragma warning disable 0649
+    [SerializeField] public Transform _heatmapsParent;
+    #pragma warning disable 0649
     [SerializeField] private Transform _carManagerPrefab;
     #pragma warning disable 0649
     [SerializeField] public Transform _finalRailDebugger;
@@ -25,6 +27,8 @@ public class RollerCoaster : MonoBehaviour
     [SerializeField] private Simulator _simulator;
     [SerializeField] private bool _isComplete;
     [SerializeField] private bool _carSimulationPause;
+    [SerializeField] private bool _isHeatmapActive;
+    [SerializeField] private int _heatmapValue = -1;
 
     private IEnumerator _carSimulation = null;
 
@@ -38,6 +42,8 @@ public class RollerCoaster : MonoBehaviour
         _carSimulation = null;
         _simulator = new Simulator(this, 0.01f, 0, 1);
         _isComplete = false;
+        _heatmapValue = -1;
+        SetHeatmap(0);
 
         if (CarsManager.inst == null)
         {
@@ -65,10 +71,10 @@ public class RollerCoaster : MonoBehaviour
         }
     }
 
-    public void AddFinalRail()
+    public void AddFinalRail(int railType = -1)
     {
         if (_isComplete) return;
-        (Rail rail1, Rail rail2) = _constructor.AddFinalRail();
+        (Rail rail1, Rail rail2) = _constructor.AddFinalRail(railType);
         _simulator.UpdateLastRail(rail1);
         _simulator.AddRail(rail2);
         _isComplete = true;
@@ -175,6 +181,12 @@ public class RollerCoaster : MonoBehaviour
             this.RemoveLastRail(false);
         }
         _generator.Generate();
+        if(_heatmapValue != 0)
+        {
+            int tmpheatmapValue = _heatmapValue;
+            _heatmapValue = -1;
+            SetHeatmap(tmpheatmapValue);
+        }
     }
 
     public bool SaveCoaster(string coasterName)
@@ -188,6 +200,7 @@ public class RollerCoaster : MonoBehaviour
             StopCarSimulation();
 
         _isComplete = false;
+        SetHeatmap(0);
         float railsCount = _constructor.Rails.Count;
         for (int i = 0; i < railsCount; i++)
         {
@@ -212,7 +225,7 @@ public class RollerCoaster : MonoBehaviour
             }
             else
             {
-                this.AddFinalRail();
+                this.AddFinalRail((int) savePack[i].Type);
                 return;
             }
         }
@@ -238,13 +251,35 @@ public class RollerCoaster : MonoBehaviour
         return SaveManager.LoadCoastersNames();
     }
 
+    public void SetHeatmap(int type)
+    {
+        if(_heatmapValue == type) return;
+        _heatmapValue = type;
+        _isHeatmapActive = type != 0;
+        if(_isHeatmapActive)
+        {
+            _railsParent.gameObject.SetActive(false);
+            _heatmapsParent.gameObject.SetActive(true);
+        }
+        else
+        {
+            _railsParent.gameObject.SetActive(true);
+            _heatmapsParent.gameObject.SetActive(false);
+        }
+        _constructor.SetHeatmap(type);
+    }
+
     // TODO: Make functions to change rail model props; car props
 
     // ---------------------------- Intern ---------------------------- //
 
-    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position)
+    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position, bool isHeatmap = false)
     {
         Transform railTransform = Instantiate(_railPrefab, position, Quaternion.identity, _railsParent);
+        if(isHeatmap)
+        {
+            railTransform.SetParent(_heatmapsParent);
+        }
         railTransform.GetComponent<MeshFilter>().mesh = mesh;
         railTransform.GetComponent<Renderer>().material = material;
         return railTransform.gameObject;

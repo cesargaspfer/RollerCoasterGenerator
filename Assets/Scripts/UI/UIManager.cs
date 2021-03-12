@@ -49,18 +49,32 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject _settingsButton;
     #pragma warning disable 0649
     [SerializeField] private UISettings _UISettings;
-    
+    #pragma warning disable 0649
+    [SerializeField] private Transform _legendPannel;
+    #pragma warning disable 0649
+    [SerializeField] private string[] _heatmapsTranslations = new string[6]
+        {
+            "none",
+            "velocity",
+            "GVertical",
+            "GFrontal",
+            "GLateral",
+            "height",
+        };
     
     [SerializeField] private bool _isPaused = false;
     [SerializeField] private bool _exitedMenu = false;
+    [SerializeField] private bool _isLegendActive = false;
 
     private Animator _mpAnim;
     private Animator _menuAnim;
+    private Animator _legendAnim;
 
     void Awake()
     {
         _mpAnim = _pannel.GetComponent<Animator>();
         _menuAnim = _menuPannel.GetComponent<Animator>();
+        _legendAnim = _legendPannel.GetComponent<Animator>();
     }
 
     void Start()
@@ -73,6 +87,8 @@ public class UIManager : MonoBehaviour
             _exitedMenu = false;
             _cameraHandler.SetCanMove(false);
             _mpAnim.Play("HideState");
+            _isLegendActive = false;
+            _legendAnim.Play("HideLegendState");
         }
         else
         {
@@ -84,9 +100,6 @@ public class UIManager : MonoBehaviour
             _exitedMenu = true;
             _cameraHandler.SetCanMove(true);
         }
-        float pannelX = PlayerPrefs.GetFloat("pannelX", -620);
-        float pannelY = PlayerPrefs.GetFloat("pannelY", 380);
-        _pannel.GetComponent<RectTransform>().anchoredPosition = new Vector2(pannelX, pannelY);
     }
 
     void Update()
@@ -102,35 +115,6 @@ public class UIManager : MonoBehaviour
                 Unpause();
             }
         }
-    }
-
-    // ---------------------------- Move Pannel ---------------------------- //
-
-    #pragma warning disable 0649
-    [SerializeField] private Vector2 _mainPannelSize = new Vector2(320f, 580f);
-    private Vector2 _positionOffset = Vector3.zero;
-    private float _yScale;
-
-    public void OnPointerDownOnTop()
-    {
-        _yScale = Camera.main.aspect;
-        Vector3 mousePosition = _camera.ScreenToViewportPoint(Input.mousePosition);
-        _positionOffset = _pannel.GetComponent<RectTransform>().anchoredPosition - new Vector2((mousePosition[0] - 0.5f) * 1600, (mousePosition[1] - 0.5f) * 1600 / _yScale);
-    }
-
-    public void OnDragOnTop()
-    {
-        Vector3 mousePosition = _camera.ScreenToViewportPoint(Input.mousePosition);
-        Vector2 tmpPosition = (new Vector2((mousePosition[0] - 0.5f) * 1600, (mousePosition[1] - 0.5f) * 1600 / _yScale)) + _positionOffset;
-        float x = Mathf.Min(Mathf.Max(tmpPosition.x, -800 + _mainPannelSize[0] * 0.5f), 800 - _mainPannelSize[0] * 0.5f);
-        float y = Mathf.Min(Mathf.Max(tmpPosition.y, -800 / _yScale + _mainPannelSize[1]), 800 / _yScale);
-        _pannel.GetComponent<RectTransform>().anchoredPosition = new Vector2(x, y);
-    }
-
-    public void OnPointerUpOnTop()
-    {
-        PlayerPrefs.SetFloat("pannelX", _pannel.GetComponent<RectTransform>().anchoredPosition.x);
-        PlayerPrefs.SetFloat("pannelY", _pannel.GetComponent<RectTransform>().anchoredPosition.y);
     }
 
     // ---------------------------- Main Pannel Animation Buttons ---------------------------- //
@@ -150,7 +134,6 @@ public class UIManager : MonoBehaviour
     {
         if(_isAnimating) return;
         _railTypeDropdown.value = _lasRailType;
-        _heatmapDropdown.value = 0;
         _constructorPannelState = constructorPannelState;
 
         if (_constructorPannelState == 0)
@@ -163,6 +146,14 @@ public class UIManager : MonoBehaviour
         {
             _mpAnim.Play("GenerationState");
         }
+        if(loaded)
+        {
+            _heatmapDropdown.value = 0;
+        }
+        if (_isLegendActive)
+        {
+            _legendAnim.Play("ShowLegend");
+        }
         _isSimulating = false;
         StartCoroutine(AnimationTime(0.5f));
     }
@@ -171,6 +162,10 @@ public class UIManager : MonoBehaviour
     {
         if(_isAnimating) return;
         _lasRailType = _railTypeDropdown.value;
+        if(_isLegendActive)
+        {
+            _legendAnim.Play("HideLegend");
+        }
         StartCoroutine(HidePannelCoroutine());
     }
 
@@ -436,6 +431,7 @@ public class UIManager : MonoBehaviour
     public void GenerateCoasterButtonPressed()
     {
         _rollerCoaster.GenerateCoaster();
+
     }
 
     public void ChangeCameraButtonPressed()
@@ -448,6 +444,50 @@ public class UIManager : MonoBehaviour
         // TODO: Don't call this when pannel is shown
         _rollerCoaster.UpdateLastRail(railType: type);
     }
+
+    public void SetHeatmap(int type)
+    {
+        _rollerCoaster.SetHeatmap(type);
+        if(type == 0)
+        {
+            if(_isLegendActive)
+            {
+                _legendAnim.Play("HideLegend");
+                _isLegendActive = false;
+            }
+        }
+        else
+        {
+            if (!_isLegendActive)
+            {
+                _legendAnim.Play("ShowLegend");
+                _isLegendActive = true;
+            }
+            _legendPannel.GetChild(0).GetChild(0).GetComponent<Text>().text = Translator.inst.GetTranslation(_heatmapsTranslations[type]);
+
+            if(type == 1)
+            {
+                _legendPannel.GetChild(1).GetChild(0).GetChild(0).GetComponent<Text>().text = "0<size=20>m/s</size>";
+                _legendPannel.GetChild(1).GetChild(0).GetChild(2).GetComponent<Text>().text = "20<size=20>m/s</size>";
+            }
+            else if (type == 5)
+            {
+                _legendPannel.GetChild(1).GetChild(0).GetChild(0).GetComponent<Text>().text = "0<size=20>m</size>";
+                _legendPannel.GetChild(1).GetChild(0).GetChild(2).GetComponent<Text>().text = "50<size=20>m</size>";
+            }
+            else
+            {
+                _legendPannel.GetChild(1).GetChild(0).GetChild(0).GetComponent<Text>().text = "-10<size=20>g</size>";
+                _legendPannel.GetChild(1).GetChild(0).GetChild(2).GetComponent<Text>().text = "10<size=20>g</size>";
+            }
+        }
+    }
+
+    public void TranslateLegend()
+    {
+        _legendPannel.GetChild(0).GetChild(0).GetComponent<Text>().text = Translator.inst.GetTranslation(_heatmapsTranslations[_heatmapDropdown.value]);
+    }
+    
 
     // ---------------------------- Pause Pannel Normal Buttons ---------------------------- //
 
@@ -535,6 +575,7 @@ public class UIManager : MonoBehaviour
         _exitedMenu = true;
         _cameraHandler.SetCanMove(true);
         ShowPannel(0, true);
+        _nameInput.text = coasterName;
         _UIRailPhysics.UpdateValues(_rollerCoaster, false);
         _isAnimating = false;
         Unpause();

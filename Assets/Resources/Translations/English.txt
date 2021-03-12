@@ -16,8 +16,12 @@ velocity|Velocity
 maxGVertical|Max G-Vertical
 maxGFrontal|Max G-Frontal
 maxGLateral|Max G-Lateral
+GVertical|G-Vertical
+GFrontal|G-Frontal
+GLateral|G-Lateral
 height|Height
 totalLength|Total Length
+totalCarLength|Traveled
 heatmap|Heatmap
 none|None
 addRail|Add Rail
