@@ -48,6 +48,7 @@ selectCoasterType|Selecione um Tipo de Montanha-Russa:
 coasterTypeNormal|Normal
 vSync|Sincronização Vertical:
 enableSound|Permitir Som:
+dynamicArrows|Direção de Arrasto Dinâmica das Setas:
 selectLanguage|Língua:
 creditsText|Créditos<br><br>Desenvolvido por<br><b>César Gasparini Fernandes</b><br>Orientado por<br><b>Marcel Parolin Jackowski</b>
 save|Salvar

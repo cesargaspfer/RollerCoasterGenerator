@@ -55,7 +55,7 @@ public class Car : MonoBehaviour
         // TODO: _gForce
     }
 
-    public void UpdatePhysics(float scalarPosition, float velocity, int currentSegment, int currentLap, float currentCurveT, float distance)
+    public void UpdatePhysics(float scalarPosition, float velocity, Vector3 gForce, int currentSegment, int currentLap, float currentCurveT, float distance)
     {
         _scalarPosition = scalarPosition;
         _velocity = velocity;
@@ -63,7 +63,7 @@ public class Car : MonoBehaviour
         _currentLap = currentLap;
         _currentCurveT = currentCurveT;
         _totalPosition += distance;
-        // TODO: _gForce
+        _gForce = gForce;
     }
 
     public void Transform(Vector3 position, Quaternion rotation)

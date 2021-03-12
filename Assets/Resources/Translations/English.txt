@@ -48,6 +48,7 @@ selectCoasterType|Select the Roller Coaster Type:
 coasterTypeNormal|Normal
 vSync|V-Sync:
 enableSound|Enable Sound:
+dynamicArrows|Dynamic Arrow Drag Direction:
 selectLanguage|Language:
 creditsText|Credits<br><br>Developed by<br><b>César Gasparini Fernandes</b><br>Oriented by<br><b>Marcel Parolin Jackowski</b>
 save|Save

@@ -199,7 +199,8 @@ public class Translator : MonoBehaviour
         _menuOptions.GetChild(0).GetComponent<Text>().text = _translations["options"];
         _menuOptions.GetChild(1).GetChild(0).GetComponent<Text>().text = _translations["vSync"];
         _menuOptions.GetChild(2).GetChild(0).GetComponent<Text>().text = _translations["enableSound"];
-        _menuOptions.GetChild(3).GetChild(0).GetComponent<Text>().text = _translations["selectLanguage"];
+        _menuOptions.GetChild(3).GetChild(0).GetComponent<Text>().text = _translations["dynamicArrows"];
+        _menuOptions.GetChild(4).GetChild(0).GetComponent<Text>().text = _translations["selectLanguage"];
 
         _menuCredits.GetChild(0).GetComponent<Text>().text = _translations["creditsText"].Replace("<br>", "\n");
 

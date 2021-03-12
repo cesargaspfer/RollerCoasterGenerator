@@ -82,7 +82,7 @@ public class Simulator
             Vector3 vectorPos = curve.Sample(currentCurveT);
             Quaternion rotation = currentRail.GetQuaternionAt(currentCurveT);
 
-            _cars[i].UpdatePhysics(currentPos, 0f, currentSegment, currentLap, currentCurveT, distance);
+            _cars[i].UpdatePhysics(currentPos, 0f, Vector3.up, currentSegment, currentLap, currentCurveT, distance);
             _cars[i].Transform(vectorPos, rotation);
         }
 
@@ -102,7 +102,7 @@ public class Simulator
 
         float newVelocity = velocity + deltaResultantAcceleration;
 
-        this.UpdateCars(newVelocity, deltaTime);
+        this.UpdateCars(newVelocity, deltaTime, deltaResultantAcceleration / deltaTime);
     }
 
     private float CalculateResultantAcceleration(float dt, float velocity)
@@ -203,7 +203,7 @@ public class Simulator
         return (currentRail, currentCurveT);
     }
 
-    private void UpdateCars(float velocity, float deltaTime)
+    private void UpdateCars(float velocity, float deltaTime, float acceleration)
     {
         for(int i = 0; i < _cars.Length; i++)
         {
@@ -221,7 +221,39 @@ public class Simulator
             float currentCurveT = curve.GetNextT(lastT, distance);
             Vector3 vectorPos = curve.Sample(currentCurveT);
             Quaternion rotation = currentRail.GetQuaternionAt(currentCurveT);
-            _cars[i].UpdatePhysics(currentPos, velocity, currentSegment, currentLap, currentCurveT, distance);
+
+            (Vector3 p0, Rail.CarStatus _) = lastRail.GetPositionInRail(_cars[i].CurrentCurveT);
+            Matrix4x4 b0 = lastRail.GetBasisAt(_cars[i].CurrentCurveT);
+            Vector3 x0 = b0.GetColumn(0);
+            (Vector3 p1, Rail.CarStatus _) = currentRail.GetPositionInRail(currentCurveT);
+            Matrix4x4 b1 = currentRail.GetBasisAt(currentCurveT);
+            Vector3 x1 = b1.GetColumn(0);
+
+            Vector3 centripetalAcceleration = Vector3.zero;
+            float angle = Angle(x0, x1);
+            float d = (p1 - p0).magnitude;
+            if(angle != 0f && Mathf.Abs(angle) < Mathf.PI * 0.5f && d / angle < 1f)
+            {
+                Vector3 AcDir = -(Vector3.Cross(x0, Vector3.Cross(x0, x1))).normalized;
+                float Ac = (velocity * velocity) / lastRail.Radius;
+                centripetalAcceleration = Ac * AcDir;
+                Debug.Log(Ac + "\t" + velocity + "\t" + lastRail.Radius);
+                // Debug.Log(Ac + "\t" + (2f * lastRail.rp.Length / Mathf.PI) + "\t" + AcDir);
+                // Debug.Log(Ac + "\t" + d / (Mathf.Sqrt(2f * (1f - Mathf.Cos(angle)))) + "\t" + d / angle + "\t" + d + "\t" + angle);
+                // Debug.Log(Ac + "\t" + d / (2f * Mathf.Sin(angle)) + "\t" + d / angle + "\t" + d + "\t" + angle);
+
+            }
+
+            Vector3 frontalAcceleration = acceleration * b0.GetColumn(0);
+            Vector3 finalAcceleration = (frontalAcceleration + centripetalAcceleration - Vector3.down * 9.8f);
+
+            float Afx = Vector3.Dot(finalAcceleration, b0.GetColumn(0));
+            float Afy = Vector3.Dot(finalAcceleration, b0.GetColumn(1));
+            float Afz = Vector3.Dot(finalAcceleration, b0.GetColumn(2));
+
+            Vector3 gForce = new Vector3(Afx, Afy, Afz) * 0.1020408f;
+
+            _cars[i].UpdatePhysics(currentPos, velocity, gForce, currentSegment, currentLap, currentCurveT, distance);
             _cars[i].Transform(vectorPos, rotation);
         }
     }

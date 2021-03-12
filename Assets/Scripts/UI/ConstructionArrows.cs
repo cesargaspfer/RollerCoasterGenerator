@@ -151,8 +151,6 @@ public class ConstructionArrows : MonoBehaviour
         }
     }
 
-
-
     public void OnPointerDownOnArrow(int arrowId)
     {
         if (!Input.GetMouseButton(0)) return;
@@ -313,6 +311,8 @@ public class ConstructionArrows : MonoBehaviour
         if (changed)
         {
             UpdateArrows();
+            if(PlayerPrefs.GetInt("dynamicArrows", 1) == 1)
+                UpdateOrientations();
         }
     }
 

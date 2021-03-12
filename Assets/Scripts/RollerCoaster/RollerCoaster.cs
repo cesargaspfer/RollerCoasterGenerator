@@ -24,7 +24,7 @@ public class RollerCoaster : MonoBehaviour
     [SerializeField] private Generator _generator;
     [SerializeField] private Simulator _simulator;
     [SerializeField] private bool _isComplete;
-
+    [SerializeField] private bool _carSimulationPause;
 
     private IEnumerator _carSimulation = null;
 
@@ -121,7 +121,7 @@ public class RollerCoaster : MonoBehaviour
     {
         if (!_simulator.CanSimulateCar())
             return;
-
+        _carSimulationPause = false;
         _carSimulation = CarSimulation();
         StartCoroutine(_carSimulation);
     }
@@ -133,7 +133,8 @@ public class RollerCoaster : MonoBehaviour
 
         while(_simulator.IsSimulating)
         {
-            _simulator.SetpCarSimulation(Time.deltaTime);
+            if(!_carSimulationPause)
+                _simulator.SetpCarSimulation(Time.deltaTime);
             yield return null;
         }
 
@@ -147,6 +148,11 @@ public class RollerCoaster : MonoBehaviour
         StopCoroutine(_carSimulation);
 
         _simulator.StopCarSimulation();
+    }
+
+    public void SetPauseCarSimulation(bool value)
+    {
+        _carSimulationPause = value;
     }
 
     public RailProps GetCurrentGlobalrp()

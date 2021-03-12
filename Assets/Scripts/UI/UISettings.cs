@@ -8,16 +8,20 @@ public class UISettings : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private Toggle _soundsToggle;
     #pragma warning disable 0649
+    [SerializeField] private Toggle _dynamicArrowsToggle;
+    #pragma warning disable 0649
     [SerializeField] private Dropdown _languageDropdown;
 
     public void Initialize()
     {
         _vSyncToggle.isOn = PlayerPrefs.GetInt("vSync", 1) == 1;
         _soundsToggle.isOn = PlayerPrefs.GetInt("sounds", 1) == 1;
+        _dynamicArrowsToggle.isOn = PlayerPrefs.GetInt("dynamicArrows", 1) == 1;
         _languageDropdown.value = PlayerPrefs.GetInt("language", 0);
 
         SetVSync(_vSyncToggle.isOn);
         SetSounds(_soundsToggle.isOn);
+        SetDynamicArrows(_dynamicArrowsToggle.isOn);
         ChangeLanguage(_languageDropdown.value);
     }
 
@@ -44,6 +48,18 @@ public class UISettings : MonoBehaviour
         else
         {
             PlayerPrefs.SetInt("sounds", 0);
+        }
+    }
+
+    public void SetDynamicArrows(bool value)
+    {
+        if (value)
+        {
+            PlayerPrefs.SetInt("dynamicArrows", 1);
+        }
+        else
+        {
+            PlayerPrefs.SetInt("dynamicArrows", 0);
         }
     }
 

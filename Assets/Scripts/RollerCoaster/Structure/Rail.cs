@@ -19,6 +19,7 @@ public class Rail
     [SerializeField] private ModelProps _mp;
     [SerializeField] private SpaceProps _sp;
     [SerializeField] private bool _isFinalRail;
+    [SerializeField] private float _radius;
     
     private Mesh[] _mesh = null;
     private RailModel _railModel = null;
@@ -82,6 +83,12 @@ public class Rail
         }
 
         _inclinationToMatrixLookAt = GetInclinationToMatrixLookAt(_sp.Basis, ThreeRotationMatrix(_sp.Basis, _rp.Radians) * _sp.Basis);
+
+        Vector3 x0 = GetBasisAt(0f).GetColumn(0);
+        Vector3 x1 = GetBasisAt(1f).GetColumn(0);
+
+        _radius = _rp.Length / Angle(x0, x1);
+        Debug.Log(_radius);
     }
 
     public CarStatus IsInRail(float position)
@@ -149,5 +156,10 @@ public class Rail
     public bool IsFinalRail
     {
         get { return _isFinalRail; }
+    }
+
+    public float Radius
+    {
+        get { return _radius; }
     }
 }

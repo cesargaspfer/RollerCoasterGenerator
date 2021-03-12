@@ -458,6 +458,7 @@ public class UIManager : MonoBehaviour
     {
         ShowPause();
         _isPaused = true;
+        _rollerCoaster.SetPauseCarSimulation(true);
         if(ConstructionArrows.inst.IsActive)
         {
             _showArrowsWhenUnpause = true;
@@ -469,6 +470,7 @@ public class UIManager : MonoBehaviour
     public void Unpause()
     {
         if (_isAnimating) return;
+        _rollerCoaster.SetPauseCarSimulation(false);
         _isPaused = false;
         if (_showArrowsWhenUnpause)
         {
