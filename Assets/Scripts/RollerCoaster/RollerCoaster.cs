@@ -58,16 +58,12 @@ public class RollerCoaster : MonoBehaviour
         }
     }
 
-    public void AddRail(bool simulateRail = false)
+    public void AddRail(bool isPreview, bool simulateRail)
     {
         if(!_simulator.IsSimulating && !_isComplete)
         {
-            Rail rail = _constructor.AddRail();
+            Rail rail = _constructor.AddRail(isPreview);
             _simulator.AddRail(rail, simulateRail);
-        }
-        else
-        {
-            // TODO: Warn player? *Restart simulation?* *Restart simulation if cars are in final rail?*
         }
     }
 
@@ -82,7 +78,7 @@ public class RollerCoaster : MonoBehaviour
 
     public (RailProps, ModelProps) RemoveLastRail(bool secure = true)
     {
-        if(secure && _constructor.Rails.Count <= 1)
+        if(secure && _constructor.Rails.Count <= 2)
             return (null, null);
         _simulator.RemoveLastRail();
         _isComplete = false;
@@ -189,6 +185,16 @@ public class RollerCoaster : MonoBehaviour
         }
     }
 
+    public void SetRailPreview(int id, bool isPreview)
+    {
+        _constructor.SetRailPreview(id, isPreview);
+    }
+
+    public void SetLastRailPreview(bool isPreview)
+    {
+        _constructor.SetRailPreview(_constructor.Rails.Count - 1, isPreview);
+    }
+
     public bool SaveCoaster(string coasterName)
     {
         return SaveManager.SaveCoaster(coasterName, _constructor.Rails.ToArray());
@@ -209,7 +215,7 @@ public class RollerCoaster : MonoBehaviour
         SavePack[] savePack = SaveManager.LoadCoaster(coasterName);
         for(int i = 0; i < savePack.Length; i++)
         {
-            this.AddRail();
+            this.AddRail(false, true);
             if(!savePack[i].IsFinalRail)
             {
                 this.UpdateLastRail(
@@ -251,6 +257,11 @@ public class RollerCoaster : MonoBehaviour
         return SaveManager.LoadCoastersNames();
     }
 
+    public bool CoasterExists(string coasterName)
+    {
+        return SaveManager.CoasterExists(coasterName);
+    }
+
     public void SetHeatmap(int type)
     {
         if(_heatmapValue == type) return;
@@ -267,6 +278,11 @@ public class RollerCoaster : MonoBehaviour
             _heatmapsParent.gameObject.SetActive(false);
         }
         _constructor.SetHeatmap(type);
+    }
+
+    public bool CheckLastRailPlacement()
+    {
+        return _constructor.CheckLastRailPlacement();
     }
 
     // TODO: Make functions to change rail model props; car props

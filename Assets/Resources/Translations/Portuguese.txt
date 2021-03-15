@@ -61,3 +61,6 @@ saveSuccess|Montanha-russa salva com sucesso!
 saveError|Falha ao salvar a montanha-russa!
 load|Carregar
 noCoasterFound|Nenhuma montanha-russa encontrada.
+warnIntersection|Há trechos que se intersectam!
+warnCantRemovePlataform|Não é possível remover a plataforma!
+coasterExists|Já existe uma montanha-russa com o mesmo nome. Deseja substituí-la?

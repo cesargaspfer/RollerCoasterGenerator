@@ -41,13 +41,23 @@ public abstract class RailModel
                 // Updating the mesh's vertices and normals
                 _srm[i].UpdateMesh(esr[i], meshes[i]);
 
-        Material[] materials = new Material[_srm.Length];
-        for (int i = 0; i < esr.Length; i++)
-            materials[i] = _srm[i].GetMaterial(mp.Type);
-
         for(int i = 0; i < meshes.Length; i++)
             meshes[i].RecalculateBounds();
             
-        return (meshes, materials);
+        return (meshes, GetMaterials(mp.Type));
+    }
+
+    public virtual Material[] GetMaterials(RailType railType)
+    {
+        if (_srm == null)
+        {
+            _srm = this.GetSubRailModels();
+        }
+
+        Material[] materials = new Material[_srm.Length];
+        for (int i = 0; i < _srm.Length; i++)
+            materials[i] = _srm[i].GetMaterial(railType);
+
+        return materials;
     }
 }

@@ -19,6 +19,7 @@ public class Rail
     [SerializeField] private ModelProps _mp;
     [SerializeField] private SpaceProps _sp;
     [SerializeField] private bool _isFinalRail;
+    [SerializeField] private int _previewMode;
     [SerializeField] private float _radius;
     
     private Mesh[] _mesh = null;
@@ -36,6 +37,7 @@ public class Rail
         _constructor = constructor;
         _lastLength = -1f;
         _heatmapGO = new GameObject[2];
+        _previewMode = 0;
         this.UpdateRail(rp, mp, sp, isFinalRail);
     }
 
@@ -94,7 +96,6 @@ public class Rail
         Vector3 x1 = GetBasisAt(1f).GetColumn(0);
 
         _radius = _rp.Length / Angle(x0, x1);
-
         
         (Mesh[] heatmapMesh, Material[] heatmapMaterials) = GetRailModel(0).GenerateMeshes(_rp, _mp, _sp, null);
         if(_heatmapGO != null)
@@ -104,6 +105,28 @@ public class Rail
         }
         _heatmapGO[0] = _constructor.InstantiateRail(heatmapMesh[0], heatmapMaterials[0], _sp.Position, isHeatmap: true);
         _heatmapGO[1] = _constructor.InstantiateRail(heatmapMesh[1], heatmapMaterials[1], _sp.Position, isHeatmap: true);
+    }
+
+    // previewMode: 0 - normal; 1 to preview green; 1 to preview red;
+    public void SetPreview(int previewMode)
+    {
+        _previewMode = previewMode;
+        if(previewMode == 0)
+        {
+            Material[] materials = _railModel.GetMaterials(_mp.Type);
+            for (int i = 0; i < _gameObject.Length; i++)
+                _gameObject[i].GetComponent<Renderer>().material = materials[i];
+        }
+        else
+        {
+            Material previewMaterial = null;
+            if(previewMode == 1)
+                previewMaterial = Resources.Load("Materials/RollerCoaster/PreviewGreen", typeof(Material)) as Material;
+            else
+                previewMaterial = Resources.Load("Materials/RollerCoaster/PreviewRed", typeof(Material)) as Material;
+            for (int i = 0; i < _gameObject.Length; i++)
+                _gameObject[i].GetComponent<Renderer>().material = previewMaterial;
+        }
     }
 
     public CarStatus IsInRail(float position)
@@ -234,6 +257,11 @@ public class Rail
     public bool IsFinalRail
     {
         get { return _isFinalRail; }
+    }
+
+    public int PreviewMode
+    {
+        get { return _previewMode; }
     }
 
     public float Radius

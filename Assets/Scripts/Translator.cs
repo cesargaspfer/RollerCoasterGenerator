@@ -204,7 +204,8 @@ public class Translator : MonoBehaviour
         _menuSave.GetChild(0).GetChild(0).GetChild(0).GetComponent<Text>().text = _translations["continue"];
         _menuSave.GetChild(0).GetChild(1).GetComponent<Text>().text = _translations["save"];
         _menuSave.GetChild(0).GetChild(2).GetComponent<Text>().text = _translations["typeCoasterName"];
-
+        _menuSave.GetChild(0).GetChild(4).GetComponent<Text>().text = _translations["coasterExists"];
+        
         _menuSave.GetChild(1).GetChild(0).GetComponent<Text>().text = _translations["saveSuccess"];
         _menuSave.GetChild(2).GetChild(0).GetComponent<Text>().text = _translations["saveError"];
 

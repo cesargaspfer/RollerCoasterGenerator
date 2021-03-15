@@ -61,3 +61,6 @@ saveSuccess|Roller coaster successfully saved!
 saveError|Failed to save the roller coaster!
 load|Load
 noCoasterFound|No roller coasters found.
+warnIntersection|There are sections that intersect!
+warnCantRemovePlataform|It is not possible to remove the platform!
+coasterExists|There is already a roller coaster with the same name. Do you want to replace it?

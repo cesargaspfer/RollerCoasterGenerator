@@ -52,6 +52,8 @@ public class UIManager : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private Transform _legendPannel;
     #pragma warning disable 0649
+    [SerializeField] private UIWarning _UIWarning;
+    #pragma warning disable 0649
     [SerializeField] private string[] _heatmapsTranslations = new string[6]
         {
             "none",
@@ -94,7 +96,8 @@ public class UIManager : MonoBehaviour
         {
             _settingsButton.SetActive(true);
             _rollerCoaster.Initialize();
-            _rollerCoaster.AddRail(true);
+            _rollerCoaster.AddRail(false, true);
+            _rollerCoaster.AddRail(true, true);
             ConstructionArrows.inst.Initialize(_rollerCoaster);
             _isPaused = false;
             _exitedMenu = true;
@@ -404,34 +407,39 @@ public class UIManager : MonoBehaviour
     public void AddRailButtonPressed()
     {
         if(_rollerCoaster.IsComplete()) return;
-        _rollerCoaster.AddRail(true);
-        ConstructionArrows.inst.ActiveArrows(true);
-        ConstructionArrows.inst.UpdateArrows();
-        // TODO: Update RailProps
+        if(_rollerCoaster.CheckLastRailPlacement())
+        {
+            _rollerCoaster.SetLastRailPreview(false);
+            _rollerCoaster.AddRail(true, true);
+            ConstructionArrows.inst.ActiveArrows(true);
+            ConstructionArrows.inst.UpdateArrows();
+        }
+        else
+        {
+            _UIWarning.Warn("warnIntersection");
+        }
     }
 
     public void AutoCompleteButtonPressed()
     {
         ConstructionArrows.inst.ActiveArrows(false);
         _rollerCoaster.AddFinalRail();
-        // TODO: Update RailProps
+        UpdateUIValues();
     }
 
     public void RemoveRailButtonClicked()
     {
         (RailProps rp, ModelProps mp) = _rollerCoaster.RemoveLastRail();
+        _rollerCoaster.SetLastRailPreview(true);
         ConstructionArrows.inst.ActiveArrows(true);
         ConstructionArrows.inst.UpdateArrows();
         if (rp == null)
-            // TODO: Warn player that he can't remove rail
-            return;
-        // TODO: Update RailProps
+            _UIWarning.Warn("warnCantRemovePlataform");
     }
 
     public void GenerateCoasterButtonPressed()
     {
         _rollerCoaster.GenerateCoaster();
-
     }
 
     public void ChangeCameraButtonPressed()
@@ -441,7 +449,6 @@ public class UIManager : MonoBehaviour
 
     public void UpdateRailType(int type)
     {
-        // TODO: Don't call this when pannel is shown
         _rollerCoaster.UpdateLastRail(railType: type);
     }
 
@@ -589,14 +596,19 @@ public class UIManager : MonoBehaviour
         _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(1).gameObject.SetActive(false);
         _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(2).gameObject.SetActive(false);
         _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(0).GetChild(3).GetComponent<InputField>().text = _nameInput.text;
+        UpdateCoasterExistsWarning();
         _flash.gameObject.SetActive(true);
         GoToSecondMenuPannel();
+    }
+
+    public void UpdateCoasterExistsWarning()
+    {
+        _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(0).GetChild(4).gameObject.SetActive(_rollerCoaster.CoasterExists(_nameInput.text));
     }
 
     public void MenuContinueSaveButtonPressed()
     {
         if (_isAnimating) return;
-        // TODO: Change Name
         _screenshotCamera.gameObject.SetActive(true);
         _screenshotCamera.GetChild(0).GetComponent<Text>().text = _nameInput.text;
         _menuPannel.gameObject.SetActive(false);
@@ -607,7 +619,6 @@ public class UIManager : MonoBehaviour
     public void Save()
     {
         StartCoroutine(SaveAnimation());
-        // TODO: Warn player if it was saved
     }
 
     private IEnumerator SaveAnimation()
@@ -632,7 +643,6 @@ public class UIManager : MonoBehaviour
     public void MenuExitButtonPressed()
     {
         if (_isAnimating) return;
-        // TODO dialoge "Are you sure"
         Application.Quit();
     }
 
@@ -656,10 +666,12 @@ public class UIManager : MonoBehaviour
     {
         _rollerCoaster.Initialize();
         if(_pannelState == 0)
-            _rollerCoaster.AddRail(true);
+        {
+            _rollerCoaster.AddRail(false, true);
+            _rollerCoaster.AddRail(true, true);
+        }
         else
             _rollerCoaster.GenerateCoaster();
-        // TODO: Show the right Pannel
         ShowPannel(_pannelState, false);
         _isAnimating = true;
         _isPaused = false;

@@ -104,13 +104,13 @@ public class Generator
         AddRail();
         _rc.AddFinalRail();
         // _rc.UpdateLastRail(railType: 3);
-        // _rc.AddRail();
+        // _rc.AddRail(false, true);
         // for(int i = 0; i < 5; i++)
         // {
-        //     _rc.AddRail();
+        //     _rc.AddRail(false, true);
         //     _rc.UpdateLastRailAdd(elevation: ((int)Random.Range(-6, 7)) * Mathf.PI / 12f, rotation: ((int) Random.Range(-6, 7)) * Mathf.PI / 12f, inclination: 0f, length: 0, railType: 1);
         // }
-        // _rc.AddRail();
+        // _rc.AddRail(false, true);
         // _rc.AddFinalRail();
     }
 
@@ -288,7 +288,7 @@ public class Generator
 
     private void AddRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
     {
-        _rc.AddRail(false);
+        _rc.AddRail(false, false);
         _rc.UpdateLastRailAdd(elevation: elevation, rotation: rotation, inclination: inclination, simulateRail: false);
         _rc.UpdateLastRail(length: length, railType: railType, simulateRail: true);
         UpdateStatus();
@@ -385,32 +385,32 @@ public class Generator
     private void TestCoaster()
     {
         float pi = Mathf.PI;
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(railType: 0);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: pi / 6f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: 0f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: 0f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: -pi / 6f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: -pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail();
-        _rc.AddRail();
+        _rc.AddRail(false, true);
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: pi / 4f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: -pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: -pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: pi / 4f, rotation: pi / 4f, inclination: -pi / 4f, length: 0, railType: 1);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.UpdateLastRailAdd(elevation: 0f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 3);
-        _rc.AddRail();
+        _rc.AddRail(false, true);
         _rc.AddFinalRail();
     }
 }

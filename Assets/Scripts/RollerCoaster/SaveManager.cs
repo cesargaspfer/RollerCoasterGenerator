@@ -125,7 +125,7 @@ public class SaveManager
             Directory.CreateDirectory(_pathRollerCoaster + "/" + coasterName);
             ScreenCapture.CaptureScreenshot(_pathRollerCoaster + "/" + coasterName + "/Screenshot.png");
             File.WriteAllBytes(_pathRollerCoaster + "/" + coasterName + "/data.bytes", content);
-            return true;
+            return CoasterExists(coasterName);
         }
         catch (Exception ex)
         {

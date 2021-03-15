@@ -48,7 +48,7 @@ public class Constructor
         // TODO: others properties
     }
 
-    public Rail AddRail()
+    public Rail AddRail(bool isPreview)
     {
         _position = _finalPosition;
         _basis = _finalBasis;
@@ -77,6 +77,11 @@ public class Constructor
         }
 
         _rails.Add(_currentRail);
+
+        if(isPreview)
+        {
+            SetRailPreview(_rails.Count - 1, isPreview);
+        }
 
         if(_heatmapValue != 0)
             _currentRail.SetHeatmap(_heatmapValue);
@@ -114,6 +119,9 @@ public class Constructor
         }
 
         _currentRail.UpdateRail(rp:localrp, mp: mp, sp: sp, isFinalRail:isFinalRail);
+
+        if(_currentRail.PreviewMode > 0)
+            SetRailPreview(_rails.Count -1, true);
 
         if (_heatmapValue != 0)
             _currentRail.SetHeatmap(_heatmapValue);
@@ -225,12 +233,39 @@ public class Constructor
         return (_currentGlobalrp, _mp);
     }
 
+    public void SetRailPreview(int id, bool isPreview)
+    {
+        int canPlace = 0;
+        if (isPreview)
+        {
+            canPlace = CanPlace(_currentRail) ? 1 : 2;
+        }
+        _currentRail.SetPreview(canPlace);
+    }
+
+    public bool CanPlace(Rail rail)
+    {
+        return !CheckIntersection(rail);
+    }
+
+    public bool CheckLastRailPlacement()
+    {
+        if(_currentRail.PreviewMode > 0)
+        {
+            return _currentRail.PreviewMode == 1;
+        }
+        else
+        {
+            return CanPlace(_currentRail);
+        }
+    }
+
     public void TestAddFinalRail(Vector3 position, Matrix4x4 basis)
     {
         RemoveLastRail();
         RemoveLastRail();
         RemoveLastRail();
-        AddRail();
+        AddRail(false);
         _position = position;
         _basis = basis;
         _initialPosition = Vector3.zero;
@@ -310,8 +345,9 @@ public class Constructor
             _mp.Type = (RailModelProperties.RailType) railType;
         }
 
+        this.SetRailPreview(_rails.Count - 1, false);
         Rail rail1 = this.UpdateLastRail(rp: firstrp + _currentGlobalrp, mp: _mp, radius: radius);
-        this.AddRail();
+        this.AddRail(false);
         Rail rail2 = this.UpdateLastRail(rp: secondrp + _currentGlobalrp, mp: _mp, radius: radius);
 
         // Sphere debug
@@ -380,10 +416,10 @@ public class Constructor
                     ta2 = tm2;
                 }
 
-                if((a1 - b1).magnitude < 0.1f || (a2 - b2).magnitude < 0.1f || minD < 1f)
+                if(((a1 - b1).magnitude < 0.1f && (a2 - b2).magnitude < 0.1f) || minD < 2f)
                     break;
             }
-            if(minD < 1f)
+            if(minD < 2f)
                 return true;
         }
         return false;
