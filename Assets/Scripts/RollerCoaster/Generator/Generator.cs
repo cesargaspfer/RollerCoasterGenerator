@@ -66,7 +66,7 @@ public class Generator
 
 
         angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        float signedDistance = GetSignedDistanceFromBasis(initialPosition, initialBasis, 0);
+        float signedDistance = GetSignedDistanceFromPlane(initialBasis.GetColumn(0), initialPosition, _rc.GetFinalPosition());
         // Debug.Log(angleToPlane + " " + signedDistance);
         if(signedDistance > 0f)
         {
@@ -76,7 +76,7 @@ public class Generator
             if (Mathf.Abs(angleToPlane) > 0f)
                 GenerateCurveMax90(angleToPlane);
             int iterations = 0;
-            while(GetSignedDistanceFromBasis(initialPosition, initialBasis, 0) > 0f)
+            while(GetSignedDistanceFromPlane(initialBasis.GetColumn(0), initialPosition, _rc.GetFinalPosition()) > 0f)
             {
                 AddRail();
                 iterations++;
@@ -321,42 +321,6 @@ public class Generator
         return rotation;
     }
 
-    private float GetSignedDistanceFromBasis(Vector3 targetPosition, Matrix4x4 targetBasis, int orientation)
-    {
-        Vector3 currentPosition = _rc.GetFinalPosition();
-
-        Vector3 tx = targetBasis.GetColumn(orientation);
-        Vector3 pc;
-        Vector3 pt;
-        Vector3 ptx;
-        
-        pc = new Vector3(currentPosition.x, 0f, currentPosition.z);
-        pt = new Vector3(targetPosition.x, 0f, targetPosition.z);
-        ptx = (new Vector3(tx.x, 0f, tx.z)).normalized;
-
-        // if (orientation == 0)
-        // {
-        //     pc = new Vector3(0f, currentPosition.y, currentPosition.z);
-        //     pt = new Vector3(0f, targetPosition.y, targetPosition.z);
-        //     ptx = (new Vector3(0f, tx.y, tx.z)).normalized;
-        // }
-        // else if (orientation == 1)
-        // {
-        // }
-        // else
-        // {
-        //     pc = new Vector3(currentPosition.x, currentPosition.y, 0f);
-        //     pt = new Vector3(targetPosition.x, targetPosition.y, 0f);
-        //     ptx = (new Vector3(tx.x, tx.y, 0f)).normalized;
-        // }
-
-        Vector3 dir = (pc - pt).normalized;
-
-        float signal = Vector3.Dot(dir, ptx) >= 0f ? 1f : -1f;
-
-        return signal * (pc - pt).magnitude;
-    }
-
     private float GetBasisAngle(Vector3 targetPosition, Matrix4x4 targetBasis)
     {
         Matrix4x4 currentBasis = _rc.GetFinalBasis();
@@ -374,7 +338,7 @@ public class Generator
         }
         // Debug.Log(GetSignedDistanceFromBasis(targetPosition, targetBasis, 2));
 
-        if(rotation > 3.1415f && GetSignedDistanceFromBasis(targetPosition, targetBasis, 2) > 0f)
+        if(rotation > 3.1415f && GetSignedDistanceFromPlane(targetBasis.GetColumn(2), targetPosition, _rc.GetFinalPosition()) > 0f)
         {
             rotation = -rotation;
         }

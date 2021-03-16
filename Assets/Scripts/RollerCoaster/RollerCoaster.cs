@@ -85,6 +85,11 @@ public class RollerCoaster : MonoBehaviour
         return _constructor.RemoveLastRail();
     }
 
+    public bool CanAddFinalRail()
+    {
+        return _constructor.CanAddFinalRail();
+    }
+
     public void UpdateLastRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999, bool simulateRail = false)
     {
         if (!_simulator.IsSimulating && !_isComplete)

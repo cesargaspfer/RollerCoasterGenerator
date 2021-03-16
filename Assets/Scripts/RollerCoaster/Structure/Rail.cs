@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using static Algebra;
 using static RailModelManager;
+using static SupportsManager;
 
 [System.Serializable]
 public class Rail
@@ -105,6 +106,9 @@ public class Rail
         }
         _heatmapGO[0] = _constructor.InstantiateRail(heatmapMesh[0], heatmapMaterials[0], _sp.Position, isHeatmap: true);
         _heatmapGO[1] = _constructor.InstantiateRail(heatmapMesh[1], heatmapMaterials[1], _sp.Position, isHeatmap: true);
+
+        (Mesh[] supportMesh, Material[] supportMaterials) = GetSupports(0).GenerateMeshes(this, 0f);
+        _constructor.InstantiateRail(supportMesh[0], supportMaterials[0], Vector3.zero, isHeatmap: false);
     }
 
     // previewMode: 0 - normal; 1 to preview green; 1 to preview red;
@@ -180,7 +184,6 @@ public class Rail
     {
         _physicsAlongRail = physicsAlongRail;
     }
-
 
     public void SetHeatmap(int type)
     {

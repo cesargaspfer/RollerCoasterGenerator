@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-public class RailModelManager
+﻿public class RailModelManager
 {
     public static RailModel[] _railModels = null;
 

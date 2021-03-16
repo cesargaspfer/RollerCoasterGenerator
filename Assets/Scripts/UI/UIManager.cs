@@ -54,6 +54,10 @@ public class UIManager : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private UIWarning _UIWarning;
     #pragma warning disable 0649
+    [SerializeField] private Transform _autocompleteButton;
+    #pragma warning disable 0649
+    [SerializeField] private Color[] _autocompleteButtonColors;
+    #pragma warning disable 0649
     [SerializeField] private string[] _heatmapsTranslations = new string[6]
         {
             "none",
@@ -81,6 +85,7 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
+        _autocompleteButton.GetComponent<Image>().color = _autocompleteButtonColors[0];
         _UISettings.Initialize();
         if(!_debugMode)
         {
@@ -406,13 +411,21 @@ public class UIManager : MonoBehaviour
 
     public void AddRailButtonPressed()
     {
-        if(_rollerCoaster.IsComplete()) return;
+        if(_rollerCoaster.IsComplete()) 
+        {
+            _UIWarning.Warn("warnComplete");
+            return;
+        }
         if(_rollerCoaster.CheckLastRailPlacement())
         {
             _rollerCoaster.SetLastRailPreview(false);
             _rollerCoaster.AddRail(true, true);
             ConstructionArrows.inst.ActiveArrows(true);
             ConstructionArrows.inst.UpdateArrows();
+            if(_rollerCoaster.CanAddFinalRail())
+                _autocompleteButton.GetComponent<Image>().color = _autocompleteButtonColors[1];
+            else
+                _autocompleteButton.GetComponent<Image>().color = _autocompleteButtonColors[0];
         }
         else
         {
@@ -422,6 +435,16 @@ public class UIManager : MonoBehaviour
 
     public void AutoCompleteButtonPressed()
     {
+        if (_rollerCoaster.IsComplete())
+        {
+            _UIWarning.Warn("warnComplete");
+            return;
+        }
+        if (!_rollerCoaster.CanAddFinalRail())
+        {
+            _UIWarning.Warn("warnAutocomplete");
+            return;
+        }
         ConstructionArrows.inst.ActiveArrows(false);
         _rollerCoaster.AddFinalRail();
         UpdateUIValues();
@@ -435,6 +458,10 @@ public class UIManager : MonoBehaviour
         ConstructionArrows.inst.UpdateArrows();
         if (rp == null)
             _UIWarning.Warn("warnCantRemovePlataform");
+        if (_rollerCoaster.CanAddFinalRail())
+            _autocompleteButton.GetComponent<Image>().color = _autocompleteButtonColors[1];
+        else
+            _autocompleteButton.GetComponent<Image>().color = _autocompleteButtonColors[0];
     }
 
     public void GenerateCoasterButtonPressed()

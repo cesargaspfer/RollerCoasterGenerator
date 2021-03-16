@@ -86,7 +86,7 @@ public class Constructor
         if(_heatmapValue != 0)
             _currentRail.SetHeatmap(_heatmapValue);
         // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
-        
+
         return _currentRail;
     }
 
@@ -258,6 +258,16 @@ public class Constructor
         {
             return CanPlace(_currentRail);
         }
+    }
+
+    public bool CanAddFinalRail()
+    {
+        Vector3 position = _currentRail.sp.Position;
+        if(GetSignedDistanceFromPlane(_initialBasis.GetColumn(0), _initialPosition, position) >= 0)
+            return false;
+        if(Angle(_finalBasis.GetColumn(0), _initialPosition - position) > Mathf.PI * 0.25)
+            return false;
+        return true;
     }
 
     public void TestAddFinalRail(Vector3 position, Matrix4x4 basis)

@@ -63,4 +63,6 @@ load|Carregar
 noCoasterFound|Nenhuma montanha-russa encontrada.
 warnIntersection|Há trechos que se intersectam!
 warnCantRemovePlataform|Não é possível remover a plataforma!
+warnAutocomplete|Não é possível autocompletar nessa disposição!
+warnComplete|A montanha-russa já esta completa!
 coasterExists|Já existe uma montanha-russa com o mesmo nome. Deseja substituí-la?

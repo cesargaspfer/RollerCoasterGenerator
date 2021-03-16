@@ -247,4 +247,11 @@ public class Algebra
 
         return inclination;
     }
+
+    // Based on Mathematics for 3D Game Programming and Computer Graphics, Third Edition, chapter 5.2
+    public static float GetSignedDistanceFromPlane(Vector3 planeNormal, Vector3 pointInPlane, Vector3 point)
+    {
+        float D = -Vector3.Dot(planeNormal, pointInPlane);
+        return Vector3.Dot(planeNormal, point) + D;
+    }
 }

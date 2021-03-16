@@ -7430,6 +7430,10 @@ MonoBehaviour:
   _UISettings: {fileID: 1351834053}
   _legendPannel: {fileID: 1527901825}
   _UIWarning: {fileID: 507584363}
+  _autocompleteButton: {fileID: 1263669486}
+  _autocompleteButtonColors:
+  - {r: 0.7411765, g: 0.6677527, b: 0.5254941, a: 1}
+  - {r: 0.87058824, g: 0.6732331, b: 0.28729412, a: 1}
   _heatmapsTranslations:
   - none
   - velocity
@@ -22617,7 +22621,7 @@ GameObject:
   - component: {fileID: 1263669487}
   - component: {fileID: 1263669489}
   m_Layer: 5
-  m_Name: CompleteButton
+  m_Name: AutocompleteButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -22656,7 +22660,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.87058824, g: 0.6732331, b: 0.28729412, a: 1}
+  m_Color: {r: 0.7411765, g: 0.6677527, b: 0.5254941, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
