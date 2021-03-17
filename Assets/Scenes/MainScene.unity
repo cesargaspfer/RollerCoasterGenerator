@@ -31553,6 +31553,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _valuesPannel: {fileID: 1915895285}
+  _loadingPannel: {fileID: 2009440112}
 --- !u!1 &1916104285
 GameObject:
   m_ObjectHideFlags: 0

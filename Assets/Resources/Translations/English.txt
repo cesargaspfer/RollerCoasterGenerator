@@ -22,6 +22,7 @@ GLateral|G-Lateral
 height|Height
 totalLength|Total Length
 totalCarLength|Traveled
+calculating|Calculating
 heatmap|Heatmap
 none|None
 addRail|Add Rail
@@ -65,4 +66,5 @@ warnIntersection|There are sections that intersect!
 warnCantRemovePlataform|It is not possible to remove the platform!
 warnAutocomplete|It is not possible to autocomplete in this disposition!
 warnComplete|The roller coaster is already complete!
+warnIsGenerating|Wait for the roller coaster to finish generating!
 coasterExists|There is already a roller coaster with the same name. Do you want to replace it?

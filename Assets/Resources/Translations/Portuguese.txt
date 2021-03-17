@@ -22,6 +22,7 @@ GLateral|G-Lateral
 height|Altura
 totalLength|Tamanho Total
 totalCarLength|Percorrido
+calculating|Calculando
 heatmap|Mapa de Calor
 none|Nenhum
 addRail|Adicionar Trilho
@@ -65,4 +66,5 @@ warnIntersection|Há trechos que se intersectam!
 warnCantRemovePlataform|Não é possível remover a plataforma!
 warnAutocomplete|Não é possível autocompletar nessa disposição!
 warnComplete|A montanha-russa já esta completa!
+warnIsGenerating|Espere a montanha-russa terminar de ser gerada!
 coasterExists|Já existe uma montanha-russa com o mesmo nome. Deseja substituí-la?

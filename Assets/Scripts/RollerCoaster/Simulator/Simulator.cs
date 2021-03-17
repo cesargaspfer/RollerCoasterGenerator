@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using static Algebra;
@@ -11,6 +12,7 @@ public class Simulator
     // Simulator Properties
     private RollerCoaster _rollerCoaster;
     [SerializeField] private List<(Rail, RailPhysics)> _rails;
+    [SerializeField] private LinkedList<IEnumerator> _railPhysicsCoroutines;
     [SerializeField] private Car[] _cars;
     [SerializeField] private float _dtres;
     [SerializeField] private RailPhysics _initialrp;
@@ -34,6 +36,7 @@ public class Simulator
         _initialrp = new RailPhysics(rpp);
         _initialrp.Max = rpp;
         _initialrp.Final = rpp;
+        _railPhysicsCoroutines = new LinkedList<IEnumerator>();
     }
 
     // TODO
@@ -257,7 +260,7 @@ public class Simulator
 
     // ------------------- Rail Simulation Props ------------------- //
 
-    public void AddRail(Rail rail, bool simulateRail = true)
+    public void AddRail(Rail rail)
     {
         RailPhysics lastrp;
         if(_rails.Count == 0)
@@ -269,16 +272,10 @@ public class Simulator
             (_, lastrp) = _rails[_rails.Count - 1];
         }
         
-        RailPhysics railPhysics = null;
+        _rails.Add((rail, null));
 
-        if(simulateRail)
-        {
-            RailPhysics.Props[] physicsAlongRail = null;
-            (railPhysics, physicsAlongRail) = SimulateRail(lastrp, rail);
-            rail.SetPhysicsAlongRail(physicsAlongRail);
-        }
-
-        _rails.Add((rail, railPhysics));
+        _railPhysicsCoroutines.AddLast(SimulateRail(lastrp, rail, _rails.Count - 1));
+        _rollerCoaster.StartChildCoroutine(_railPhysicsCoroutines.Last.Value);
     }
 
     public void UpdateLastRail(Rail rail)
@@ -296,22 +293,41 @@ public class Simulator
         {
             (_, lastrp) = _rails[_rails.Count - 2];
         }
-        
-        (RailPhysics railPhysics, RailPhysics.Props[]  physicsAlongRail) = SimulateRail(lastrp, rail);
 
-        rail.SetPhysicsAlongRail(physicsAlongRail);
-        _rails[_rails.Count - 1] = (rail, railPhysics);
+        _rails[_rails.Count - 1] = (rail, null);
+        if (_railPhysicsCoroutines.Count > 0)
+        {
+            _rollerCoaster.StopChildCoroutine(_railPhysicsCoroutines.Last.Value);
+            _railPhysicsCoroutines.RemoveLast();
+        }
+        _railPhysicsCoroutines.AddLast(SimulateRail(lastrp, rail, _rails.Count - 1));
+        _rollerCoaster.StartChildCoroutine(_railPhysicsCoroutines.Last.Value);
     }
 
     public void RemoveLastRail()
     {
         if(_rails.Count <= 0)
             return;
+        if(_railPhysicsCoroutines.Count > 0)
+        {
+            _rollerCoaster.StopChildCoroutine(_railPhysicsCoroutines.Last.Value);
+            _railPhysicsCoroutines.RemoveLast();
+        }
         _rails.RemoveAt(_rails.Count - 1);
     }
 
-    public (RailPhysics, RailPhysics.Props[]) SimulateRail(RailPhysics lastrp, Rail rail)
+    private IEnumerator SimulateRail(RailPhysics lastrp, Rail rail, int railId)
     {
+
+        if(lastrp == null || lastrp.Final == null)
+        {
+            while(lastrp == null || lastrp.Final == null)
+            {
+                yield return null;
+                (_, lastrp) = _rails[railId - 1];
+            }
+        }
+
         RailPhysics currentRailPhysics = new RailPhysics(lastrp.Final);
         currentRailPhysics.Max = new RailPhysics.Props(0, Vector3.zero);
 
@@ -321,8 +337,12 @@ public class Simulator
         float curveT = 0f;
         float scalarPosition = 0f;
         int interations = 0;
+        
+        int interationsUntilWait = 0;
+
         while(true)
         {
+            interationsUntilWait++;
             RailPhysics.Props currentrpp;
             (currentrpp, curveT) = StepSimulateRail(rail, curveT, velocity, _dtres);
             velocity = currentrpp.Velocity;
@@ -362,10 +382,18 @@ public class Simulator
             float MaxGForceZ = Mathf.Abs(currentRailPhysics.Max.GForce.y) > Mathf.Abs(currentrpp.GForce.y) ? currentRailPhysics.Max.GForce.y : currentrpp.GForce.y;
             currentRailPhysics.Max.GForce = new Vector3(MaxGForceX, MaxGForceY, MaxGForceZ);
             currentRailPhysics.Max.Velocity = Mathf.Max(currentRailPhysics.Max.Velocity, velocity);
+
+            if(interationsUntilWait >= 50)
+            {
+                yield return null;
+                interationsUntilWait = 0;
+            }
         }
 
-        // Debug.Log(currentRailPhysics);
-        return (currentRailPhysics, physicsAlongRail);
+        rail.SetPhysicsAlongRail(physicsAlongRail);
+        _rails[railId] = (rail, currentRailPhysics);
+
+        _railPhysicsCoroutines.RemoveFirst();
     }
 
     private (RailPhysics.Props, float) StepSimulateRail(Rail rail, float curveT, float velocity, float deltaTime)

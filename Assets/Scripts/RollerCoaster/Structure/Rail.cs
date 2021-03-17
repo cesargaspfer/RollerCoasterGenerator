@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using static Algebra;
 using static RailModelManager;
 using static SupportsManager;
@@ -25,27 +26,31 @@ public class Rail
     
     private Mesh[] _mesh = null;
     private RailModel _railModel = null;
-    private GameObject[] _gameObject;
+    private GameObject[] _railsGameObjects;
+    private GameObject[] _supportsGameObjects;
     private GameObject[] _heatmapGO;
     private RailPhysics.Props[] _physicsAlongRail;
     private float _lastLength;
+    private float _lastCoasterLenght;
     
 
     private float _inclinationToMatrixLookAt;
 
-    public Rail(Constructor constructor, RailProps rp, ModelProps mp, SpaceProps sp, int isFinalRail)
+    public Rail(Constructor constructor, RailProps rp, ModelProps mp, SpaceProps sp, int isFinalRail, float lastCoasterLenght)
     {
         _constructor = constructor;
         _lastLength = -1f;
         _heatmapGO = new GameObject[2];
         _previewMode = 0;
+        _lastCoasterLenght = lastCoasterLenght;
         this.UpdateRail(rp, mp, sp, isFinalRail);
     }
 
     public void Destroy()
     {
-        for(int i = 0; i < _gameObject.Length; i++)
-            GameObject.Destroy(_gameObject[i]);
+        for(int i = 0; i < _railsGameObjects.Length; i++)
+            GameObject.Destroy(_railsGameObjects[i]);
+        RemoveSupports();
         GameObject.Destroy(_heatmapGO[0]);
         GameObject.Destroy(_heatmapGO[1]);
         _mesh = null;
@@ -68,7 +73,7 @@ public class Rail
 
         _railModel = GetRailModel(_mp.ModelId);
 
-        if (_gameObject == null || mp != null || _lastLength != _rp.Length)
+        if (_railsGameObjects == null || mp != null || _lastLength != _rp.Length)
         {
             _mesh = null;
         }
@@ -77,18 +82,18 @@ public class Rail
 
         (_mesh, materials) = _railModel.GenerateMeshes(_rp, _mp, _sp, _mesh);
 
-        if(_gameObject == null || mp != null || _lastLength != _rp.Length)
+        if(_railsGameObjects == null || mp != null || _lastLength != _rp.Length)
         {
-            if(_gameObject != null)
+            if(_railsGameObjects != null)
             {
                 // Applying _mesh to an object in the scene
-                for (int i = 0; i < _gameObject.Length; i++)
-                    GameObject.Destroy(_gameObject[i]);
+                for (int i = 0; i < _railsGameObjects.Length; i++)
+                    GameObject.Destroy(_railsGameObjects[i]);
             }
             _lastLength = _rp.Length;
-            _gameObject = new GameObject[_mesh.Length];
-            for(int i = 0; i < _gameObject.Length; i++)
-                _gameObject[i] = _constructor.InstantiateRail(_mesh[i], materials[i], _sp.Position);
+            _railsGameObjects = new GameObject[_mesh.Length];
+            for(int i = 0; i < _railsGameObjects.Length; i++)
+                _railsGameObjects[i] = _constructor.InstantiateRail(_mesh[i], materials[i], _sp.Position);
         }
 
         _inclinationToMatrixLookAt = GetInclinationToMatrixLookAt(_sp.Basis, ThreeRotationMatrix(_sp.Basis, _rp.Radians) * _sp.Basis);
@@ -106,9 +111,33 @@ public class Rail
         }
         _heatmapGO[0] = _constructor.InstantiateRail(heatmapMesh[0], heatmapMaterials[0], _sp.Position, isHeatmap: true);
         _heatmapGO[1] = _constructor.InstantiateRail(heatmapMesh[1], heatmapMaterials[1], _sp.Position, isHeatmap: true);
+    }
 
-        (Mesh[] supportMesh, Material[] supportMaterials) = GetSupports(0).GenerateMeshes(this, 0f);
-        _constructor.InstantiateRail(supportMesh[0], supportMaterials[0], Vector3.zero, isHeatmap: false);
+    public void GenerateSupports()
+    {
+        float currentLength = 5f - (_lastCoasterLenght % 5);
+
+        RemoveSupports();
+
+        _supportsGameObjects = new GameObject[(int)(_rp.Length + (_lastCoasterLenght % 5))];
+        int index = 0;
+        float t = _sp.Curve.GetNextT(0, currentLength);
+        while(currentLength <= _rp.Length)
+        {
+            (Mesh[] supportMesh, Material[] supportMaterials) = GetSupports(0).GenerateMeshes(this, t);
+            _supportsGameObjects[index] = _constructor.InstantiateRail(supportMesh[0], supportMaterials[0], Vector3.zero, isSupport: true);
+            index++;
+            t = _sp.Curve.GetNextT(t, 5f);
+            currentLength += 5f;
+        }
+    }
+
+    public void RemoveSupports()
+    {
+        if (_supportsGameObjects != null)
+            for (int i = 0; i < _supportsGameObjects.Length; i++)
+                if (_supportsGameObjects[i] != null)
+                    GameObject.Destroy(_supportsGameObjects[i]);
     }
 
     // previewMode: 0 - normal; 1 to preview green; 1 to preview red;
@@ -118,8 +147,8 @@ public class Rail
         if(previewMode == 0)
         {
             Material[] materials = _railModel.GetMaterials(_mp.Type);
-            for (int i = 0; i < _gameObject.Length; i++)
-                _gameObject[i].GetComponent<Renderer>().material = materials[i];
+            for (int i = 0; i < _railsGameObjects.Length; i++)
+                _railsGameObjects[i].GetComponent<Renderer>().material = materials[i];
         }
         else
         {
@@ -128,8 +157,8 @@ public class Rail
                 previewMaterial = Resources.Load("Materials/RollerCoaster/PreviewGreen", typeof(Material)) as Material;
             else
                 previewMaterial = Resources.Load("Materials/RollerCoaster/PreviewRed", typeof(Material)) as Material;
-            for (int i = 0; i < _gameObject.Length; i++)
-                _gameObject[i].GetComponent<Renderer>().material = previewMaterial;
+            for (int i = 0; i < _railsGameObjects.Length; i++)
+                _railsGameObjects[i].GetComponent<Renderer>().material = previewMaterial;
         }
     }
 
@@ -185,16 +214,69 @@ public class Rail
         _physicsAlongRail = physicsAlongRail;
     }
 
+    private int _currentHeatmap = 0;
+    private IEnumerator _currentHeatmapCoroutine;
+
     public void SetHeatmap(int type)
     {
-        Mesh mesh = _heatmapGO[0].GetComponent<MeshFilter>().mesh;
-        Vector3[] vertices = mesh.vertices;
-        Color[] colors = new Color[vertices.Length];
+        _currentHeatmap = type;
+        if(_currentHeatmapCoroutine != null)
+            _constructor.StopChildCoroutine(_currentHeatmapCoroutine);
+        _currentHeatmapCoroutine = SetHeatmapCoroutine();
+        _constructor.StartChildCoroutine(_currentHeatmapCoroutine);
+    }
+
+    private IEnumerator SetHeatmapCoroutine()
+    {
+        Mesh mesh;
+        Vector3[] vertices;
+        Color[] colors;
         int resolution = BasicRMProperties.modelResolution;
-        for (int i = 0; i <= (int) rp.Length; i++)
+
+        if (_physicsAlongRail == null)
         {
-            Color color = GetHeatmapColor(type, i);
-            for(int j = 0; j < resolution; j++)
+            mesh = _heatmapGO[0].GetComponent<MeshFilter>().mesh;
+            vertices = mesh.vertices;
+            colors = new Color[vertices.Length];
+
+            Color tmpColor = new Color(1f, 0f, 0f, 0.35f);
+            for (int i = 0; i <= (int)rp.Length; i++)
+            {
+                Color color = tmpColor;
+                for (int j = 0; j < resolution; j++)
+                {
+                    colors[i * resolution + j] = color;
+                }
+            }
+            mesh.colors = colors;
+
+            mesh = _heatmapGO[1].GetComponent<MeshFilter>().mesh;
+            vertices = mesh.vertices;
+            colors = new Color[vertices.Length];
+            for (int i = 0; i < 2; i++)
+            {
+                Color color = tmpColor;
+                for (int j = 0; j < vertices.Length / 2; j++)
+                {
+                    colors[i * resolution + j] = color;
+                }
+            }
+            mesh.colors = colors;            
+        }
+
+        while (_physicsAlongRail == null || _physicsAlongRail.Length <= (int)rp.Length)
+        {
+            yield return null;
+        }
+
+        mesh = _heatmapGO[0].GetComponent<MeshFilter>().mesh;
+        vertices = mesh.vertices;
+        colors = new Color[vertices.Length];
+
+        for (int i = 0; i <= (int)rp.Length; i++)
+        {
+            Color color = GetHeatmapColor(_currentHeatmap, i);
+            for (int j = 0; j < resolution; j++)
             {
                 colors[i * resolution + j] = color;
             }
@@ -206,7 +288,7 @@ public class Rail
         colors = new Color[vertices.Length];
         for (int i = 0; i < 2; i++)
         {
-            Color color = GetHeatmapColor(type, i * (int)rp.Length);
+            Color color = GetHeatmapColor(_currentHeatmap, i * (int)rp.Length);
             for (int j = 0; j < vertices.Length / 2; j++)
             {
                 colors[i * resolution + j] = color;

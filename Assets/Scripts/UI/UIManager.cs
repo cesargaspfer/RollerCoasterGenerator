@@ -101,8 +101,8 @@ public class UIManager : MonoBehaviour
         {
             _settingsButton.SetActive(true);
             _rollerCoaster.Initialize();
-            _rollerCoaster.AddRail(false, true);
-            _rollerCoaster.AddRail(true, true);
+            _rollerCoaster.AddRail(false);
+            _rollerCoaster.AddRail(true);
             ConstructionArrows.inst.Initialize(_rollerCoaster);
             _isPaused = false;
             _exitedMenu = true;
@@ -260,6 +260,11 @@ public class UIManager : MonoBehaviour
     public void SimulateButtonPressed()
     {
         if(_isAnimating) return;
+        if(_rollerCoaster.IsGenerating())
+        {
+            _UIWarning.Warn("warnIsGenerating");
+            return;
+        }
 
         _rollerCoaster.StartCarSimulation();
         _isSimulating = true;
@@ -419,7 +424,8 @@ public class UIManager : MonoBehaviour
         if(_rollerCoaster.CheckLastRailPlacement())
         {
             _rollerCoaster.SetLastRailPreview(false);
-            _rollerCoaster.AddRail(true, true);
+            _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
+            _rollerCoaster.AddRail(true);
             ConstructionArrows.inst.ActiveArrows(true);
             ConstructionArrows.inst.UpdateArrows();
             if(_rollerCoaster.CanAddFinalRail())
@@ -447,12 +453,17 @@ public class UIManager : MonoBehaviour
         }
         ConstructionArrows.inst.ActiveArrows(false);
         _rollerCoaster.AddFinalRail();
+        
+        _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 2);
+        _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
+        
         UpdateUIValues();
     }
 
     public void RemoveRailButtonClicked()
     {
         (RailProps rp, ModelProps mp) = _rollerCoaster.RemoveLastRail();
+        _rollerCoaster.RemoveSupports(_rollerCoaster.GetRailsCount() - 1);
         _rollerCoaster.SetLastRailPreview(true);
         ConstructionArrows.inst.ActiveArrows(true);
         ConstructionArrows.inst.UpdateArrows();
@@ -477,6 +488,7 @@ public class UIManager : MonoBehaviour
     public void UpdateRailType(int type)
     {
         _rollerCoaster.UpdateLastRail(railType: type);
+        UpdateUIValues();
     }
 
     public void SetHeatmap(int type)
@@ -694,8 +706,9 @@ public class UIManager : MonoBehaviour
         _rollerCoaster.Initialize();
         if(_pannelState == 0)
         {
-            _rollerCoaster.AddRail(false, true);
-            _rollerCoaster.AddRail(true, true);
+            _rollerCoaster.AddRail(false);
+            _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
+            _rollerCoaster.AddRail(true);
         }
         else
             _rollerCoaster.GenerateCoaster();

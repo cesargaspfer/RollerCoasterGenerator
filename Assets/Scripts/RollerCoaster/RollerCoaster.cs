@@ -15,6 +15,8 @@ public class RollerCoaster : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] public Transform _railsParent;
     #pragma warning disable 0649
+    [SerializeField] public Transform _supportsParent;
+    #pragma warning disable 0649
     [SerializeField] public Transform _carsParent;
     #pragma warning disable 0649
     [SerializeField] public Transform _heatmapsParent;
@@ -58,12 +60,12 @@ public class RollerCoaster : MonoBehaviour
         }
     }
 
-    public void AddRail(bool isPreview, bool simulateRail)
+    public void AddRail(bool isPreview)
     {
         if(!_simulator.IsSimulating && !_isComplete)
         {
             Rail rail = _constructor.AddRail(isPreview);
-            _simulator.AddRail(rail, simulateRail);
+            _simulator.AddRail(rail);
         }
     }
 
@@ -90,13 +92,12 @@ public class RollerCoaster : MonoBehaviour
         return _constructor.CanAddFinalRail();
     }
 
-    public void UpdateLastRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999, bool simulateRail = false)
+    public void UpdateLastRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
     {
         if (!_simulator.IsSimulating && !_isComplete)
         {
             Rail rail = _constructor.UpdateLastRail(elevation, rotation, inclination, length, railType);
-            if(simulateRail)
-                _simulator.UpdateLastRail(rail);
+            _simulator.UpdateLastRail(rail);
         }
         else
         {
@@ -104,18 +105,27 @@ public class RollerCoaster : MonoBehaviour
         }
     }
 
-    public void UpdateLastRailAdd(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999, bool simulateRail = false)
+    public void UpdateLastRailAdd(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
     {
         if (!_simulator.IsSimulating && !_isComplete)
         {
             Rail rail = _constructor.UpdateLastRailAdd(elevation, rotation, inclination, length, railType);
-            if(simulateRail)
-                _simulator.UpdateLastRail(rail);
+            _simulator.UpdateLastRail(rail);
         }
         else
         {
             // TODO: Warn player? *Restart simulation?* *Restart simulation if cars are in final rail?*
         }
+    }
+
+    public void GenerateSupports(int id)
+    {
+        _constructor.GenerateSupports(id);
+    }
+
+    public void RemoveSupports(int id)
+    {
+        _constructor.RemoveSupports(id);
     }
 
     public void SimulateLastRail()
@@ -220,7 +230,7 @@ public class RollerCoaster : MonoBehaviour
         SavePack[] savePack = SaveManager.LoadCoaster(coasterName);
         for(int i = 0; i < savePack.Length; i++)
         {
-            this.AddRail(false, true);
+            this.AddRail(false);
             if(!savePack[i].IsFinalRail)
             {
                 this.UpdateLastRail(
@@ -230,8 +240,7 @@ public class RollerCoaster : MonoBehaviour
                 this.UpdateLastRailAdd(
                     elevation: savePack[i].rp.Elevation, 
                     rotation: savePack[i].rp.Rotation, 
-                    inclination: savePack[i].rp.Inclination,
-                    simulateRail: true
+                    inclination: savePack[i].rp.Inclination
                 );
             }
             else
@@ -294,13 +303,13 @@ public class RollerCoaster : MonoBehaviour
 
     // ---------------------------- Intern ---------------------------- //
 
-    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position, bool isHeatmap = false)
+    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position, bool isSupport = false, bool isHeatmap = false)
     {
         Transform railTransform = Instantiate(_railPrefab, position, Quaternion.identity, _railsParent);
-        if(isHeatmap)
-        {
+        if (isSupport)
+            railTransform.SetParent(_supportsParent);
+        else if(isHeatmap)
             railTransform.SetParent(_heatmapsParent);
-        }
         railTransform.GetComponent<MeshFilter>().mesh = mesh;
         railTransform.GetComponent<Renderer>().material = material;
         return railTransform.gameObject;
@@ -312,6 +321,16 @@ public class RollerCoaster : MonoBehaviour
         Car car = carTransform.gameObject.AddComponent(typeof(Car)) as Car;
         car.Initialize(0f, 0, CarsManager.inst.GetCarProps(id));
         return carTransform.gameObject.GetComponent<Car>();
+    }
+
+    public void StartChildCoroutine(IEnumerator coroutine)
+    {
+        StartCoroutine(coroutine);
+    }
+
+    public void StopChildCoroutine(IEnumerator coroutine)
+    {
+        StopCoroutine(coroutine);
     }
 
     public Rail GetLastRail()
@@ -349,6 +368,11 @@ public class RollerCoaster : MonoBehaviour
         return _simulator.FirstCar;
     }
 
+    public int GetRailsCount()
+    {
+        return _constructor.Rails.Count;
+    }
+
     public float GetTotalLength()
     {
         return _constructor.TotalLength;
@@ -357,5 +381,10 @@ public class RollerCoaster : MonoBehaviour
     public bool IsComplete()
     {
         return _isComplete;
+    }
+
+    public bool IsGenerating()
+    {
+        return _generator.IsGenerating;
     }
 }

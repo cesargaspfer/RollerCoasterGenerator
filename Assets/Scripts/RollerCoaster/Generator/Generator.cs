@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using static Algebra;
 using static ImaginarySphere;
 using static RailModelProperties;
@@ -26,61 +27,93 @@ public class Generator
     public Vector3 initialPosition;
     public Matrix4x4 initialBasis;
 
-    private RollerCoaster _rc;
+    private RollerCoaster _rollerCoaster;
     private Status _status;
+    private bool _isGenerating = false;
+    private IEnumerator currentGeneratingCoroutine = null;
+    private IEnumerator secondaryCoroutine = null;
+    private bool canContinue = true;
 
     public Generator(RollerCoaster rollerCoaster)
     {
-        _rc = rollerCoaster;
+        _rollerCoaster = rollerCoaster;
+        _isGenerating = false;
         // Generate();
         // _rc.GenerateCoaster();
     }
 
     public void Generate()
     {
+        _isGenerating = true;
+        if(secondaryCoroutine != null)
+            _rollerCoaster.StopChildCoroutine(secondaryCoroutine);
+        if(currentGeneratingCoroutine != null)
+            _rollerCoaster.StopChildCoroutine(currentGeneratingCoroutine);
+        currentGeneratingCoroutine = GenerateCoroutine();
+        secondaryCoroutine = null;
+        canContinue = true;
+
+        _rollerCoaster.StartChildCoroutine(currentGeneratingCoroutine);        
+    }
+
+    private IEnumerator GenerateCoroutine()
+    {
         int intencity = 0;
-        initialPosition = _rc.GetInitialPosition();
-        initialBasis = _rc.GetInitialBasis();
+        initialPosition = _rollerCoaster.GetInitialPosition();
+        initialBasis = _rollerCoaster.GetInitialBasis();
         GeneratePlataform();
+        yield return new WaitUntil(() => canContinue);
         GenerateLever(intencity);
+        yield return new WaitUntil(() => canContinue);
         GenerateFall(intencity);
-        AddRail(length:4f);
+        yield return new WaitUntil(() => canContinue);
+        AddRail(length: 4f);
+        yield return new WaitUntil(() => canContinue);
         int loops = Random.Range(2, 3);
         for (int i = 0; i < loops; i++)
         {
-            if(_status.rp.Final.Velocity / 8.5f >= 1f)
+            if (_status.rp.Final.Velocity / 8.5f >= 1f)
+            {
+                yield return new WaitUntil(() => canContinue);
                 GenerateLoop();
+            }
         }
+        yield return new WaitUntil(() => canContinue);
         float angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        if(Mathf.Abs(angleToPlane) > 0f)
+        if (Mathf.Abs(angleToPlane) > 0f)
             GenerateCurveMax90(angleToPlane);
+        yield return new WaitUntil(() => canContinue);
         angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
         if (Mathf.Abs(angleToPlane) > 0f)
             GenerateCurveMax90(angleToPlane);
 
         int hills = Random.Range(0, 4);
-        for(int i = 0; i < hills; i++)
+        for (int i = 0; i < hills; i++)
         {
+            yield return new WaitUntil(() => canContinue);
             GenerateHill();
         }
 
 
         angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
-        float signedDistance = GetSignedDistanceFromPlane(initialBasis.GetColumn(0), initialPosition, _rc.GetFinalPosition());
+        float signedDistance = GetSignedDistanceFromPlane(initialBasis.GetColumn(0), initialPosition, _rollerCoaster.GetFinalPosition());
         // Debug.Log(angleToPlane + " " + signedDistance);
-        if(signedDistance > 0f)
+        if (signedDistance > 0f)
         {
+            yield return new WaitUntil(() => canContinue);
             if (Mathf.Abs(angleToPlane) > Mathf.PI)
                 GenerateCurveMax90(angleToPlane);
             angleToPlane = GetAngleToInitialBasisPlane(initialPosition, initialBasis);
+            yield return new WaitUntil(() => canContinue);
             if (Mathf.Abs(angleToPlane) > 0f)
                 GenerateCurveMax90(angleToPlane);
             int iterations = 0;
-            while(GetSignedDistanceFromPlane(initialBasis.GetColumn(0), initialPosition, _rc.GetFinalPosition()) > 0f)
+            while (GetSignedDistanceFromPlane(initialBasis.GetColumn(0), initialPosition, _rollerCoaster.GetFinalPosition()) > 0f)
             {
+                yield return new WaitUntil(() => canContinue);
                 AddRail();
                 iterations++;
-                if(iterations > 20)
+                if (iterations > 20)
                 {
                     Debug.LogError("iterations > 20 in Generate");
                     break;
@@ -91,6 +124,7 @@ public class Generator
         // Debug.Log(angleToPlane);
         if (Mathf.Abs(angleToPlane) > Mathf.PI * 0.5f)
         {
+            yield return new WaitUntil(() => canContinue);
             GenerateCurveMax90(GetBasisAngle(initialPosition, initialBasis));
         }
 
@@ -98,11 +132,12 @@ public class Generator
         // if (Mathf.Abs(angleToPlane) > 0f)
         //     GenerateCurveMax90(angleToPlane);
 
-        
-        
-        
+
+
+        yield return new WaitUntil(() => canContinue);
         AddRail();
-        _rc.AddFinalRail();
+        yield return new WaitUntil(() => canContinue);
+        _rollerCoaster.AddFinalRail();
         // _rc.UpdateLastRail(railType: 3);
         // _rc.AddRail(false, true);
         // for(int i = 0; i < 5; i++)
@@ -112,11 +147,20 @@ public class Generator
         // }
         // _rc.AddRail(false, true);
         // _rc.AddFinalRail();
+
+        _isGenerating = false;
     }
 
-    private void UpdateStatus()
+    private IEnumerator UpdateStatus()
     {
-        _status = new Status(_rc.GetLastRailPhysics(), _rc.GetFinalPosition(), _rc.GetFinalBasis());
+        RailPhysics railPhysics = _rollerCoaster.GetLastRailPhysics();
+        while(railPhysics == null || railPhysics.Final == null)
+        {
+            yield return null;
+            railPhysics = _rollerCoaster.GetLastRailPhysics();
+        }
+        _status = new Status(railPhysics, _rollerCoaster.GetFinalPosition(), _rollerCoaster.GetFinalBasis());
+        canContinue = true;
     }
 
     private void GeneratePlataform()
@@ -153,7 +197,7 @@ public class Generator
 
     private void GenerateFall(int intencity)
     {
-        float currentHeight = _rc.GetFinalPosition().y - 1f;
+        float currentHeight = _rollerCoaster.GetFinalPosition().y - 1f;
         float initialCurrentHeight = currentHeight;
 
         // float elevation = ((int)Random.Range(-6 - (intencity - 2), -2 - intencity)) * Mathf.PI / 12f;
@@ -288,16 +332,18 @@ public class Generator
 
     private void AddRail(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
     {
-        _rc.AddRail(false, false);
-        _rc.UpdateLastRailAdd(elevation: elevation, rotation: rotation, inclination: inclination, simulateRail: false);
-        _rc.UpdateLastRail(length: length, railType: railType, simulateRail: true);
-        UpdateStatus();
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: elevation, rotation: rotation, inclination: inclination);
+        _rollerCoaster.UpdateLastRail(length: length, railType: railType);
+        secondaryCoroutine = UpdateStatus();
+        canContinue = false;
+        _rollerCoaster.StartChildCoroutine(secondaryCoroutine);
     }
 
     private float GetAngleToInitialBasisPlane(Vector3 targetPosition, Matrix4x4 targetBasis)
     {
-        Vector3 currentPosition = _rc.GetFinalPosition();
-        Matrix4x4 currentBasis = _rc.GetFinalBasis();
+        Vector3 currentPosition = _rollerCoaster.GetFinalPosition();
+        Matrix4x4 currentBasis = _rollerCoaster.GetFinalBasis();
 
         Vector3 cx = currentBasis.GetColumn(0);
         Vector3 tx = targetBasis.GetColumn(0);
@@ -323,7 +369,7 @@ public class Generator
 
     private float GetBasisAngle(Vector3 targetPosition, Matrix4x4 targetBasis)
     {
-        Matrix4x4 currentBasis = _rc.GetFinalBasis();
+        Matrix4x4 currentBasis = _rollerCoaster.GetFinalBasis();
         Vector3 cx = currentBasis.GetColumn(0);
         Vector3 tx = targetBasis.GetColumn(0);
 
@@ -338,7 +384,7 @@ public class Generator
         }
         // Debug.Log(GetSignedDistanceFromBasis(targetPosition, targetBasis, 2));
 
-        if(rotation > 3.1415f && GetSignedDistanceFromPlane(targetBasis.GetColumn(2), targetPosition, _rc.GetFinalPosition()) > 0f)
+        if(rotation > 3.1415f && GetSignedDistanceFromPlane(targetBasis.GetColumn(2), targetPosition, _rollerCoaster.GetFinalPosition()) > 0f)
         {
             rotation = -rotation;
         }
@@ -349,32 +395,37 @@ public class Generator
     private void TestCoaster()
     {
         float pi = Mathf.PI;
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(railType: 0);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: pi / 6f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: 0f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: 0f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: -pi / 6f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: -pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail(false, true);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: pi / 4f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: -pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: -pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: pi / 4f, rotation: pi / 4f, inclination: -pi / 4f, length: 0, railType: 1);
-        _rc.AddRail(false, true);
-        _rc.UpdateLastRailAdd(elevation: 0f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 3);
-        _rc.AddRail(false, true);
-        _rc.AddFinalRail();
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(railType: 0);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: pi / 6f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: 0f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: 0f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: -pi / 6f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 2);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: -pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: pi / 4f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 1);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: -pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: -pi / 4f, rotation: 0f, inclination: 0f, length: 0, railType: 1);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: pi / 4f, rotation: pi / 4f, inclination: -pi / 4f, length: 0, railType: 1);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.UpdateLastRailAdd(elevation: 0f, rotation: pi / 4f, inclination: 0f, length: 0, railType: 3);
+        _rollerCoaster.AddRail(false);
+        _rollerCoaster.AddFinalRail();
+    }
+
+    public bool IsGenerating
+    {
+        get { return _isGenerating; }
     }
 }

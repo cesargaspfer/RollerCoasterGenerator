@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using static Algebra;
 using static ImaginarySphere;
@@ -69,12 +70,12 @@ public class Constructor
             _railsIntersection.Add(_rails[_rails.Count - 1]);
         }
 
-        _currentRail = new Rail(this, localrp, _mp, sp, 0);
 
         if (_rails.Count >= 1)
         {
             _totalLength += _rails[_rails.Count - 1].rp.Length;
         }
+        _currentRail = new Rail(this, localrp, _mp, sp, 0, _totalLength);
 
         _rails.Add(_currentRail);
 
@@ -83,8 +84,7 @@ public class Constructor
             SetRailPreview(_rails.Count - 1, isPreview);
         }
 
-        if(_heatmapValue != 0)
-            _currentRail.SetHeatmap(_heatmapValue);
+        _currentRail.SetHeatmap(_heatmapValue);
         // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
 
         return _currentRail;
@@ -123,8 +123,7 @@ public class Constructor
         if(_currentRail.PreviewMode > 0)
             SetRailPreview(_rails.Count -1, true);
 
-        if (_heatmapValue != 0)
-            _currentRail.SetHeatmap(_heatmapValue);
+        _currentRail.SetHeatmap(_heatmapValue);
 
         // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
 
@@ -193,7 +192,8 @@ public class Constructor
         if (_railsIntersection.Count > 0)
             _railsIntersection.RemoveAt(_rails.Count - 1);
 
-        _totalLength -= removedRail.rp.Length;
+        if (_rails.Count > 0)
+            _totalLength -= _rails[_rails.Count - 1].rp.Length;
 
         if(_rails.Count > 0)
         {
@@ -231,6 +231,16 @@ public class Constructor
         removedRail.Destroy();
 
         return (_currentGlobalrp, _mp);
+    }
+
+    public void GenerateSupports(int id)
+    {
+        _rails[id].GenerateSupports();
+    }
+
+    public void RemoveSupports(int id)
+    {
+        _rails[id].RemoveSupports();
     }
 
     public void SetRailPreview(int id, bool isPreview)
@@ -444,9 +454,19 @@ public class Constructor
         }
     }
 
-    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position, bool isHeatmap = false)
+    public void StartChildCoroutine(IEnumerator coroutine)
     {
-        return _rollerCoaster.InstantiateRail(mesh, material, position, isHeatmap: isHeatmap).gameObject;
+        _rollerCoaster.StartChildCoroutine(coroutine);
+    }
+
+    public void StopChildCoroutine(IEnumerator coroutine)
+    {
+        _rollerCoaster.StopChildCoroutine(coroutine);
+    }
+
+    public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position, bool isHeatmap = false, bool isSupport = false)
+    {
+        return _rollerCoaster.InstantiateRail(mesh, material, position, isHeatmap: isHeatmap, isSupport: isSupport).gameObject;
     }
 
     public RailProps CurrentGlobalrp

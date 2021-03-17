@@ -244,7 +244,7 @@ public class ConstructionArrows : MonoBehaviour
 
             if(angle != _lastValue)
             {
-                _rc.UpdateLastRail(elevation: _lastGlobalrp.Elevation + angle, simulateRail:true);
+                _rc.UpdateLastRail(elevation: _lastGlobalrp.Elevation + angle);
                 _lastValue = angle;
                 changed = true;
             }
@@ -263,7 +263,7 @@ public class ConstructionArrows : MonoBehaviour
 
             if (angle != _lastValue)
             {
-                _rc.UpdateLastRail(rotation: _lastGlobalrp.Rotation + angle, simulateRail:true);
+                _rc.UpdateLastRail(rotation: _lastGlobalrp.Rotation + angle);
                 _lastValue = angle;
                 changed = true;
             }
@@ -282,7 +282,7 @@ public class ConstructionArrows : MonoBehaviour
 
             if (angle != _lastValue)
             {
-                _rc.UpdateLastRail(inclination: _lastGlobalrp.Inclination + angle, simulateRail:true);
+                _rc.UpdateLastRail(inclination: _lastGlobalrp.Inclination + angle);
                 _lastValue = angle;
                 changed = true;
             }
@@ -297,12 +297,12 @@ public class ConstructionArrows : MonoBehaviour
             float length = magX / _dirX.magnitude;
             float currentLength = _currentGlobalrp.Length;
 
-            length = Mathf.Max(5f, currentLength + length);
+            length = Mathf.Min(Mathf.Max(5f, currentLength + length), 50f);
             length = Mathf.Round(length);
 
             if (length != _lastValue)
             {
-                _rc.UpdateLastRail(length: length, simulateRail:true);
+                _rc.UpdateLastRail(length: length);
                 _lastValue = length;
                 changed = true;
             }

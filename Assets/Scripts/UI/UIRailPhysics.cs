@@ -7,7 +7,12 @@ public class UIRailPhysics : MonoBehaviour
 {
     #pragma warning disable 0649
     [SerializeField] private Transform _valuesPannel;
+    #pragma warning disable 0649
+    [SerializeField] private Transform _loadingPannel;
     private bool _isCarSimulating;
+
+    private IEnumerator railCoroutine = null;
+    private IEnumerator carCoroutine = null;
 
     public void Translate()
     {
@@ -28,43 +33,66 @@ public class UIRailPhysics : MonoBehaviour
             this.transform.GetChild(6).GetComponent<Text>().text = Translator.inst.GetTranslation("maxGLateral") + ":";
             this.transform.GetChild(10).GetComponent<Text>().text = Translator.inst.GetTranslation("totalLength") + ":";
         }
+
+        _loadingPannel.GetChild(0).GetComponent<Text>().text = Translator.inst.GetTranslation("calculating");
     }
 
     public void UpdateValues(RollerCoaster rc, bool isSimulating)
     {
+        _loadingPannel.gameObject.SetActive(true);
         if (isSimulating)
         {
-            // TODO
-            _isCarSimulating = true;
-            StartCoroutine(CarSimulationValuesUpdate(rc));
+            if (!_isCarSimulating)
+            {
+                _isCarSimulating = true;
+                if(railCoroutine != null)
+                    StopCoroutine(railCoroutine);
+            }
+            if (carCoroutine != null)
+                StopCoroutine(carCoroutine);
+            carCoroutine = CarSimulationValuesUpdate(rc);
+            StartCoroutine(carCoroutine);
         }
         else
         {
             if(_isCarSimulating)
             {
                 _isCarSimulating = false;
-                StopCoroutine(CarSimulationValuesUpdate(rc));
+                if (carCoroutine != null)
+                    StopCoroutine(carCoroutine);
             }
-
-            RailPhysics railPhysics = rc.GetLastRailPhysics();
-
-            // TODO: Load Async
-            if(railPhysics != null && railPhysics.Final != null)
-            {
-                _valuesPannel.GetChild(1).GetComponent<Text>().text = railPhysics.Final.Velocity.ToString("0.0") + "<size=24>m/s</size>";
-                _valuesPannel.GetChild(3).GetComponent<Text>().text = railPhysics.Max.GForce.y.ToString("0.0") + "<size=24>g</size>";
-                _valuesPannel.GetChild(5).GetComponent<Text>().text = railPhysics.Max.GForce.x.ToString("0.0") + "<size=24>g</size>";
-                _valuesPannel.GetChild(7).GetComponent<Text>().text = railPhysics.Max.GForce.z.ToString("0.0") + "<size=24>g</size>";
-                _valuesPannel.GetChild(9).GetComponent<Text>().text = rc.GetFinalPosition().y.ToString("0.0") + "<size=28>m</size>";
-                _valuesPannel.GetChild(11).GetComponent<Text>().text = (rc.GetTotalLength() + rc.GetCurrentGlobalrp().Length).ToString("0.0") + "<size=28>m</size>";
-            }
+            if(railCoroutine != null)
+                StopCoroutine(railCoroutine);
+            railCoroutine = RailSimulationValuesUpdate(rc);
+            StartCoroutine(railCoroutine);
         }
         
         Translate();
     }
 
+    private IEnumerator RailSimulationValuesUpdate(RollerCoaster rc)
+    {
+        RailPhysics railPhysics = rc.GetLastRailPhysics();
+        while(railPhysics == null || railPhysics.Final == null)
+        {
+            yield return null;
+            railPhysics = rc.GetLastRailPhysics();
+        }
+        if(!_isCarSimulating)
+        {
+            _loadingPannel.gameObject.SetActive(false);
+            _valuesPannel.GetChild(1).GetComponent<Text>().text = railPhysics.Final.Velocity.ToString("0.0") + "<size=24>m/s</size>";
+            _valuesPannel.GetChild(3).GetComponent<Text>().text = railPhysics.Max.GForce.y.ToString("0.0") + "<size=24>g</size>";
+            _valuesPannel.GetChild(5).GetComponent<Text>().text = railPhysics.Max.GForce.x.ToString("0.0") + "<size=24>g</size>";
+            _valuesPannel.GetChild(7).GetComponent<Text>().text = railPhysics.Max.GForce.z.ToString("0.0") + "<size=24>g</size>";
+            _valuesPannel.GetChild(9).GetComponent<Text>().text = rc.GetFinalPosition().y.ToString("0.0") + "<size=28>m</size>";
+            _valuesPannel.GetChild(11).GetComponent<Text>().text = (rc.GetTotalLength() + rc.GetCurrentGlobalrp().Length).ToString("0.0") + "<size=28>m</size>";
+        }
+    }
+
     private IEnumerator CarSimulationValuesUpdate(RollerCoaster rc)
     {
+        _loadingPannel.gameObject.SetActive(false);
         while(true)
         {
             if(rc.GetFirstCar() == null) break;
