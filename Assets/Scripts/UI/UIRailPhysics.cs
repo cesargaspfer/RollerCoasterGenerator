@@ -93,20 +93,30 @@ public class UIRailPhysics : MonoBehaviour
     private IEnumerator CarSimulationValuesUpdate(RollerCoaster rc)
     {
         _loadingPannel.gameObject.SetActive(false);
-        while(true)
+        Car car = null;
+        if (rc.GetFirstCar() != null)
         {
-            if(rc.GetFirstCar() == null) break;
-            
-            Car car = rc.GetFirstCar().GetComponent<Car>();
-            float height = rc.GetFirstCar().transform.position.y;
+            car = rc.GetFirstCar().GetComponent<Car>();
+            while (true)
+            {
+                if (rc.GetFirstCar() == null) break;
 
-            _valuesPannel.GetChild(1).GetComponent<Text>().text = car.Velocity.ToString("0.0") + "<size=24>m/s</size>";
-            _valuesPannel.GetChild(3).GetComponent<Text>().text = car.GForce.y.ToString("0.0")  + "<size=24>g</size>";
-            _valuesPannel.GetChild(5).GetComponent<Text>().text = car.GForce.x.ToString("0.0")  + "<size=24>g</size>";
-            _valuesPannel.GetChild(7).GetComponent<Text>().text = car.GForce.z.ToString("0.0")  + "<size=24>g</size>";
-            _valuesPannel.GetChild(9).GetComponent<Text>().text = height.ToString("0.0")  + "<size=28>m</size>";
-            _valuesPannel.GetChild(11).GetComponent<Text>().text = car.TotalPosition.ToString("0.0") + "<size=28>m</size>";
-            yield return null;
+                float height = rc.GetFirstCar().transform.position.y;
+
+                _valuesPannel.GetChild(1).GetComponent<Text>().text = car.Velocity.ToString("0.0") + "<size=24>m/s</size>";
+                _valuesPannel.GetChild(3).GetComponent<Text>().text = car.GForce.y.ToString("0.0") + "<size=24>g</size>";
+                _valuesPannel.GetChild(5).GetComponent<Text>().text = car.GForce.x.ToString("0.0") + "<size=24>g</size>";
+                _valuesPannel.GetChild(7).GetComponent<Text>().text = car.GForce.z.ToString("0.0") + "<size=24>g</size>";
+                _valuesPannel.GetChild(9).GetComponent<Text>().text = height.ToString("0.0") + "<size=28>m</size>";
+                _valuesPannel.GetChild(11).GetComponent<Text>().text = car.TotalPosition.ToString("0.0") + "<size=28>m</size>";
+
+                float t = 0f;
+                while(t <= 0.1f)
+                {
+                    t += Time.deltaTime;
+                    yield return null;
+                }
+            }
         }
     }
 

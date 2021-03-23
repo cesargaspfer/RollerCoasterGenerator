@@ -59,7 +59,7 @@ public class Arrow : MonoBehaviour
     public void ChangeColor(float scale)
     {
         Color emissionColor = _color * scale;
-        this.GetComponent<Renderer>().material.SetColor("_EmissionColor", emissionColor);
-        _otherArrow.GetComponent<Renderer>().material.SetColor("_EmissionColor", emissionColor);
+        this.GetComponent<Renderer>().material.SetColor("_Color", emissionColor);
+        _otherArrow.GetComponent<Renderer>().material.SetColor("_Color", emissionColor);
     }
 }

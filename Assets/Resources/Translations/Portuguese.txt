@@ -1,4 +1,4 @@
-TODO|TODO
+TODO|A Fazer
 constructor|Construtor
 terrain|Terreno
 railType|Tipo de Trilho
@@ -40,7 +40,7 @@ generate|Gerar uma Nova Montanha-Russa
 coasterName|Nome da Montanha-Russa
 menuConstruct|Construir uma Montanha-Russa
 menuGenerate|Gerar uma Montanha-Russa
-menuLoad|Carragar Montanha-Russa
+menuLoad|Carregar Montanha-Russa
 options|Opções
 credits|Creditos
 exit|Sair

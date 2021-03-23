@@ -46,7 +46,6 @@ public class Constructor
         _finalPosition = sp.Position;
         _finalBasis = sp.Basis;
         _heatmapValue = 0;
-        // TODO: others properties
     }
 
     public Rail AddRail(bool isPreview)
@@ -272,10 +271,10 @@ public class Constructor
 
     public bool CanAddFinalRail()
     {
-        Vector3 position = _currentRail.sp.Position;
+        Vector3 position = _rails[_rails.Count - 2].sp.Position;
         if(GetSignedDistanceFromPlane(_initialBasis.GetColumn(0), _initialPosition, position) >= 0)
             return false;
-        if(Angle(_finalBasis.GetColumn(0), _initialPosition - position) > Mathf.PI * 0.25)
+        if(Angle(_rails[_rails.Count - 2].GetBasisAt(1f).GetColumn(0), _initialPosition - position) > Mathf.PI * 0.25)
             return false;
         return true;
     }
@@ -288,7 +287,7 @@ public class Constructor
         AddRail(false);
         _position = position;
         _basis = basis;
-        _initialPosition = Vector3.zero;
+        _initialPosition = Vector3.up;
         _initialBasis = Matrix4x4.identity;
         // _initialBasis[0, 0] = 0f;
         // _initialBasis[0, 1] = 1f;
@@ -300,7 +299,7 @@ public class Constructor
     public (Rail, Rail) AddFinalRail(int railType = -1)
     {
         // TODO: Check if can finish track
-        
+
         Vector3 pi = _position;
         Vector3 ni = _basis.GetColumn(0);
         Vector3 pf = _initialPosition;
@@ -366,9 +365,9 @@ public class Constructor
         }
 
         this.SetRailPreview(_rails.Count - 1, false);
-        Rail rail1 = this.UpdateLastRail(rp: firstrp + _currentGlobalrp, mp: _mp, radius: radius);
+        Rail rail1 = this.UpdateLastRail(rp: firstrp + _lastGlobalrp, mp: _mp, radius: radius);
         this.AddRail(false);
-        Rail rail2 = this.UpdateLastRail(rp: secondrp + _currentGlobalrp, mp: _mp, radius: radius);
+        Rail rail2 = this.UpdateLastRail(rp: secondrp + _lastGlobalrp, mp: _mp, radius: radius);
 
         // Sphere debug
         // GameObject mySphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);

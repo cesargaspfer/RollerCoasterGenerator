@@ -31,6 +31,8 @@ public class Translator : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private Transform _blueprintsTypeSelector;
     #pragma warning disable 0649
+    [SerializeField] private Text _blueprintsTODO;
+    #pragma warning disable 0649
     [SerializeField] private Transform _blueprintsProps;
     #pragma warning disable 0649
     [SerializeField] private Transform _blueprintsButtons;
@@ -157,6 +159,9 @@ public class Translator : MonoBehaviour
         _blueprintsTypeSelector.GetChild(3).GetComponent<Dropdown>().options[3].text = _translations["TODO"];
         _blueprintsTypeSelector.GetChild(3).GetComponent<Dropdown>().options[4].text = _translations["TODO"];
         _blueprintsTypeSelector.GetChild(3).GetComponent<Dropdown>().options[5].text = _translations["TODO"];
+
+        // TODO: Remove:
+        _blueprintsTODO.text = _translations["TODO"];
 
         // TODO: translate _blueprintsProps
         foreach(Transform prop in _blueprintsProps)

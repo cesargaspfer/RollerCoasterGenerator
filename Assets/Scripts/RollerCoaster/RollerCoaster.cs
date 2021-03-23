@@ -5,9 +5,6 @@ using static SaveManager;
 
 public class RollerCoaster : MonoBehaviour
 {
-
-    #pragma warning disable 0649
-    [SerializeField] private bool _debug;
     #pragma warning disable 0649
     [SerializeField] private bool _debugAddFinalRail;
     #pragma warning disable 0649
@@ -42,7 +39,7 @@ public class RollerCoaster : MonoBehaviour
         SpaceProps sp = new SpaceProps(Vector3.up, Matrix4x4.identity);
         _constructor = new Constructor(this, rp, mp, sp);
         _carSimulation = null;
-        _simulator = new Simulator(this, 0.01f, 0, 1);
+        _simulator = new Simulator(this, 1f / 60f, 0, 1);
         _isComplete = false;
         _heatmapValue = -1;
         SetHeatmap(0);
@@ -57,6 +54,7 @@ public class RollerCoaster : MonoBehaviour
         {
             var finalRailDebuggerTransform = Instantiate(_finalRailDebugger, -Vector3.right, Quaternion.identity);
             finalRailDebuggerTransform.GetComponent<FinalRailDebugger>().constructor = _constructor;
+            AddRail(false);
         }
     }
 

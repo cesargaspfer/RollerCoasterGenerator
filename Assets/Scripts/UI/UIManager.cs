@@ -103,6 +103,9 @@ public class UIManager : MonoBehaviour
             _rollerCoaster.Initialize();
             _rollerCoaster.AddRail(false);
             _rollerCoaster.AddRail(true);
+            _lasRailType = 1;
+            _railTypeDropdown.value = 1;
+            _rollerCoaster.UpdateLastRail(railType: 1);
             ConstructionArrows.inst.Initialize(_rollerCoaster);
             _isPaused = false;
             _exitedMenu = true;
@@ -112,7 +115,7 @@ public class UIManager : MonoBehaviour
 
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Escape) && _exitedMenu)
+        if(Input.GetKeyDown(KeyCode.Escape))
         {
             if(!_isPaused)
             {
@@ -120,7 +123,20 @@ public class UIManager : MonoBehaviour
             }
             else
             {
-                Unpause();
+                if(_MenuState == -1)
+                {
+                    if(_exitedMenu)
+                        Unpause();
+                }
+                else if(_MenuState != 3)
+                {
+                    GoToFirstMenuPannel();
+                }
+                else
+                {
+                    if(!_isTakingAPicture)
+                        GoToFirstMenuPannel();
+                }
             }
         }
     }
@@ -539,6 +555,7 @@ public class UIManager : MonoBehaviour
 
     private bool _showArrowsWhenUnpause = false;
     private int _lastPannelState = -1;
+    private bool _isTakingAPicture = false;
 
     public void Pause()
     {
@@ -631,6 +648,7 @@ public class UIManager : MonoBehaviour
     {
         if (_isAnimating) return;
         _MenuState = 3;
+        _isTakingAPicture = false;
         _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(0).gameObject.SetActive(true);
         _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(1).gameObject.SetActive(false);
         _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(2).gameObject.SetActive(false);
@@ -648,6 +666,7 @@ public class UIManager : MonoBehaviour
     public void MenuContinueSaveButtonPressed()
     {
         if (_isAnimating) return;
+        _isTakingAPicture = true;
         _screenshotCamera.gameObject.SetActive(true);
         _screenshotCamera.GetChild(0).GetComponent<Text>().text = _nameInput.text;
         _menuPannel.gameObject.SetActive(false);
@@ -662,10 +681,22 @@ public class UIManager : MonoBehaviour
 
     private IEnumerator SaveAnimation()
     {
+        _isTakingAPicture = false;
         _screenshotCamera.gameObject.SetActive(false);
+        _flash.GetComponent<Animator>().Play("Flash");
         yield return null;
         bool saved = _rollerCoaster.SaveCoaster(_nameInput.text);
         yield return null;
+        if(saved)
+        {
+            float t = 0;
+            while(t < 2f && !_rollerCoaster.CoasterExists(_nameInput.text))
+            {
+                t += Time.deltaTime;
+                yield return null;
+            }
+            saved = _rollerCoaster.CoasterExists(_nameInput.text);
+        }
         _pannel.gameObject.SetActive(true);
         _menuPannel.gameObject.SetActive(true);
         _cameraHandler.SetCanMove(false);
@@ -675,8 +706,6 @@ public class UIManager : MonoBehaviour
             _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(1).gameObject.SetActive(true);
         else
             _menuPannel.GetChild(0).GetChild(1).GetChild(4).GetChild(2).gameObject.SetActive(true);
-
-        _flash.GetComponent<Animator>().Play("Flash");
     }
 
     public void MenuExitButtonPressed()
@@ -709,6 +738,9 @@ public class UIManager : MonoBehaviour
             _rollerCoaster.AddRail(false);
             _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
             _rollerCoaster.AddRail(true);
+            _lasRailType = 1;
+            _railTypeDropdown.value = 1;
+            _rollerCoaster.UpdateLastRail(railType: 1);
         }
         else
             _rollerCoaster.GenerateCoaster();

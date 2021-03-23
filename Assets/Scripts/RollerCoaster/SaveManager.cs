@@ -125,7 +125,7 @@ public class SaveManager
             Directory.CreateDirectory(_pathRollerCoaster + "/" + coasterName);
             ScreenCapture.CaptureScreenshot(_pathRollerCoaster + "/" + coasterName + "/Screenshot.png");
             File.WriteAllBytes(_pathRollerCoaster + "/" + coasterName + "/data.bytes", content);
-            return CoasterExists(coasterName);
+            return true;
         }
         catch (Exception ex)
         {
@@ -175,8 +175,8 @@ public class SaveManager
     public static bool CoasterExists(string coasterName)
     {
         if (!Directory.Exists(_pathRollerCoaster + "/" + coasterName)) return false;
-        if (!File.Exists(_pathRollerCoaster + "/" + coasterName + "/Screenshot.png")) return false;
         if (!File.Exists(_pathRollerCoaster + "/" + coasterName + "/data.bytes")) return false;
+        if (!File.Exists(_pathRollerCoaster + "/" + coasterName + "/Screenshot.png")) return false;
         return true;
     }
     

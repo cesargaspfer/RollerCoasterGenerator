@@ -38,7 +38,7 @@ type|Type
 subtype|Subtype
 generate|Generate a New Roller Coaster
 coasterName|Roller Coaster Name
-menuConstruct|Construct a New Roller Coaster
+menuConstruct|Build a New Roller Coaster
 menuGenerate|Generate a Roller Coaster
 menuLoad|Load a Roller Coaster
 options|Options

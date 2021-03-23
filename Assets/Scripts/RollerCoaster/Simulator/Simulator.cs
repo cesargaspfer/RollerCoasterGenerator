@@ -135,7 +135,7 @@ public class Simulator
 
         if (rail.mp.Type == RailModelProperties.RailType.Lever)
         {
-            if(velocity < 2f)
+            if(velocity < 4f)
             {
                 acceleration += 2f;
             }
@@ -143,7 +143,7 @@ public class Simulator
 
         if (rail.mp.Type == RailModelProperties.RailType.Platform)
         {
-            if (velocity < 1f)
+            if (velocity < 2f)
             {
                 acceleration += 1f;
             }
@@ -240,7 +240,7 @@ public class Simulator
                 Vector3 AcDir = -(Vector3.Cross(x0, Vector3.Cross(x0, x1))).normalized;
                 float Ac = (velocity * velocity) / lastRail.Radius;
                 centripetalAcceleration = Ac * AcDir;
-                Debug.Log(Ac + "\t" + velocity + "\t" + lastRail.Radius);
+                // Debug.Log(Ac + "\t" + velocity + "\t" + lastRail.Radius);
 
             }
 

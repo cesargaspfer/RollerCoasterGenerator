@@ -68,15 +68,9 @@ public class CameraHandler : MonoBehaviour
     {
         if(_currentCameraMode == CameraMode.Normal && _canMove)
         {
-            if (!Input.GetMouseButton(2))
-            {
-                UpdateTargetPosition();
-            }
-            if (!Input.GetMouseButton(1) || Input.GetMouseButton(2))
-            {
-                UpdateCameraZoom();
-                UpdateCameraDirection();
-            }
+            UpdateTargetPosition();
+            UpdateCameraZoom();
+            UpdateCameraDirection();
 
             // Update the camera position
             _camera.transform.position = _currentTargetPosition;

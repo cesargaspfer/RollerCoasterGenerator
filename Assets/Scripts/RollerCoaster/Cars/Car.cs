@@ -52,7 +52,6 @@ public class Car : MonoBehaviour
         _currentCurveT = 0;
         _carProps = carProps;
         _totalPosition = 0f;
-        // TODO: _gForce
     }
 
     public void UpdatePhysics(float scalarPosition, float velocity, Vector3 gForce, int currentSegment, int currentLap, float currentCurveT, float distance)
@@ -60,9 +59,13 @@ public class Car : MonoBehaviour
         _scalarPosition = scalarPosition;
         _velocity = velocity;
         _currentSegment = currentSegment;
-        _currentLap = currentLap;
         _currentCurveT = currentCurveT;
         _totalPosition += distance;
+        if(currentLap != _currentLap)
+        {
+            _totalPosition = 0f;
+        }
+        _currentLap = currentLap;
         _gForce = gForce;
     }
 
