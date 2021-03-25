@@ -258,6 +258,7 @@ public class UIManager : MonoBehaviour
         if(_isAnimating || _isBlueprintActive) return;
         _isBlueprintActive = true;
         ConstructionArrows.inst.ActiveArrows(false);
+        UIBlueprint.inst.Initialize(_rollerCoaster);
         _mpAnim.Play("ChangeToBlueprint");
         StartCoroutine(AnimationTime(0.75f));
 
@@ -268,6 +269,8 @@ public class UIManager : MonoBehaviour
         if(_isAnimating || !_isBlueprintActive) return;
         _isBlueprintActive = false;
         ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
+        UIBlueprint.inst.Close();
+        ConstructionArrows.inst.UpdateArrows();
         _mpAnim.Play("ChangeFromBlueprint");
         StartCoroutine(AnimationTime(0.75f));
 

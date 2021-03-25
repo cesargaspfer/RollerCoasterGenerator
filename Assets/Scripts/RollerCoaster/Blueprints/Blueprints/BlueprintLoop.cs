@@ -6,13 +6,20 @@ public class BlueprintLoop : Blueprint
 {
     public BlueprintLoop() { }
 
+    public override List<string> GetSubtypeNames()
+    {
+        List<string> names = new List<string>() { "Straight" };
+
+        return names;
+    }
+
     public override Dictionary<string, Dictionary<string, string>> GetParams()
     {
         Dictionary<string, Dictionary<string, string>> dict = new Dictionary<string, Dictionary<string, string>>();
 
         dict["Straight"] = new Dictionary<string, string>() {
-            {"lengthScale", "float"},
-            {"orientation", "int"},
+            {"lengthScale", "0.1;1.3;5;2;"},
+            {"orientation", "2;-1;1;1;"},
         };
 
         return dict;

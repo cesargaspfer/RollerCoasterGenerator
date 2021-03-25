@@ -31,10 +31,6 @@ public class Translator : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private Transform _blueprintsTypeSelector;
     #pragma warning disable 0649
-    [SerializeField] private Text _blueprintsTODO;
-    #pragma warning disable 0649
-    [SerializeField] private Transform _blueprintsProps;
-    #pragma warning disable 0649
     [SerializeField] private Transform _blueprintsButtons;
     #pragma warning disable 0649
     [SerializeField] private Transform _generatorButton;
@@ -145,29 +141,7 @@ public class Translator : MonoBehaviour
         _blueprintsTypeSelector.GetChild(0).GetComponent<Text>().text = _translations["type"] + ":";
         _blueprintsTypeSelector.GetChild(2).GetComponent<Text>().text = _translations["subtype"] + ":";
 
-        // TODO: translate _blueprintsTypeSelector
-        _blueprintsTypeSelector.GetChild(1).GetComponent<Dropdown>().options[0].text = _translations["none"];
-        _blueprintsTypeSelector.GetChild(1).GetComponent<Dropdown>().options[1].text = _translations["TODO"];
-        _blueprintsTypeSelector.GetChild(1).GetComponent<Dropdown>().options[2].text = _translations["TODO"];
-        _blueprintsTypeSelector.GetChild(1).GetComponent<Dropdown>().options[3].text = _translations["TODO"];
-        _blueprintsTypeSelector.GetChild(1).GetComponent<Dropdown>().options[4].text = _translations["TODO"];
-        _blueprintsTypeSelector.GetChild(1).GetComponent<Dropdown>().options[5].text = _translations["TODO"];
-
-        _blueprintsTypeSelector.GetChild(3).GetComponent<Dropdown>().options[0].text = _translations["none"];
-        _blueprintsTypeSelector.GetChild(3).GetComponent<Dropdown>().options[1].text = _translations["TODO"];
-        _blueprintsTypeSelector.GetChild(3).GetComponent<Dropdown>().options[2].text = _translations["TODO"];
-        _blueprintsTypeSelector.GetChild(3).GetComponent<Dropdown>().options[3].text = _translations["TODO"];
-        _blueprintsTypeSelector.GetChild(3).GetComponent<Dropdown>().options[4].text = _translations["TODO"];
-        _blueprintsTypeSelector.GetChild(3).GetComponent<Dropdown>().options[5].text = _translations["TODO"];
-
-        // TODO: Remove:
-        _blueprintsTODO.text = _translations["TODO"];
-
-        // TODO: translate _blueprintsProps
-        foreach(Transform prop in _blueprintsProps)
-        {
-            prop.GetChild(0).GetComponent<Text>().text = _translations["TODO"] + ":";
-        }
+        UIBlueprint.inst.Translate();
 
         _generatorButton.GetChild(0).GetComponent<Text>().text = _translations["generate"];
 

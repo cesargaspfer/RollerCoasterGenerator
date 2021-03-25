@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BlueprintManager : MonoBehaviour
+public class BlueprintManager
 {
     
     private Blueprint _lever;
     private Blueprint _loop;
 
-    void Awake()
+    public BlueprintManager()
     {
         _lever = new BlueprintLever();
         _loop = new BlueprintLoop();

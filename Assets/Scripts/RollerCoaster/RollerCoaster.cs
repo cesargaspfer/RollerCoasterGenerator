@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using static RailModelProperties;
 using static SaveManager;
@@ -24,6 +25,7 @@ public class RollerCoaster : MonoBehaviour
     [SerializeField] private Constructor _constructor;
     [SerializeField] private Generator _generator;
     [SerializeField] private Simulator _simulator;
+    [SerializeField] private BlueprintManager _blueprintManager;
     [SerializeField] private bool _isComplete;
     [SerializeField] private bool _carSimulationPause;
     [SerializeField] private bool _isHeatmapActive;
@@ -40,6 +42,7 @@ public class RollerCoaster : MonoBehaviour
         _constructor = new Constructor(this, rp, mp, sp);
         _carSimulation = null;
         _simulator = new Simulator(this, 1f / 60f, 0, 1);
+        _blueprintManager = new BlueprintManager();
         _isComplete = false;
         _heatmapValue = -1;
         SetHeatmap(0);
@@ -114,6 +117,13 @@ public class RollerCoaster : MonoBehaviour
         {
             // TODO: Warn player? *Restart simulation?* *Restart simulation if cars are in final rail?*
         }
+    }
+
+    public void AddBlueprint(List<(RailProps, RailType)> rails, bool isPreview)
+    {
+        List<Rail> newRails = _constructor.AddBlueprint(rails, isPreview);
+        for(int i = 0; i < newRails.Count; i++)
+            _simulator.AddRail(newRails[i]);
     }
 
     public void GenerateSupports(int id)
@@ -329,6 +339,11 @@ public class RollerCoaster : MonoBehaviour
     public void StopChildCoroutine(IEnumerator coroutine)
     {
         StopCoroutine(coroutine);
+    }
+
+    public BlueprintManager GetBlueprintManager()
+    {
+        return _blueprintManager;
     }
 
     public Rail GetLastRail()

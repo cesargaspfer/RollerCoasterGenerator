@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static Algebra;
 using static ImaginarySphere;
+using static RailModelProperties;
 
 [System.Serializable]
 public class Constructor
@@ -211,7 +212,7 @@ public class Constructor
 
             _mp = _currentRail.mp;
             
-            this.UpdateLastRail(rp:_currentGlobalrp);
+            this.UpdateLastRail(rp:_currentGlobalrp, mp:_mp);
         }
         else
         {
@@ -232,6 +233,20 @@ public class Constructor
         return (_currentGlobalrp, _mp);
     }
 
+    public List<Rail> AddBlueprint(List<(RailProps, RailType)> rails, bool isPreview)
+    {
+        List<Rail> newRails = new List<Rail>();
+        for(int i = 0; i < rails.Count; i++)
+        {
+            (RailProps rp, RailType rt) = rails[i];
+
+            newRails.Add(AddRail(isPreview));
+            UpdateLastRailAdd(elevation: rp.Elevation, rotation: rp.Rotation, inclination: rp.Inclination, railType: (int) rt);
+            UpdateLastRail(length: rp.Length);
+        }
+        return newRails;
+    }
+
     public void GenerateSupports(int id)
     {
         _rails[id].GenerateSupports();
@@ -247,9 +262,9 @@ public class Constructor
         int canPlace = 0;
         if (isPreview)
         {
-            canPlace = CanPlace(_currentRail) ? 1 : 2;
+            canPlace = CanPlace(_rails[id]) ? 1 : 2;
         }
-        _currentRail.SetPreview(canPlace);
+        _rails[id].SetPreview(canPlace);
     }
 
     public bool CanPlace(Rail rail)
