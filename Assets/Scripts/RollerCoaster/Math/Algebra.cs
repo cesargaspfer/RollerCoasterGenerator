@@ -254,4 +254,16 @@ public class Algebra
         float D = -Vector3.Dot(planeNormal, pointInPlane);
         return Vector3.Dot(planeNormal, point) + D;
     }
+
+    public static float GetSignedYAngleFromPlane(Vector3 planeNormal, Vector3 pointInPlane, Vector3 point, Vector3 pointDirection)
+    {
+        float signedDistance = GetSignedDistanceFromPlane(planeNormal, pointInPlane, point);
+        if(signedDistance > 0)
+            planeNormal = -planeNormal;
+        Vector3 projected = Vector3.ProjectOnPlane(pointDirection, Vector3.up).normalized;
+        float angle = Angle(planeNormal, projected);
+        if((RotationMatrix(angle,Vector3.Cross(planeNormal, projected)).MultiplyPoint3x4(projected) - planeNormal).magnitude > 0.1f)
+            angle = -angle;
+        return angle;
+    }
 }

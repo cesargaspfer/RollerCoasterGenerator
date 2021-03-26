@@ -228,6 +228,7 @@ public class Constructor
             _lastGlobalrp = new RailProps(0f, 0f, 0f, 5f);
         }
 
+        removedRail.StopCurrentHeatmapCoroutine();
         removedRail.Destroy();
 
         return (_currentGlobalrp, _mp);

@@ -226,6 +226,12 @@ public class Rail
         _constructor.StartChildCoroutine(_currentHeatmapCoroutine);
     }
 
+    public void StopCurrentHeatmapCoroutine()
+    {
+        if (_currentHeatmapCoroutine != null)
+            _constructor.StopChildCoroutine(_currentHeatmapCoroutine);
+    }
+
     private IEnumerator SetHeatmapCoroutine()
     {
         Mesh mesh;

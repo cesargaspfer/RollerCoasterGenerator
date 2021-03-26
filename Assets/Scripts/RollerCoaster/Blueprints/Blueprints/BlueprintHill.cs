@@ -6,6 +6,13 @@ public class BlueprintHill : Blueprint
 {
     public BlueprintHill() { }
 
+    public override float GetProbability(RailProps railProps, SpaceProps spaceProps, RailPhysics railPhysics)
+    {
+        if (railPhysics.Final.Velocity > 5f)
+            return 1f;
+        return 0f;
+    }
+
     public override List<string> GetSubtypeNames()
     {
         List<string> names = new List<string>() { "StraightHeight", "StraightLength", "RotateHeight", "RotateLength" };

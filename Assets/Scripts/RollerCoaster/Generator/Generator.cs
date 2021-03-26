@@ -28,6 +28,7 @@ public class Generator
     public Matrix4x4 initialBasis;
 
     private RollerCoaster _rollerCoaster;
+    private BlueprintManager _blueprintManager;
     private Status _status;
     private bool _isGenerating = false;
     private IEnumerator currentGeneratingCoroutine = null;
@@ -37,6 +38,7 @@ public class Generator
     public Generator(RollerCoaster rollerCoaster)
     {
         _rollerCoaster = rollerCoaster;
+        _blueprintManager = _rollerCoaster.GetBlueprintManager();
         _isGenerating = false;
         // Generate();
         // _rc.GenerateCoaster();

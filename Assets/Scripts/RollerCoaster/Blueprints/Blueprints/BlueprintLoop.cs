@@ -6,6 +6,13 @@ public class BlueprintLoop : Blueprint
 {
     public BlueprintLoop() { }
 
+    public override float GetProbability(RailProps railProps, SpaceProps spaceProps, RailPhysics railPhysics)
+    {
+        if (railPhysics.Final.Velocity > 7f)
+            return 1f;
+        return 0f;
+    }
+
     public override List<string> GetSubtypeNames()
     {
         List<string> names = new List<string>() { "Straight" };
