@@ -7365,7 +7365,7 @@ MonoBehaviour:
   _isLegendActive: 0
   _isAnimating: 0
   _pannelState: 0
-  _constructorPannelState: 0
+  _constructorPannelState: 1
   _isRailPropsGlobal: 1
   _isBlueprintActive: 0
   _isSimulating: 0
@@ -16405,7 +16405,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &994021627
 RectTransform:
   m_ObjectHideFlags: 0

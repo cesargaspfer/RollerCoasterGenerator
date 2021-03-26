@@ -99,14 +99,24 @@ public class UIManager : MonoBehaviour
         }
         else
         {
-            _settingsButton.SetActive(true);
             _rollerCoaster.Initialize();
-            _rollerCoaster.AddRail(false);
-            _rollerCoaster.AddRail(true);
-            _lasRailType = 1;
-            _railTypeDropdown.value = 1;
-            _rollerCoaster.UpdateLastRail(railType: 1);
-            ConstructionArrows.inst.Initialize(_rollerCoaster);
+            if (_constructorPannelState == 0)
+            {
+                _rollerCoaster.AddRail(false);
+                _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
+                _rollerCoaster.AddRail(true);
+                _lasRailType = 1;
+                _railTypeDropdown.value = 1;
+                _rollerCoaster.UpdateLastRail(railType: 1);
+                ConstructionArrows.inst.Initialize(_rollerCoaster);
+            }
+            else
+            {        
+                _rollerCoaster.GenerateCoaster();
+            }
+
+            ShowPannel(_constructorPannelState, false);
+
             _isPaused = false;
             _exitedMenu = true;
             _cameraHandler.SetCanMove(true);
@@ -741,6 +751,7 @@ public class UIManager : MonoBehaviour
     private IEnumerator MenuContinueCoroutine()
     {
         _rollerCoaster.Initialize();
+        _constructorPannelState = _pannelState;
         if(_pannelState == 0)
         {
             _rollerCoaster.AddRail(false);
@@ -773,7 +784,8 @@ public class UIManager : MonoBehaviour
 
     public void UpdateUIValues ()
     {
-        _UIRailProps.UpdateValues(_rollerCoaster);
+        if (_constructorPannelState == 0)
+            _UIRailProps.UpdateValues(_rollerCoaster);
         _UIRailPhysics.UpdateValues(_rollerCoaster, _isSimulating);
     }
 }

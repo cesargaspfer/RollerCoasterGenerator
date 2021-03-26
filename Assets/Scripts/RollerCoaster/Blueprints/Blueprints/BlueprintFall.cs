@@ -7,9 +7,9 @@ public class BlueprintFall : Blueprint
 {
     public BlueprintFall() { }
 
-    public override float GetProbability(RailProps railProps, SpaceProps spaceProps, RailPhysics railPhysics)
+    public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
-        if (spaceProps.Position.y > 5f && railPhysics.Final.Velocity < 4f)
+        if (spaceProps.Position.y >= 5f && railPhysics.Final.Velocity <= 5f)
             return 1f;
         return 0f;
     }

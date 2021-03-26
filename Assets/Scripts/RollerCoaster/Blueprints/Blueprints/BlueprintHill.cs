@@ -6,7 +6,7 @@ public class BlueprintHill : Blueprint
 {
     public BlueprintHill() { }
 
-    public override float GetProbability(RailProps railProps, SpaceProps spaceProps, RailPhysics railPhysics)
+    public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
         if (railPhysics.Final.Velocity > 5f)
             return 1f;

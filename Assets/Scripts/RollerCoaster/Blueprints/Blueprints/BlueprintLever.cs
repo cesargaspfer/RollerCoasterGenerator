@@ -7,7 +7,7 @@ public class BlueprintLever : Blueprint
 {
     public BlueprintLever() { }
 
-    public override float GetProbability(RailProps railProps, SpaceProps spaceProps, RailPhysics railPhysics)
+    public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
         if(spaceProps.Position.y < 5f && railPhysics.Final.Velocity < 4f)
             return 1f;
