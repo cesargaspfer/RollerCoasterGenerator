@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static RailModelProperties;
+using static ImaginarySphere;
 using static SaveManager;
 
 public class RollerCoaster : MonoBehaviour
@@ -301,6 +302,11 @@ public class RollerCoaster : MonoBehaviour
         }
         _constructor.SetHeatmap(type);
     }
+    
+    public bool CheckRailPlacement(int id)
+    {
+        return _constructor.CheckRailPlacement(id);
+    }
 
     public bool CheckLastRailPlacement()
     {
@@ -339,6 +345,17 @@ public class RollerCoaster : MonoBehaviour
     public void StopChildCoroutine(IEnumerator coroutine)
     {
         StopCoroutine(coroutine);
+    }
+
+    public static Vector3 MeasureRail(RailProps rp)
+    {
+        return MeasureRail(rp, new SpaceProps(Vector3.zero, Matrix4x4.identity));
+    }
+
+    public static Vector3 MeasureRail(RailProps rp, SpaceProps sp)
+    {
+        (_, Matrix4x4 finalBasis, Vector3 finalPosition) = CalculateImaginarySphere(sp, rp);
+        return finalPosition - sp.Position;
     }
 
     public BlueprintManager GetBlueprintManager()

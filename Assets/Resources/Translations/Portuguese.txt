@@ -69,8 +69,14 @@ warnComplete|A montanha-russa já esta completa!
 warnIsGenerating|Espere a montanha-russa terminar de ser gerada!
 coasterExists|Já existe uma montanha-russa com o mesmo nome. Deseja substituí-la?
 Lever|Alavanca
+Fall|Queda
 Loop|Loop
+Hill|Montanha
 Straight|Reta
+StraightHeight|Reto altura
+StraightLength|Reto tamanho
+RotateHeight|Rotacionando altura
+RotateLength|Rotacionando tamanho
 Rotate|Rotacionando
 lengthScale|Escala
 orientation|Orientação

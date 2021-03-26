@@ -69,8 +69,14 @@ warnComplete|The roller coaster is already complete!
 warnIsGenerating|Wait for the roller coaster to finish generating!
 coasterExists|There is already a roller coaster with the same name. Do you want to replace it?
 Lever|Lever
+Fall|Fall
 Loop|Loop
+Hill|Hill
 Straight|Straight
+StraightHeight|Straight height
+StraightLength|Straight length
+RotateHeight|Rotate height
+RotateLength|Rotate length
 Rotate|Rotate
 lengthScale|Scale
 orientation|Orientation

@@ -108,14 +108,31 @@ public class UIBlueprint : MonoBehaviour
     public void AddBlueprint()
     {
         int railsCount = _rollerCoaster.GetRailsCount();
+        bool canPlace = true;
         for (int i = 0; i < _currentRailPreviewCount; i++)
         {
-            _rollerCoaster.SetRailPreview(railsCount - i - 1, false);
-            _rollerCoaster.GenerateSupports(railsCount - i - 1);
+            if(!_rollerCoaster.CheckRailPlacement(railsCount - i - 1))
+            {
+                canPlace = false;
+                break;
+            }
         }
-        _addedBlueprint = true;
-        _currentRailPreviewCount = 0;
-        UpdateValues();
+
+        if(canPlace)
+        {
+            for (int i = 0; i < _currentRailPreviewCount; i++)
+            {
+                _rollerCoaster.SetRailPreview(railsCount - i - 1, false);
+                _rollerCoaster.GenerateSupports(railsCount - i - 1);
+            }
+            _addedBlueprint = true;
+            _currentRailPreviewCount = 0;
+            UpdateValues();
+        }
+        else
+        {
+            UIManager.inst.Warn("warnIntersection");
+        }
     }
 
     public void Translate()
@@ -133,12 +150,12 @@ public class UIBlueprint : MonoBehaviour
             translatedtypeNames.Add(Translator.inst.GetTranslation(_typeNames[i]));
 
         List<string> translatedsubtypeNames = new List<string>();
-        for (int i = 0; i < _typeNames.Count; i++)
+        for (int i = 0; i < _subtypeNames.Count; i++)
             translatedsubtypeNames.Add(Translator.inst.GetTranslation(_subtypeNames[i]));
 
         _typeDropdown.AddOptions(translatedtypeNames);
         _subtypeDropdown.AddOptions(translatedsubtypeNames);
-        
+
         _typeDropdown.value = currentType;
         _subtypeDropdown.value = currentSubtype;
 

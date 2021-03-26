@@ -141,6 +141,11 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    public void Warn(string key)
+    {
+        _UIWarning.Warn(key);
+    }
+
     // ---------------------------- Main Pannel Animation Buttons ---------------------------- //
     
     [SerializeField] private bool _isAnimating = false;

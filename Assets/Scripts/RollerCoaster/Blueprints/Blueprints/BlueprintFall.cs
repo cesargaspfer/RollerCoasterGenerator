@@ -3,9 +3,9 @@ using UnityEngine;
 using static Algebra;
 using static RailModelProperties;
 
-public class BlueprintLever : Blueprint
+public class BlueprintFall : Blueprint
 {
-    public BlueprintLever() { }
+    public BlueprintFall() { }
 
     public override List<string> GetSubtypeNames()
     {
@@ -18,16 +18,16 @@ public class BlueprintLever : Blueprint
     {
         Dictionary<string, Dictionary<string, string>> dict = new Dictionary<string, Dictionary<string, string>>();
 
-        dict["Straight"] = new Dictionary<string, string> () {
-            {"elevation", "15;30;60;45;°"},
-            {"height", "1;5;50;10;m"},
+        dict["Straight"] = new Dictionary<string, string>() {
+            {"elevation", "15;-90;-15;-45;°"},
+            {"height", "1;5;100;10;m"},
             {"pieces", "1;2;7;3;"},
         };
 
         dict["Rotate"] = new Dictionary<string, string>() {
-            {"elevation", "15;30;60;45;°"},
+            {"elevation", "15;-60;-15;-45;°"},
             {"rotation", "15;-90;90;45;°"},
-            {"height", "1;5;50;10;m"},
+            {"height", "1;5;100;10;m"},
             {"pieces", "1;2;7;3;"},
         };
 
@@ -36,7 +36,7 @@ public class BlueprintLever : Blueprint
 
     public override List<(RailProps, RailType)> GetBlueprint(string type, Dictionary<string, float> dict)
     {
-        switch(type)
+        switch (type)
         {
             case "Straight":
                 return Straight(dict);
@@ -50,13 +50,12 @@ public class BlueprintLever : Blueprint
 
     public static List<(RailProps, RailType)> Straight(Dictionary<string, float> dict)
     {
-        return Straight(dict["elevation"], dict["height"], (int) dict["pieces"]);
+        return Straight(dict["elevation"], dict["height"], (int)dict["pieces"]);
     }
 
     public static List<(RailProps, RailType)> Straight(float elevation, float height, int pieces)
     {
-
-        return Rotate(elevation, 0f, height, pieces);
+        return Rotate(elevation, 0f,height , pieces);
     }
 
     public static List<(RailProps, RailType)> Rotate(Dictionary<string, float> dict)
@@ -72,19 +71,19 @@ public class BlueprintLever : Blueprint
         List<(RailProps, RailType)> rails = new List<(RailProps, RailType)>();
         float inclination = -rotation * 0.5f;
 
-        float initialRailHeight = RollerCoaster.MeasureRail(new RailProps(elevation, rotation, 0f, 1f)).y;
+        float initialRailHeight = RollerCoaster.MeasureRail(new RailProps(-elevation, rotation, 0f, 1f)).y;
         float middleRailHeight = RollerCoaster.MeasureRail
         (
-            new RailProps(0f, rotation, 0f, 1f),
-            new SpaceProps(Vector3.zero, ThreeRotationMatrix(Matrix4x4.identity, new RailProps(elevation, 0f, 0f, 5f)))
+            new RailProps(0f, rotation, 0f, 1f), 
+            new SpaceProps(Vector3.zero, ThreeRotationMatrix(Matrix4x4.identity, new RailProps(-elevation, 0f, 0f, 5f)))
         ).y;
 
         float length = height / (2f * initialRailHeight + (pieces - 2) * middleRailHeight);
 
-        rails.Add((new RailProps(elevation, rotation, inclination, length), RailType.Lever));
+        rails.Add((new RailProps(elevation, rotation, inclination, length), RailType.Normal));
         for (int i = 2; i < pieces; i++)
-            rails.Add((new RailProps(0f, rotation, 0f, length), RailType.Lever));
-        rails.Add((new RailProps(-elevation, rotation, -inclination, length), RailType.Lever));
+            rails.Add((new RailProps(0f, rotation, 0f, length), RailType.Normal));
+        rails.Add((new RailProps(-elevation, rotation, -inclination, length), RailType.Normal));
 
         return rails;
     }

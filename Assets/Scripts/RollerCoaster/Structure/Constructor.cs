@@ -272,6 +272,18 @@ public class Constructor
         return !CheckIntersection(rail);
     }
 
+    public bool CheckRailPlacement(int id)
+    {
+        if (_rails[id].PreviewMode > 0)
+        {
+            return _rails[id].PreviewMode == 1;
+        }
+        else
+        {
+            return CanPlace(_rails[id]);
+        }
+    }
+
     public bool CheckLastRailPlacement()
     {
         if(_currentRail.PreviewMode > 0)
