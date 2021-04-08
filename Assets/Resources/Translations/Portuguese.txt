@@ -82,3 +82,13 @@ lengthScale|Escala
 orientation|Orientação
 railLength|Tamanho do Trilho
 pieces|Peças
+relief|Relevo
+decoration|Decoração
+brushProps|Propriedades do Pincel
+radius|Raio
+intensity|Intensidade
+opacity|Opacidade
+elevate|Elevar
+lower|Abaixar
+selectAnObject|Selecione um objeto
+deselect|Desselecionar

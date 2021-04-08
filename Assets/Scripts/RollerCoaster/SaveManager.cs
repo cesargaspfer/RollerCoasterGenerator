@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -90,6 +91,90 @@ public class SaveManager
         }
     }
 
+    public struct SaveDecorationPack
+    {
+        private string _name;
+        private Vector3 _position;
+        private float _rotation;
+        private bool _defined;
+        private int _bytesCount;
+
+        public SaveDecorationPack(string name, Vector3 position, float rotation)
+        {
+            _name = name;
+            _position = position;
+            _rotation = rotation;
+            _bytesCount = 20 + Encoding.UTF8.GetByteCount(_name);
+            _defined = true;
+        }
+
+        public SaveDecorationPack(byte[] content, int index)
+        {
+            int rawNameByteCount = GetIntegerFromArray(content, index);
+            _name = Encoding.UTF8.GetString(content, index + 4, rawNameByteCount);
+            index += 4 + rawNameByteCount;
+            float x = GetSingleFromArray(content, index);
+            float y = GetSingleFromArray(content, index + 4);
+            float z = GetSingleFromArray(content, index + 8);
+            _position = new Vector3(x, y, z);
+            _rotation = GetSingleFromArray(content, index + 12);
+            _bytesCount = 20 + rawNameByteCount;
+            _defined = true;
+        }
+
+        public override string ToString()
+        {
+            return _name + ";" + _position + ";" + _rotation;
+        }
+
+        public byte[] ToBinary()
+        {
+            // Encode order:
+            //  Rail Properties - RailProperties - 16 bytes
+            //  Rail Type - int - 4 bytes
+            //  Flags - byte - 4 bytes
+            int rawNameByteCount = Encoding.UTF8.GetByteCount(_name);
+            byte[] value = new byte[20 + rawNameByteCount];
+            AddIntegerToArray(rawNameByteCount, value, 0);
+            Encoding.UTF8.GetBytes(_name, 0, _name.Length, value, 4);
+            AddSingleToArray(_position.x, value, rawNameByteCount + 4);
+            AddSingleToArray(_position.y, value, rawNameByteCount + 8);
+            AddSingleToArray(_position.z, value, rawNameByteCount + 12);
+            AddSingleToArray(_rotation, value, rawNameByteCount + 16);
+            return value;
+        }
+
+        public String name
+        {
+            get { return _name; }
+        }
+
+        public Vector3 Position
+        {
+            get { return _position; }
+        }
+
+        public float Rotation
+        {
+            get { return _rotation; }
+        }
+
+        public (string, Vector3, float) Tuple
+        {
+            get { return (_name, _position, _rotation); }
+        }
+
+        public int BytesCount
+        {
+            get { return _bytesCount; }
+        }
+
+        public bool Defined
+        {
+            get { return _defined; }
+        }
+    }
+
     public static string _pathRollerCoaster = "";
     public static string _pathResources = "";
     
@@ -115,10 +200,10 @@ public class SaveManager
             Directory.CreateDirectory(_pathResources);
     }
 
-    public static bool SaveCoaster(string coasterName, Rail[] rails)
+    public static bool SaveCoaster(string coasterName, Rail[] rails, (string, Vector3, float)[] decorativeObjects)
     {
         SetPaths();
-        byte[] content = Encode(rails);
+        byte[] content = Encode(rails, decorativeObjects);
         try
         {
             Directory.CreateDirectory(_pathRollerCoaster + "/" + coasterName);
@@ -134,7 +219,7 @@ public class SaveManager
         }
     }
 
-    public static SavePack[] LoadCoaster(string coasterName)
+    public static (SavePack[], (string, Vector3, float)[]) LoadCoaster(string coasterName)
     {
         SetPaths();
         byte[] content;
@@ -146,14 +231,14 @@ public class SaveManager
         {
             // TODO: Treat error
             Debug.LogError(ex.ToString());
-            return null;
+            return (null, null);
         }
         return Decode(content);
     }
 
     public static void SaveBlueprint(string fileName, Rail[] rails)
     {
-        byte[] content = Encode(rails);
+        byte[] content = Encode(rails, null);
         try
         {
             File.WriteAllBytes(_pathResources + fileName + ".bytes", content);
@@ -165,7 +250,7 @@ public class SaveManager
         }
     }
 
-    public static SavePack[] LoadBlueprint(string fileName)
+    public static (SavePack[], (string, Vector3, float)[]) LoadBlueprint(string fileName)
     {
         TextAsset asset = Resources.Load("Blueprints/" + fileName) as TextAsset;
         return Decode(asset.bytes);
@@ -266,7 +351,7 @@ public class SaveManager
         return coastersNames.ToArray();
     }
 
-    private static byte[] Encode(Rail[] rails)
+    private static byte[] Encode(Rail[] rails, (string, Vector3, float)[] decorativeObjects)
     {
         // Encode order:
         // Save Version - int - 4 bytes
@@ -277,10 +362,34 @@ public class SaveManager
         //  Rail Type - int - 4 bytes
         //  Flags - byte - 4 bytes
         // }
+        // Decorative Quantity - int - 4 bytes
+        // {
+        //  Name's Bytes Count  - int - 4 bytes
+        //  Name - string - ? bytes
+        //  Position - Vector3 - 12 bytes
+        //  Rotation - int - 4 bytes
+        // }
+        int contentSize = rails.Length * 24 + 16;
+        if (decorativeObjects != null)
+        {
+            int rawNameLength = 0;
+            foreach((string objectName, _, _) in decorativeObjects)
+            {
+                rawNameLength += Encoding.UTF8.GetByteCount(objectName);
+            }
+            contentSize += decorativeObjects.Length * 20 + rawNameLength;
+        }
 
-        byte[] content = new byte[rails.Length * 24 + 12];
-        AddIntegerToArray(0, content, 0);
-        AddIntegerToArray(0, content, 4);
+        byte[] content = new byte[contentSize];
+
+        AddIntegerToArray(1, content, 0);
+        byte[] flags = new byte[4];
+        flags[3] = SetBit(flags[3], decorativeObjects != null, 0);
+        if (BitConverter.IsLittleEndian)
+            Array.Reverse(flags);
+        int flagsInt = BitConverter.ToInt32(flags, 0);
+        AddIntegerToArray(flagsInt, content, 4);
+
         AddIntegerToArray(rails.Length, content, 8);
 
         for (int i = 0; i < rails.Length; i++)
@@ -289,11 +398,28 @@ public class SaveManager
             for (int j = 0; j < savePackBin.Length; j++)
                 content[12 + i * 24 + j] = savePackBin[j];
         }
+
+
+        if (decorativeObjects != null)
+        {
+            int index = rails.Length * 24 + 12;
+            AddIntegerToArray(decorativeObjects.Length, content, index);
+            index += 4;
+
+            for (int i = 0; i < decorativeObjects.Length; i++)
+            {
+                (string objectName, Vector3 position, float rotation) = decorativeObjects[i];
+                byte[] saveDecPackBin = (new SaveDecorationPack(objectName, position, rotation)).ToBinary();
+                for (int j = 0; j < saveDecPackBin.Length; j++)
+                    content[index + j] = saveDecPackBin[j];
+                index += saveDecPackBin.Length;
+            }
+        }
         
         return content;
     }
 
-    public static SavePack[] Decode(byte[] content)
+    public static (SavePack[], (string, Vector3, float)[]) Decode(byte[] content)
     {
         // Dencode order:
         // Save Version - int - 4 bytes
@@ -304,6 +430,13 @@ public class SaveManager
         //  Rail Type - int - 4 bytes
         //  Flags - byte - 4 bytes
         // }
+        // Decorative Quantity - int - 4 bytes
+        // {
+        //  Name's Bytes Count  - int - 4 bytes
+        //  Name - string - ? bytes
+        //  Position - Vector3 - 12 bytes
+        //  Rotation - int - 4 bytes
+        // }
 
         int version = GetIntegerFromArray(content, 0);
         int flags = GetIntegerFromArray(content, 4);
@@ -313,7 +446,24 @@ public class SaveManager
         for (int i = 0; i < savePack.Length; i++)
             savePack[i] = new SavePack(content, 12 + i * 24);
 
-        return savePack;
+        (string, Vector3, float)[] decorativeObjects = null;
+
+        if(GetBit(content[4 + 3], 0))
+        {
+            int index = 12 + railQuantity * 24;
+            int decorativeObjectsQuantity = GetIntegerFromArray(content, index);
+            index += 4;
+
+            decorativeObjects = new (string, Vector3, float)[decorativeObjectsQuantity];
+            for (int i = 0; i < decorativeObjects.Length; i++)
+            {
+                SaveDecorationPack saveDecPackBin = new SaveDecorationPack(content, index);
+                decorativeObjects[i] = saveDecPackBin.Tuple;
+                index += saveDecPackBin.BytesCount;
+            }
+        }
+
+        return (savePack, decorativeObjects);
     }
 
     // ------------------------- Binary Operations ------------------------- //

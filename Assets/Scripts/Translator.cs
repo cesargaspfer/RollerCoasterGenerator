@@ -36,8 +36,6 @@ public class Translator : MonoBehaviour
     [SerializeField] private Transform _generatorButton;
     #pragma warning disable 0649
     [SerializeField] private Transform _terrain;
-
-
     #pragma warning disable 0649
     [SerializeField] private Transform _menuButtons;
     #pragma warning disable 0649
@@ -144,6 +142,19 @@ public class Translator : MonoBehaviour
         UIBlueprint.inst.Translate();
 
         _generatorButton.GetChild(0).GetComponent<Text>().text = _translations["generate"];
+
+        _terrain.GetChild(0).GetChild(0).GetChild(0).GetComponent<Text>().text = _translations["relief"];
+        _terrain.GetChild(0).GetChild(1).GetChild(0).GetComponent<Text>().text = _translations["decoration"];
+
+        _terrain.GetChild(2).GetChild(0).GetComponent<Text>().text = _translations["brushProps"];
+        _terrain.GetChild(2).GetChild(1).GetChild(0).GetChild(0).GetComponent<Text>().text = _translations["radius"];
+        _terrain.GetChild(2).GetChild(1).GetChild(1).GetChild(0).GetComponent<Text>().text = _translations["intensity"];
+        _terrain.GetChild(2).GetChild(1).GetChild(2).GetChild(0).GetComponent<Text>().text = _translations["opacity"];
+        _terrain.GetChild(2).GetChild(2).GetChild(0).GetChild(0).GetComponent<Text>().text = _translations["elevate"];
+        _terrain.GetChild(2).GetChild(2).GetChild(1).GetChild(0).GetComponent<Text>().text = _translations["lower"];
+
+        _terrain.GetChild(3).GetChild(0).GetComponent<Text>().text = _translations["selectAnObject"];
+        _terrain.GetChild(3).GetChild(3).GetChild(0).GetComponent<Text>().text = _translations["deselect"];
 
         // ------------------------------------- Menu / Pause ------------------------------------- //
 

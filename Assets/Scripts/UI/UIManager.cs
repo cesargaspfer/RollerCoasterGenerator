@@ -1,7 +1,9 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.EventSystems;
 
 public class UIManager : MonoBehaviour
 {
@@ -151,6 +153,37 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    // From: https://forum.unity.com/threads/how-to-detect-if-mouse-is-over-ui.1025533/
+    //Returns 'true' if we touched or hovering on Unity UI element.
+    public bool IsPointerOverUIElement()
+    {
+        return IsPointerOverUIElement(GetEventSystemRaycastResults());
+    }
+
+    // From: https://forum.unity.com/threads/how-to-detect-if-mouse-is-over-ui.1025533/
+    //Returns 'true' if we touched or hovering on Unity UI element.
+    private bool IsPointerOverUIElement(List<RaycastResult> eventSystemRaysastResults)
+    {
+        for (int index = 0; index < eventSystemRaysastResults.Count; index++)
+        {
+            RaycastResult curRaysastResult = eventSystemRaysastResults[index];
+            if (curRaysastResult.gameObject.layer == 5)
+                return true;
+        }
+        return false;
+    }
+
+    // From: https://forum.unity.com/threads/how-to-detect-if-mouse-is-over-ui.1025533/
+    //Gets all event system raycast results of current mouse or touch position.
+    private static List<RaycastResult> GetEventSystemRaycastResults()
+    {
+        PointerEventData eventData = new PointerEventData(EventSystem.current);
+        eventData.position = Input.mousePosition;
+        List<RaycastResult> raysastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(eventData, raysastResults);
+        return raysastResults;
+    }
+
     public void Warn(string key)
     {
         _UIWarning.Warn(key);
@@ -231,6 +264,7 @@ public class UIManager : MonoBehaviour
     {
         if(_isAnimating || _pannelState == 0) return;
         _pannelState = 0;
+        DecorativeObjectPlacer.inst.Close();
         _mpAnim.Play("ChangeFromTerrain");
         if (_constructorPannelState == 0)
             ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
@@ -243,6 +277,7 @@ public class UIManager : MonoBehaviour
     {
         if(_isAnimating || _pannelState == 1) return;
         _pannelState = 1;
+        DecorativeObjectPlacer.inst.Open();
         _mpAnim.Play("ChangeToTerrain");
         if (_constructorPannelState == 0)
             ConstructionArrows.inst.ActiveArrows(false);
@@ -649,7 +684,9 @@ public class UIManager : MonoBehaviour
     {
         if(!_exitedMenu)
             _rollerCoaster.Initialize();
-        _rollerCoaster.LoadCoaster(coasterName);
+        (string, Vector3, float)[] decorativeObjects = _rollerCoaster.LoadCoaster(coasterName);
+        DecorativeObjectPlacer.inst.DestroyAllDecorativeObjects();
+        DecorativeObjectPlacer.inst.Place(decorativeObjects);
         _lasRailType = (int) _rollerCoaster.GetLastRail().mp.Type;
         ConstructionArrows.inst.Initialize(_rollerCoaster);
         _isPaused = false;
@@ -703,7 +740,7 @@ public class UIManager : MonoBehaviour
         _screenshotCamera.gameObject.SetActive(false);
         _flash.GetComponent<Animator>().Play("Flash");
         yield return null;
-        bool saved = _rollerCoaster.SaveCoaster(_nameInput.text);
+        bool saved = _rollerCoaster.SaveCoaster(_nameInput.text, DecorativeObjectPlacer.inst.GetAllDecorativeObjects());
         yield return null;
         if(saved)
         {

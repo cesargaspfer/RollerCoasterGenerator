@@ -82,3 +82,13 @@ lengthScale|Scale
 orientation|Orientation
 railLength|Rail Length
 pieces|Pieces
+relief|Relief
+decoration|Decoration
+brushProps|Brush Properties
+radius|Radius
+intensity|Intensity
+opacity|Opacity
+elevate|Elevate
+lower|Lower
+selectAnObject|Select an object
+deselect|Deselect

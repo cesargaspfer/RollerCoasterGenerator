@@ -27,10 +27,13 @@ public class UIObjectManager : MonoBehaviour
     [SerializeField] private Transform _UIObjectButtonsContent;
     #pragma warning disable 0649
     [SerializeField] private GameObject[] _pageButtons;
+    #pragma warning disable 0649
+    [SerializeField] private GameObject _deselectButton;
     [SerializeField] private UIObjectButton[] _UIObjectButtons;
     [SerializeField] private Transform[] _UIObjects;
     [SerializeField] private List<string> _objectsNames;
     [SerializeField] private int _currentPage;
+    [SerializeField] private string _currentObjectName;
 
     void Awake()
     {
@@ -53,6 +56,10 @@ public class UIObjectManager : MonoBehaviour
         {
             (_UIObjectButtons[i], _UIObjects[i]) = InstantiateUIObjectButtom(i);
         }
+
+        _currentObjectName = "";
+
+        _deselectButton.SetActive(false);
 
         ChangeToPage(0);
     }
@@ -150,11 +157,26 @@ public class UIObjectManager : MonoBehaviour
         {
             _UIObjectButtons[i].gameObject.SetActive(false);
         }
-
     }
 
-    public void UIObjectButtonClicked(string id)
+    public void DeselectButtonClicked()
     {
+        UIObjectButtonClicked(_currentObjectName);
+    }
 
+    public void UIObjectButtonClicked(string objectName)
+    {
+        if(_currentObjectName.Equals(objectName))
+        {
+            _currentObjectName = "";
+            DecorativeObjectPlacer.inst.StopPlacement();
+            _deselectButton.SetActive(false);
+        }
+        else
+        {
+            _currentObjectName = objectName;
+            DecorativeObjectPlacer.inst.StartPlacement(_currentObjectName);
+            _deselectButton.SetActive(true);
+        }
     }
 }
