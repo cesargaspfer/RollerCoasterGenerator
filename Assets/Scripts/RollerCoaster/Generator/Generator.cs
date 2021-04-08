@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -151,6 +151,7 @@ public class Generator
         }
         Debug.Log(typeCumulativeProbabilities.Count + " " + possibleTypes.Count);
         Debug.Log(_status.height + " " + _status.rp.Final.Velocity);
+        
         float drawn = Random.Range(0f, typeCumulativeProbabilities[typeCumulativeProbabilities.Count - 1]);
         int drawnTypeId = 0;
         for(int i = 0; i < possibleTypes.Count; i++)

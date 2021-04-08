@@ -1,0 +1,34 @@
+Lever(sr, ss, sp) => 
+    LeverStraight(sr, ss, $\frac{15 * \pi}{180}$ * Random(3, 6), Random(2, 6))
+    : 0,5
+Lever(sr, ss, sp) => 
+    LeverRotation(sr, ss, $\frac{15 * \pi}{180}$ * Random(3, 6), $\frac{15 * \pi}{180}$ * Random(3, 4), Random(10, 50))
+    : 0,5 
+
+LeverStraight(sr, ss, sp, e, n) => 
+  Let rail := ((sr + (e, 0, 0, 0)), 2, ss, sp) :
+    Instantiate(rail)
+    LeverLoop(NextProps(rail, (e, 0, 0, 0)), e, 0, 1, n)
+
+LeverRotation(sr, ss, sp, e, r, n) => 
+  Let rail := ((sr + (e, r, - r, 0)), 2, ss, sp) :
+    Instantiate(rail)
+    LeverLoop(NextProps(rail), e, r, 1, n)
+
+LeverLoop(sr, ss, sp, e, r, j, n) : j < n - 1 => 
+  Let rail := ((sr, 2, ss, sp) :
+    Instantiate(rail)
+    LeverLoop(NextProps(rail), e, r, j + 1, n)
+
+LeverLoop(sr, ss, sp, e, r, j, n) : j == n - 1 => 
+  Let rail := ((sr - (e, r, -r, 0), 2, ss, sp) :
+    Instantiate(rail)
+    AddBlueprint(NextProps(rail))
+
+$w_0$ => Loop(1)
+
+Loop(index, max) : index < max - 1 => 
+    Loop(index + 1, max)
+
+Loop(index, max) : index == max - 1 => 
+    EndOfLoop()

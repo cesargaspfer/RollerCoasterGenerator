@@ -145,8 +145,6 @@ public class Translator : MonoBehaviour
 
         _generatorButton.GetChild(0).GetComponent<Text>().text = _translations["generate"];
 
-        _terrain.GetChild(0).GetComponent<Text>().text = _translations["TODO"];
-
         // ------------------------------------- Menu / Pause ------------------------------------- //
 
         _menuButtons.GetChild(0).GetChild(0).GetComponent<Text>().text = _translations["menuConstruct"];
