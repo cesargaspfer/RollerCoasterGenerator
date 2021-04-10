@@ -200,10 +200,10 @@ public class SaveManager
             Directory.CreateDirectory(_pathResources);
     }
 
-    public static bool SaveCoaster(string coasterName, Rail[] rails, (string, Vector3, float)[] decorativeObjects)
+    public static bool SaveCoaster(string coasterName, Rail[] rails, (string, Vector3, float)[] decorativeObjects, float[] terrain)
     {
         SetPaths();
-        byte[] content = Encode(rails, decorativeObjects);
+        byte[] content = Encode(rails, decorativeObjects, terrain);
         try
         {
             Directory.CreateDirectory(_pathRollerCoaster + "/" + coasterName);
@@ -219,7 +219,7 @@ public class SaveManager
         }
     }
 
-    public static (SavePack[], (string, Vector3, float)[]) LoadCoaster(string coasterName)
+    public static (SavePack[], (string, Vector3, float)[], float[]) LoadCoaster(string coasterName)
     {
         SetPaths();
         byte[] content;
@@ -231,14 +231,14 @@ public class SaveManager
         {
             // TODO: Treat error
             Debug.LogError(ex.ToString());
-            return (null, null);
+            return (null, null, null);
         }
         return Decode(content);
     }
 
     public static void SaveBlueprint(string fileName, Rail[] rails)
     {
-        byte[] content = Encode(rails, null);
+        byte[] content = Encode(rails, null, null);
         try
         {
             File.WriteAllBytes(_pathResources + fileName + ".bytes", content);
@@ -250,10 +250,11 @@ public class SaveManager
         }
     }
 
-    public static (SavePack[], (string, Vector3, float)[]) LoadBlueprint(string fileName)
+    public static SavePack[] LoadBlueprint(string fileName)
     {
         TextAsset asset = Resources.Load("Blueprints/" + fileName) as TextAsset;
-        return Decode(asset.bytes);
+        (SavePack[] blueprint, _, _) = Decode(asset.bytes);
+        return blueprint;
     }
 
     public static bool CoasterExists(string coasterName)
@@ -351,7 +352,7 @@ public class SaveManager
         return coastersNames.ToArray();
     }
 
-    private static byte[] Encode(Rail[] rails, (string, Vector3, float)[] decorativeObjects)
+    private static byte[] Encode(Rail[] rails, (string, Vector3, float)[] decorativeObjects, float[] terrain)
     {
         // Encode order:
         // Save Version - int - 4 bytes
@@ -379,12 +380,17 @@ public class SaveManager
             }
             contentSize += decorativeObjects.Length * 20 + rawNameLength;
         }
+        if (terrain != null)
+        {
+            contentSize += terrain.Length * 4 + 4;
+        }
 
         byte[] content = new byte[contentSize];
 
         AddIntegerToArray(1, content, 0);
         byte[] flags = new byte[4];
         flags[3] = SetBit(flags[3], decorativeObjects != null, 0);
+        flags[3] = SetBit(flags[3], terrain != null, 1);
         if (BitConverter.IsLittleEndian)
             Array.Reverse(flags);
         int flagsInt = BitConverter.ToInt32(flags, 0);
@@ -400,9 +406,9 @@ public class SaveManager
         }
 
 
+        int index = rails.Length * 24 + 12;
         if (decorativeObjects != null)
         {
-            int index = rails.Length * 24 + 12;
             AddIntegerToArray(decorativeObjects.Length, content, index);
             index += 4;
 
@@ -415,11 +421,21 @@ public class SaveManager
                 index += saveDecPackBin.Length;
             }
         }
+
+        if (terrain != null)
+        {
+            AddIntegerToArray(terrain.Length, content, index);
+            index += 4;
+
+            for (int i = 0; i < terrain.Length; i++)
+                AddSingleToArray(terrain[i], content, index + 4 * i);
+            index += terrain.Length * 4;
+        }
         
         return content;
     }
 
-    public static (SavePack[], (string, Vector3, float)[]) Decode(byte[] content)
+    public static (SavePack[], (string, Vector3, float)[], float[]) Decode(byte[] content)
     {
         // Dencode order:
         // Save Version - int - 4 bytes
@@ -447,10 +463,10 @@ public class SaveManager
             savePack[i] = new SavePack(content, 12 + i * 24);
 
         (string, Vector3, float)[] decorativeObjects = null;
+        int index = 12 + railQuantity * 24;
 
         if(GetBit(content[4 + 3], 0))
         {
-            int index = 12 + railQuantity * 24;
             int decorativeObjectsQuantity = GetIntegerFromArray(content, index);
             index += 4;
 
@@ -463,7 +479,21 @@ public class SaveManager
             }
         }
 
-        return (savePack, decorativeObjects);
+        float[] terrain = null;
+
+        if (GetBit(content[4 + 3], 1))
+        {
+            index += 0;
+            int terrainLength = GetIntegerFromArray(content, index);
+            terrain = new float[terrainLength];
+            index += 4;
+
+            for (int i = 0; i < terrain.Length; i++)
+                terrain[i] = GetSingleFromArray(content, index + 4 * i);
+            index += terrain.Length * 4;
+        }
+
+        return (savePack, decorativeObjects, terrain);
     }
 
     // ------------------------- Binary Operations ------------------------- //

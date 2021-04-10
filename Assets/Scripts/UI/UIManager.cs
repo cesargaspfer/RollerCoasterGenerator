@@ -684,9 +684,10 @@ public class UIManager : MonoBehaviour
     {
         if(!_exitedMenu)
             _rollerCoaster.Initialize();
-        (string, Vector3, float)[] decorativeObjects = _rollerCoaster.LoadCoaster(coasterName);
+        ((string, Vector3, float)[] decorativeObjects, float[] terrain) = _rollerCoaster.LoadCoaster(coasterName);
         DecorativeObjectPlacer.inst.DestroyAllDecorativeObjects();
         DecorativeObjectPlacer.inst.Place(decorativeObjects);
+        Terrain.inst.SetAplifiers(terrain);
         _lasRailType = (int) _rollerCoaster.GetLastRail().mp.Type;
         ConstructionArrows.inst.Initialize(_rollerCoaster);
         _isPaused = false;
@@ -738,9 +739,10 @@ public class UIManager : MonoBehaviour
     {
         _isTakingAPicture = false;
         _screenshotCamera.gameObject.SetActive(false);
-        _flash.GetComponent<Animator>().Play("Flash");
         yield return null;
-        bool saved = _rollerCoaster.SaveCoaster(_nameInput.text, DecorativeObjectPlacer.inst.GetAllDecorativeObjects());
+        bool saved = _rollerCoaster.SaveCoaster(_nameInput.text, DecorativeObjectPlacer.inst.GetAllDecorativeObjects(), Terrain.inst.GetAplifiers());
+        yield return null;
+        _flash.GetComponent<Animator>().Play("Flash");
         yield return null;
         if(saved)
         {

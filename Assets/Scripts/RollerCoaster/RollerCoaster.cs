@@ -219,12 +219,12 @@ public class RollerCoaster : MonoBehaviour
         _constructor.SetRailPreview(_constructor.Rails.Count - 1, isPreview);
     }
 
-    public bool SaveCoaster(string coasterName, (string, Vector3, float)[] decorativeObjects)
+    public bool SaveCoaster(string coasterName, (string, Vector3, float)[] decorativeObjects, float[] terrain)
     {
-        return SaveManager.SaveCoaster(coasterName, _constructor.Rails.ToArray(), decorativeObjects);
+        return SaveManager.SaveCoaster(coasterName, _constructor.Rails.ToArray(), decorativeObjects, terrain);
     }
 
-    public (string, Vector3, float)[] LoadCoaster(string coasterName)
+    public ((string, Vector3, float)[], float[]) LoadCoaster(string coasterName)
     {
         if (_simulator.IsSimulating)
             StopCarSimulation();
@@ -236,7 +236,7 @@ public class RollerCoaster : MonoBehaviour
         {
             this.RemoveLastRail(false);
         }
-        (SavePack[] savePack, (string, Vector3, float)[] decorativeObjects) = SaveManager.LoadCoaster(coasterName);
+        (SavePack[] savePack, (string, Vector3, float)[] decorativeObjects, float[] terrain) = SaveManager.LoadCoaster(coasterName);
         for(int i = 0; i < savePack.Length; i++)
         {
             this.AddRail(false);
@@ -255,10 +255,10 @@ public class RollerCoaster : MonoBehaviour
             else
             {
                 this.AddFinalRail((int) savePack[i].Type);
-                return decorativeObjects;
+                return (decorativeObjects, terrain);
             }
         }
-        return decorativeObjects;
+        return (decorativeObjects, terrain);
     }
 
     public (string[], Sprite[]) LoadCoastersNamesAndImages()
