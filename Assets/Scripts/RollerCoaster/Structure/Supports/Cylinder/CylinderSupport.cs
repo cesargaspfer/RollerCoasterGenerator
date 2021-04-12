@@ -69,8 +69,7 @@ public class CylinderSupport: Supports
             finalBasis = rotationMatrix * finalBasis;
             initialPosition = finalPosition;
 
-            // TODO: Get Terrain Height
-            finalPosition = new Vector3(initialPosition.x, 0f, initialPosition.z);
+            finalPosition = new Vector3(initialPosition.x, Terrain.inst.GetHeight(new Vector2(initialPosition.x, initialPosition.z)), initialPosition.z);
 
             vertices.Add(null);
             normals.Add(null);
@@ -88,9 +87,8 @@ public class CylinderSupport: Supports
             initialBasis = finalBasis;
             finalBasis = tmpBasis;
             initialPosition = finalPosition;
-
-            // TODO: Get Terrain Height
-            finalPosition = new Vector3(initialPosition.x, 0f, initialPosition.z);
+            
+            finalPosition = new Vector3(initialPosition.x, Terrain.inst.GetHeight(new Vector2(initialPosition.x, initialPosition.z)), initialPosition.z);
             vertices.Add(null);
             normals.Add(null);
             (vertices[1], normals[1]) = GenerateCylinder(initialPosition, initialBasis, finalPosition, finalBasis);

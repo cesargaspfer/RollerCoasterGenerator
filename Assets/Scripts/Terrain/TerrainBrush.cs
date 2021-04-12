@@ -27,12 +27,12 @@ public class TerrainBrush : MonoBehaviour
     }
     public void Active()
     {
-
+        _state = 1;
     }
 
     public void Deactivate()
     {
-
+        _state = 0;
     }
 
     public void UpdateValues()
@@ -50,13 +50,18 @@ public class TerrainBrush : MonoBehaviour
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit, 500))
                 {
+                    this.transform.GetChild(0).gameObject.SetActive(true);
                     Debug.DrawLine(ray.origin, hit.point);
                     Vector3 hitPosition = hit.point;
                     this.transform.position = hitPosition;
                     if (hit.transform.name.Equals("Ground") && Input.GetMouseButton(0))
                         Terrain.inst.UpdateAplifiers(hitPosition, _radius, _intencity * Time.deltaTime, _opacity);
                 }
+                else
+                    this.transform.GetChild(0).gameObject.SetActive(false);
             }
+            else
+                this.transform.GetChild(0).gameObject.SetActive(false);
         }
     }
 }

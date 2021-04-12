@@ -197,6 +197,7 @@ public class Terrain : MonoBehaviour
                 }
                 _grounds[groundIndex].GetComponent<MeshFilter>().mesh.vertices = _vertices[groundIndex];
                 _grounds[groundIndex].GetComponent<MeshFilter>().mesh.RecalculateNormals();
+                _grounds[groundIndex].GetComponent<MeshFilter>().mesh.RecalculateBounds();
                 _grounds[groundIndex].GetComponent<MeshCollider>().sharedMesh = _grounds[groundIndex].GetComponent<MeshFilter>().mesh;
             }
         }
@@ -204,7 +205,7 @@ public class Terrain : MonoBehaviour
 
     public void UpdateAplifiers(Vector3 worldPosition, float radius, float intencity, float opacity)
     {
-        radius *= 2;
+        radius *= 0.5f;
         float newX = (worldPosition.x + _offset) * ((float)((_resolution - 1) * (_chunksLength - 1)) / _size);
         float newZ = (worldPosition.z + _offset) * ((float)((_resolution - 1) * (_chunksLength - 1)) / _size);
         float adjustedRadius = radius * ((float)((_resolution - 1) * (_chunksLength - 1)) / _size);
@@ -232,6 +233,7 @@ public class Terrain : MonoBehaviour
                 }
             }
         }
+        radius *= 2;
 
         int xMinGround = Mathf.Max(0, (int) Mathf.Floor((_offset + worldPosition.x - adjustedRadius - 5) / (float) _chunkSize) - 1);
         int zMinGround = Mathf.Max(0, (int) Mathf.Floor((_offset + worldPosition.z - adjustedRadius - 5) / (float) _chunkSize) - 1);
@@ -249,13 +251,13 @@ public class Terrain : MonoBehaviour
                 float localX = (worldPosition.x - xPos) * ((float)((_resolution - 1)) / _chunkSize);
                 float localZ = (worldPosition.z - zPos) * ((float)((_resolution - 1)) / _chunkSize);
 
-                if((localX + adjustedRadius < 0 && localZ + adjustedRadius < 0) || (localX - adjustedRadius > _chunkSize && localZ - adjustedRadius > _chunkSize))
+                if((localX + adjustedRadius < -2 && localZ + adjustedRadius < -2) || (localX - adjustedRadius > _chunkSize + 2 && localZ - adjustedRadius > _chunkSize + 2))
                     continue;
                 
-                xMin = Mathf.Max(0, Mathf.RoundToInt(localX - radius + 1));
-                zMin = Mathf.Max(0, Mathf.RoundToInt(localZ - radius + 1));
-                xMax = Mathf.Min(_resolution, Mathf.RoundToInt(localX + radius + 1));
-                zMax = Mathf.Min(_resolution, Mathf.RoundToInt(localZ + radius + 1));
+                xMin = Mathf.Max(0, Mathf.RoundToInt(localX - radius + 2));
+                zMin = Mathf.Max(0, Mathf.RoundToInt(localZ - radius + 2));
+                xMax = Mathf.Min(_resolution, Mathf.RoundToInt(localX + radius + 2));
+                zMax = Mathf.Min(_resolution, Mathf.RoundToInt(localZ + radius + 2));
 
                 Vector2 localBrushPosition = new Vector2(localX, localZ);
                 for (int i = xMin; i < xMax; i++)
@@ -263,7 +265,7 @@ public class Terrain : MonoBehaviour
                     for (int j = zMin; j < zMax; j++)
                     {
                         float distance = Vector3.Magnitude(localBrushPosition - new Vector2(i, j));
-                        if (distance <= radius + 1)
+                        if (distance <= radius + 2)
                         {
                             float tmpX = _chunkSize * ((float)i / (float)(_resolution - 1));
                             float tmpZ = _chunkSize * ((float)j / (float)(_resolution - 1));
@@ -273,6 +275,7 @@ public class Terrain : MonoBehaviour
                 }
                 _grounds[groundIndex].GetComponent<MeshFilter>().mesh.vertices = _vertices[groundIndex];
                 _grounds[groundIndex].GetComponent<MeshFilter>().mesh.RecalculateNormals();
+                _grounds[groundIndex].GetComponent<MeshFilter>().mesh.RecalculateBounds();
                 _grounds[groundIndex].GetComponent<MeshCollider>().sharedMesh = _grounds[groundIndex].GetComponent<MeshFilter>().mesh;
             }
         }

@@ -129,6 +129,7 @@ public class DecorativeObjectPlacer : MonoBehaviour
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit, 500))
                 {
+                    _placerTransform.gameObject.SetActive(true);
                     Debug.DrawLine(ray.origin, hit.point);
                     Vector3 hitPosition = hit.point;
                     if(!hit.transform.name.Equals("Ground"))
@@ -139,19 +140,23 @@ public class DecorativeObjectPlacer : MonoBehaviour
                         _currentHeight,
                         Mathf.RoundToInt(hitPosition.z / 5f) * 5f
                     );
+
+                    if (_clicked)
+                    {
+                        if(_state == 2)
+                            _currentRotation = _placerTransform.transform.localEulerAngles.y;
+
+                        Place(_currentObjectName, _placerTransform.transform.position, _currentRotation);
+
+                        if(_state == 2)
+                            UIObjectManager.inst.DeselectButtonClicked();
+                    }
                 }
-
-                if (_clicked)
-                {
-                    if(_state == 2)
-                        _currentRotation = _placerTransform.transform.localEulerAngles.y;
-
-                    Place(_currentObjectName, _placerTransform.transform.position, _currentRotation);
-
-                    if(_state == 2)
-                        UIObjectManager.inst.DeselectButtonClicked();
-                }
+                else
+                    _placerTransform.gameObject.SetActive(false);
             }
+            else
+                _placerTransform.gameObject.SetActive(false);
         }
         else if (_state == 0)
         {
