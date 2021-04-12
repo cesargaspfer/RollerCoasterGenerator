@@ -127,11 +127,11 @@ public class DecorativeObjectPlacer : MonoBehaviour
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
-                if (Physics.Raycast(ray, out hit, 250))
+                if (Physics.Raycast(ray, out hit, 500))
                 {
                     Debug.DrawLine(ray.origin, hit.point);
                     Vector3 hitPosition = hit.point;
-                    if(hit.transform.name != "Ground")
+                    if(!hit.transform.name.Equals("Ground"))
                         hitPosition -= ray.direction * 0.05f;
                     _placerTransform.transform.position = new Vector3
                     (
@@ -159,7 +159,7 @@ public class DecorativeObjectPlacer : MonoBehaviour
             {
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 RaycastHit hit;
-                if(Physics.Raycast(ray, out hit, 250) && hit.transform.name != "Ground")
+                if(Physics.Raycast(ray, out hit, 500) && hit.transform.name != "Ground")
                 {
                     UIObjectManager.inst.UIObjectButtonClicked(hit.transform.GetChild(0).name);
 
