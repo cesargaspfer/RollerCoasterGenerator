@@ -32,6 +32,8 @@ public class UIManager : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private Transform _menuPannel;
     #pragma warning disable 0649
+    [SerializeField] private Transform _terrarianPannel;
+    #pragma warning disable 0649
     [SerializeField] private InputField _nameInput;
     #pragma warning disable 0649
     [SerializeField] private Dropdown _railTypeDropdown;
@@ -200,6 +202,8 @@ public class UIManager : MonoBehaviour
     [SerializeField] private bool _isBlueprintActive = false;
     [SerializeField] private bool _isSimulating = false;
     [SerializeField] private int _lasRailType = 0;
+    // _constructorPannelState: 0 to Relief and 1 to Objects
+    [SerializeField] private int _terrarianPannelState = 0;
     
 
     public void ShowPannel(int constructorPannelState, bool loaded)
@@ -246,13 +250,24 @@ public class UIManager : MonoBehaviour
         _isAnimating = true;
         if (_pannelState == 1)
         {
-            _mpAnim.Play("ChangeFromTerrain");
+            _mpAnim.Play("ObjectsToGenerator");
             yield return new WaitForSeconds(0.25f);
         }
+
+        _pannelState = 0;
+        DecorativeObjectPlacer.inst.Close();
+        UITerrainBrush.inst.Deactivate();
+
         if (_constructorPannelState == 0)
             _mpAnim.Play("HideMainPannel");
         else
             _mpAnim.Play("HideGenerationPannel");
+
+        if(_isBlueprintActive)
+        {
+            UIBlueprint.inst.Close();
+            _isBlueprintActive = false;
+        }
 
         ConstructionArrows.inst.ActiveArrows(false);
 
@@ -265,24 +280,81 @@ public class UIManager : MonoBehaviour
         if(_isAnimating || _pannelState == 0) return;
         _pannelState = 0;
         DecorativeObjectPlacer.inst.Close();
-        _mpAnim.Play("ChangeFromTerrain");
+        UITerrainBrush.inst.Deactivate();
+        Terrain.inst.ActiveColliders(false);
+
+        if (_constructorPannelState == 0)
+        {
+            if (_terrarianPannelState == 0)
+                _mpAnim.Play("ReliefToConstructor");
+            else
+                _mpAnim.Play("ObjectsToConstructor");
+        }
+        else
+        {
+            if (_terrarianPannelState == 0)
+                _mpAnim.Play("ReliefToGenerator");
+            else
+                _mpAnim.Play("ObjectsToGenerator");
+        }
+
         if (_constructorPannelState == 0)
             ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
 
         StartCoroutine(AnimationTime(0.25f));
-
     }
 
     public void TopTerrainButtonPressed()
     {
         if(_isAnimating || _pannelState == 1) return;
         _pannelState = 1;
-        DecorativeObjectPlacer.inst.Open();
-        _mpAnim.Play("ChangeToTerrain");
+        if(_terrarianPannelState == 0)
+            UITerrainBrush.inst.Active();
+        else
+            DecorativeObjectPlacer.inst.Open();
+        Terrain.inst.ActiveColliders(true);
+
+        if (_constructorPannelState == 0)
+        {
+            if (_terrarianPannelState == 0)
+                _mpAnim.Play("ConstructorToRelief");
+            else
+                _mpAnim.Play("ConstructorToObjects");
+        }
+        else
+        {
+            if (_terrarianPannelState == 0)
+                _mpAnim.Play("GeneratorToRelief");
+            else
+                _mpAnim.Play("GeneratorToObjects");
+        }
+        
         if (_constructorPannelState == 0)
             ConstructionArrows.inst.ActiveArrows(false);
         StartCoroutine(AnimationTime(0.25f));
+    }
 
+    public void ChangeTerrarianState(int state)
+    {
+        if (_isAnimating || _pannelState == 0 || state == _terrarianPannelState) return;
+        
+        if (_terrarianPannelState == 0)
+        {
+            _terrarianPannelState = 1;
+            UITerrainBrush.inst.Deactivate();
+            DecorativeObjectPlacer.inst.Open();
+            _terrarianPannel.GetComponent<Animator>().Play("ToObjects");
+            _mpAnim.Play("ToObjectsHeight");
+        }
+        else
+        {
+            _terrarianPannelState = 0;
+            DecorativeObjectPlacer.inst.Close();
+            UITerrainBrush.inst.Active();
+            _terrarianPannel.GetComponent<Animator>().Play("ToRelief");
+            _mpAnim.Play("ToReliefHeight");
+        }
+        StartCoroutine(AnimationTime(0.25f));
     }
 
     public void GlobalButtonPressed()
@@ -354,7 +426,8 @@ public class UIManager : MonoBehaviour
         if (_cameraHandler.GetCameraMode() == CameraHandler.CameraMode.FirstPerson)
             _cameraHandler.ChangeCameraMode();
         _isSimulating = false;
-        ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
+        if(_constructorPannelState == 0)
+            ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
         _UIRailPhysics.UpdateValues(_rollerCoaster, false);
         _rollerCoaster.StopCarSimulation();
 
@@ -448,7 +521,7 @@ public class UIManager : MonoBehaviour
         _menuAnim.Play("ToLoadCoaster");
         if (_exitedMenu)
         {
-            _lastPannelState = _pannelState;
+            _lastPannelState = _constructorPannelState;
             HidePannel();
         }
         StartCoroutine(AnimationTime(0.25f));
@@ -631,7 +704,7 @@ public class UIManager : MonoBehaviour
         if (_showArrowsWhenUnpause)
         {
             _showArrowsWhenUnpause = false;
-            if(_pannelState == 0)
+            if(_pannelState == 0 && _constructorPannelState == 0)
                 ConstructionArrows.inst.ActiveArrows(!_rollerCoaster.IsComplete());
         }
         HideMenu();
@@ -656,6 +729,7 @@ public class UIManager : MonoBehaviour
         if (_isAnimating) return;
         _MenuState = 0;
         _pannelState = 0;
+        _constructorPannelState = 0;
         GoToSecondMenuPannel();
     }
 
@@ -663,7 +737,8 @@ public class UIManager : MonoBehaviour
     {
         if (_isAnimating) return;
         _MenuState = 0;
-        _pannelState = 1;
+        _pannelState = 0;
+        _constructorPannelState = 1;
         GoToSecondMenuPannel();
     }
 
@@ -790,8 +865,7 @@ public class UIManager : MonoBehaviour
     private IEnumerator MenuContinueCoroutine()
     {
         _rollerCoaster.Initialize();
-        _constructorPannelState = _pannelState;
-        if(_pannelState == 0)
+        if(_constructorPannelState == 0)
         {
             _rollerCoaster.AddRail(false);
             _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
@@ -802,7 +876,7 @@ public class UIManager : MonoBehaviour
         }
         else
             _rollerCoaster.GenerateCoaster();
-        ShowPannel(_pannelState, false);
+        ShowPannel(_constructorPannelState, false);
         _isAnimating = true;
         _isPaused = false;
         _exitedMenu = true;

@@ -27,18 +27,34 @@ public class DecorativeObjectPlacer : MonoBehaviour
     [SerializeField] private float _currentRotation = 0f;
     [SerializeField] private Transform _placerTransform;
     [SerializeField] private bool _clicked = false;
+
+    void Start()
+    {
+        _state = -1;
+    }
+
+    public void ActiveColliders(bool active)
+    {
+        foreach(Transform child in _decorativeObjectsContent)
+        {
+            child.GetComponent<BoxCollider>().enabled = active;
+        }
+    }
     
     public void Open()
     {
         _state = 0;
         _currentHeight = 0f;
         _currentRotation = 0f;
+        ActiveColliders(true);
     }
 
     public void Close()
     {
-        _state = -1;
+        UIObjectManager.inst.DeselectButtonClicked();
         StopPlacement();
+        ActiveColliders(false);
+        _state = -1;
     }
 
     public void StartPlacement(string objectName)
@@ -49,7 +65,7 @@ public class DecorativeObjectPlacer : MonoBehaviour
         if(_placerTransform == null)
         {
             _placerTransform = Instantiate(_decorativeObjectPlacerPrefab, Vector3.zero, Quaternion.identity);
-            _placerTransform.transform.localPosition = new Vector3(0, 0, 0);
+            _placerTransform.transform.localPosition = new Vector3(0, -1000f, 0);
             _placerTransform.transform.localScale = Vector3.one * 0.5f;
         }
 

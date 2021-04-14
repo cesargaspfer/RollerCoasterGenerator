@@ -540,14 +540,14 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIBlueprintProp, Assembly-CSharp
-        m_MethodName: AddValue
-        m_Mode: 1
+      - m_Target: {fileID: 1000333293}
+        m_TargetAssemblyTypeName: UITerrainBrush, Assembly-CSharp
+        m_MethodName: IncreaseValue
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -1502,7 +1502,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 30.008064}
+  m_AnchoredPosition: {x: 0, y: 30.00087}
   m_SizeDelta: {x: 0, y: 130}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &89781731
@@ -2225,14 +2225,14 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIBlueprintProp, Assembly-CSharp
-        m_MethodName: SubValue
-        m_Mode: 1
+      - m_Target: {fileID: 1000333293}
+        m_TargetAssemblyTypeName: UITerrainBrush, Assembly-CSharp
+        m_MethodName: DecreaseValue
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 2
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -6663,8 +6663,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1243617682}
   m_HandleRect: {fileID: 1243617681}
   m_Direction: 2
-  m_Value: -0.00027058946
-  m_Size: 0.7690265
+  m_Value: -0.000030008983
+  m_Size: 0.76923096
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -8007,6 +8007,7 @@ MonoBehaviour:
   _cameraHandler: {fileID: 963194229}
   _pannel: {fileID: 1118939754}
   _menuPannel: {fileID: 1134364655}
+  _terrarianPannel: {fileID: 1092029282}
   _nameInput: {fileID: 390806673}
   _railTypeDropdown: {fileID: 1068392459}
   _heatmapDropdown: {fileID: 730384656}
@@ -8040,6 +8041,7 @@ MonoBehaviour:
   _isBlueprintActive: 0
   _isSimulating: 0
   _lasRailType: 0
+  _terrarianPannelState: 0
   _MenuState: 0
 --- !u!4 &486678377
 Transform:
@@ -13865,7 +13867,7 @@ GameObject:
   - component: {fileID: 798456828}
   - component: {fileID: 798456830}
   m_Layer: 5
-  m_Name: TerrainButton
+  m_Name: LowerButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13971,7 +13973,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 798456828}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1000333293}
+        m_TargetAssemblyTypeName: UITerrainBrush, Assembly-CSharp
+        m_MethodName: ChangeElevateState
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &802045810
 GameObject:
   m_ObjectHideFlags: 0
@@ -14932,8 +14946,9 @@ GameObject:
   - component: {fileID: 847602152}
   - component: {fileID: 847602154}
   - component: {fileID: 847602153}
+  - component: {fileID: 847602155}
   m_Layer: 5
-  m_Name: ToolSelector
+  m_Name: ElevateSelector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14998,6 +15013,25 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 847602151}
   m_CullTransparentMesh: 0
+--- !u!95 &847602155
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847602151}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 1bed9f51c0f73034d8aa7af4181043d6, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &849295064
 GameObject:
   m_ObjectHideFlags: 0
@@ -15243,7 +15277,7 @@ GameObject:
   - component: {fileID: 858012570}
   - component: {fileID: 858012572}
   m_Layer: 5
-  m_Name: ConstructorButton
+  m_Name: ElevateButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15349,7 +15383,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 858012570}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1000333293}
+        m_TargetAssemblyTypeName: UITerrainBrush, Assembly-CSharp
+        m_MethodName: ChangeElevateState
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
 --- !u!1 &859520252
 GameObject:
   m_ObjectHideFlags: 0
@@ -15817,10 +15863,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIBlueprintProp, Assembly-CSharp
-        m_MethodName: SubValue
-        m_Mode: 1
+      - m_Target: {fileID: 1000333293}
+        m_TargetAssemblyTypeName: UITerrainBrush, Assembly-CSharp
+        m_MethodName: DecreaseValue
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -17310,7 +17356,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 983623122}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 486678376}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: ChangeTerrarianState
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &983623122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -17684,6 +17742,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1000333292}
+  - component: {fileID: 1000333293}
   m_Layer: 5
   m_Name: Brush
   m_TagString: Untagged
@@ -17710,9 +17769,30 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -170}
+  m_AnchoredPosition: {x: 0, y: -160}
   m_SizeDelta: {x: 300, y: 190}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1000333293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000333291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1133b03a5ef165340b8a8bbe51886f31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _valueText:
+  - {fileID: 1013862531}
+  - {fileID: 1875557548}
+  - {fileID: 2045989417}
+  _elevateStateButtons: {fileID: 847602155}
+  _radius: []
+  _intencity: []
+  _opacity: []
+  _elevate: 0
 --- !u!1 &1001670649
 GameObject:
   m_ObjectHideFlags: 0
@@ -20112,6 +20192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1092029282}
   - component: {fileID: 1092029283}
+  - component: {fileID: 1092029284}
   m_Layer: 5
   m_Name: TerrainPannel
   m_TagString: Untagged
@@ -20139,7 +20220,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -340.5}
+  m_AnchoredPosition: {x: 330, y: -340.5}
   m_SizeDelta: {x: 320, y: 440}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1092029283
@@ -20156,6 +20237,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Padding: {x: 0, y: 0, z: 0, w: 0}
   m_Softness: {x: 0, y: 0}
+--- !u!95 &1092029284
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1092029281}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 877782b921abbf94f9adc5ddd9312c08, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &1092438329
 GameObject:
   m_ObjectHideFlags: 0
@@ -20665,7 +20765,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1116024861}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 486678376}
+        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+        m_MethodName: ChangeTerrarianState
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1116024861
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -20871,7 +20983,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -330, y: -345.50003}
+  m_AnchoredPosition: {x: 0, y: -345.50003}
   m_SizeDelta: {x: 320, y: 450}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1119698133
@@ -25303,14 +25415,14 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIBlueprintProp, Assembly-CSharp
-        m_MethodName: AddValue
-        m_Mode: 1
+      - m_Target: {fileID: 1000333293}
+        m_TargetAssemblyTypeName: UITerrainBrush, Assembly-CSharp
+        m_MethodName: IncreaseValue
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 2
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -27191,14 +27303,14 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIBlueprintProp, Assembly-CSharp
-        m_MethodName: SubValue
-        m_Mode: 1
+      - m_Target: {fileID: 1000333293}
+        m_TargetAssemblyTypeName: UITerrainBrush, Assembly-CSharp
+        m_MethodName: DecreaseValue
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
+          m_IntArgument: 1
           m_FloatArgument: 0
           m_StringArgument: 
           m_BoolArgument: 0
@@ -27438,10 +27550,10 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIBlueprintProp, Assembly-CSharp
-        m_MethodName: AddValue
-        m_Mode: 1
+      - m_Target: {fileID: 1000333293}
+        m_TargetAssemblyTypeName: UITerrainBrush, Assembly-CSharp
+        m_MethodName: IncreaseValue
+        m_Mode: 3
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -31836,7 +31948,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: -15}
+  m_AnchoredPosition: {x: 0, y: -17.5}
   m_SizeDelta: {x: 600, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1748573817

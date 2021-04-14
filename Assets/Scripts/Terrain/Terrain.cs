@@ -53,6 +53,14 @@ public class Terrain : MonoBehaviour
         }
     }
 
+    public void ActiveColliders(bool active)
+    {
+        foreach (Transform child in this.transform)
+        {
+            child.GetComponent<MeshCollider>().enabled = active;
+        }
+    }
+
     public void Instantiate(int groundIndexX, int groundIndexZ)
     {
         Transform ground = Instantiate(_groundPrefab, Vector3.zero, Quaternion.identity);
@@ -119,6 +127,7 @@ public class Terrain : MonoBehaviour
 
         ground.GetComponent<MeshFilter>().mesh = mesh;
         ground.GetComponent<MeshCollider>().sharedMesh = mesh;
+        ground.GetComponent<MeshCollider>().enabled = false;
     }
 
     // TODO: Use in support
@@ -240,6 +249,8 @@ public class Terrain : MonoBehaviour
         int xMaxGround = Mathf.Min(_chunksLength - 1, (int) Mathf.Ceil((_offset + worldPosition.x + adjustedRadius + 5) / (float) _chunkSize) + 1);
         int zMaxGround = Mathf.Min(_chunksLength - 1, (int) Mathf.Ceil((_offset + worldPosition.z + adjustedRadius + 5) / (float) _chunkSize) + 1);
 
+        float worldConvolutionSize = _convolutionSize * _size / (_resolution * _chunksLength);
+
         for (int groundX = xMinGround; groundX <= xMaxGround; groundX++)
         {
             for (int groundZ = zMinGround; groundZ <= zMaxGround; groundZ++)
@@ -254,10 +265,10 @@ public class Terrain : MonoBehaviour
                 if((localX + adjustedRadius < -2 && localZ + adjustedRadius < -2) || (localX - adjustedRadius > _chunkSize + 2 && localZ - adjustedRadius > _chunkSize + 2))
                     continue;
                 
-                xMin = Mathf.Max(0, Mathf.RoundToInt(localX - radius + 2));
-                zMin = Mathf.Max(0, Mathf.RoundToInt(localZ - radius + 2));
-                xMax = Mathf.Min(_resolution, Mathf.RoundToInt(localX + radius + 2));
-                zMax = Mathf.Min(_resolution, Mathf.RoundToInt(localZ + radius + 2));
+                xMin = Mathf.Max(0, Mathf.RoundToInt(localX - (radius + worldConvolutionSize)));
+                zMin = Mathf.Max(0, Mathf.RoundToInt(localZ - (radius + worldConvolutionSize)));
+                xMax = Mathf.Min(_resolution, Mathf.RoundToInt(localX + (radius + worldConvolutionSize)));
+                zMax = Mathf.Min(_resolution, Mathf.RoundToInt(localZ + (radius + worldConvolutionSize)));
 
                 Vector2 localBrushPosition = new Vector2(localX, localZ);
                 for (int i = xMin; i < xMax; i++)
@@ -265,7 +276,7 @@ public class Terrain : MonoBehaviour
                     for (int j = zMin; j < zMax; j++)
                     {
                         float distance = Vector3.Magnitude(localBrushPosition - new Vector2(i, j));
-                        if (distance <= radius + 2)
+                        if (distance <= radius + worldConvolutionSize)
                         {
                             float tmpX = _chunkSize * ((float)i / (float)(_resolution - 1));
                             float tmpZ = _chunkSize * ((float)j / (float)(_resolution - 1));

@@ -13,18 +13,16 @@ public class TerrainBrush : MonoBehaviour
         }
     }
 
-    [SerializeField] private int _state;
+    [SerializeField] private int _state = 0;
     [SerializeField] private float _radius;
     [SerializeField] private float _intencity;
     [SerializeField] private float _opacity;
 
     void Start()
     {
-        _state = 1;
-        _radius = 5f;
-        _intencity = 20f;
-        _opacity = 1f;
+        _state = 0;
     }
+
     public void Active()
     {
         _state = 1;
@@ -35,9 +33,11 @@ public class TerrainBrush : MonoBehaviour
         _state = 0;
     }
 
-    public void UpdateValues()
+    public void UpdateValues(float radius, float intencity, float opacity)
     {
-
+        _radius = radius;
+        _intencity = intencity;
+        _opacity = opacity;
     }
 
     void Update()
@@ -54,8 +54,14 @@ public class TerrainBrush : MonoBehaviour
                     Debug.DrawLine(ray.origin, hit.point);
                     Vector3 hitPosition = hit.point;
                     this.transform.position = hitPosition;
-                    if (hit.transform.name.Equals("Ground") && Input.GetMouseButton(0))
-                        Terrain.inst.UpdateAplifiers(hitPosition, _radius, _intencity * Time.deltaTime, _opacity);
+                    if (hit.transform.name.Equals("Ground"))
+                    {
+                        this.transform.GetChild(0).gameObject.SetActive(true);
+                        if(Input.GetMouseButton(0))
+                            Terrain.inst.UpdateAplifiers(hitPosition, _radius, _intencity * Time.deltaTime, _opacity);
+                    }
+                    else
+                        this.transform.GetChild(0).gameObject.SetActive(false);
                 }
                 else
                     this.transform.GetChild(0).gameObject.SetActive(false);
