@@ -209,7 +209,8 @@ public class UIManager : MonoBehaviour
     public void ShowPannel(int constructorPannelState, bool loaded)
     {
         if(_isAnimating) return;
-        _railTypeDropdown.value = _lasRailType;
+        if(constructorPannelState == 0)
+            _railTypeDropdown.value = _lasRailType;
         _constructorPannelState = constructorPannelState;
 
         if (_constructorPannelState == 0)
@@ -818,6 +819,7 @@ public class UIManager : MonoBehaviour
         bool saved = _rollerCoaster.SaveCoaster(_nameInput.text, DecorativeObjectPlacer.inst.GetAllDecorativeObjects(), Terrain.inst.GetAplifiers());
         yield return null;
         _flash.GetComponent<Animator>().Play("Flash");
+        AudioManager.inst.PlayUIAudio(0);
         yield return null;
         if(saved)
         {
@@ -875,7 +877,11 @@ public class UIManager : MonoBehaviour
             _rollerCoaster.UpdateLastRail(railType: 1);
         }
         else
+        {
             _rollerCoaster.GenerateCoaster();
+            Terrain.inst.SetAplifiers(null);
+        }
+        yield return null;
         ShowPannel(_constructorPannelState, false);
         _isAnimating = true;
         _isPaused = false;

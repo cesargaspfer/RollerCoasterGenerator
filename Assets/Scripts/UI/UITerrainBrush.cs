@@ -66,7 +66,7 @@ public class UITerrainBrush : MonoBehaviour
             if(_opacity[3] == 1)
                 _valueText[2].text = "" + _opacity[3];
             else
-                _valueText[2].text = "0." + (int)(_opacity[3] * 10f) / 10;
+                _valueText[2].text = "0." + Mathf.RoundToInt(_opacity[3] * 10f);
         }
         TerrainBrush.inst.UpdateValues(_radius[3], (_elevate ? _intencity[3] : - _intencity[3]) * 20f, _opacity[3]);
     }
@@ -95,7 +95,7 @@ public class UITerrainBrush : MonoBehaviour
             if(_opacity[3] == 1)
                 _valueText[2].text = "" + _opacity[3];
             else
-                _valueText[2].text = "0." + (int)(_opacity[3] * 10f) / 10;
+                _valueText[2].text = "0." + Mathf.RoundToInt(_opacity[3] * 10f);
         }
         TerrainBrush.inst.UpdateValues(_radius[3], (_elevate ? _intencity[3] : - _intencity[3]) * 20f, _opacity[3]);
     }

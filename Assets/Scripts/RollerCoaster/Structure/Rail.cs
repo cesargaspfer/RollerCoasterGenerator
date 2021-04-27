@@ -310,16 +310,16 @@ public class Rail
             case 0:
                 return Color.white;
             case 1:
-                return Color.Lerp(new Color(0.05f, 0.05f, 0.05f), new Color(0.95f, 0.95f, 0.95f), _physicsAlongRail[t].Velocity / 20f);
+                return GetSetColor(_physicsAlongRail[t].Velocity * 0.1f - 1f);
             case 2:
-                return LerpGForce(_physicsAlongRail[t].GForce.y);
+                return GetSetColor(_physicsAlongRail[t].GForce.y * 0.05f);
             case 3:
-                return LerpGForce(_physicsAlongRail[t].GForce.x);
+                return GetSetColor(_physicsAlongRail[t].GForce.x * 0.05f);
             case 4:
-                return LerpGForce(_physicsAlongRail[t].GForce.z);
+                return GetSetColor(_physicsAlongRail[t].GForce.z * 0.05f);
             case 5:
                 (Vector3 position, CarStatus _) = GetPositionInRail(t);
-                return Color.Lerp(new Color(0.05f, 0.05f, 0.05f), new Color(0.95f, 0.95f, 0.95f), position.y / 50f);
+                return GetSetColor(position.y * 0.04f - 1f);
             default:
                 return Color.white;
         }
@@ -328,6 +328,44 @@ public class Rail
     private Color LerpGForce(float value)
     {
         return Color.Lerp(new Color(0.05f, 0.05f, 0.05f), new Color(0.95f, 0.95f, 0.95f), value / 20f + 0.5f);
+    }
+
+    // From https://stackoverflow.com/questions/7706339/grayscale-to-red-green-blue-matlab-jet-color-scale
+    public Color GetSetColor(float v)
+    {
+        float red = 1f;
+        float green = 1f;
+        float blue = 1f;
+        float dv;
+
+        if (v < -1f)
+            v = -1f;
+        if (v > 1f)
+            v = 1f;
+        dv = 1f + 1f;
+
+        if (v < (-1f + 0.25f * dv))
+        {
+            red = 0;
+            green = 4f * (v + 1f) / dv;
+        }
+        else if (v < (-1f + 0.5 * dv))
+        {
+            red = 0;
+            blue = 1f + 4f * (-1f + 0.25f * dv - v) / dv;
+        }
+        else if (v < (-1f + 0.75f * dv))
+        {
+            red = 4f * (v + 1f - 0.5f * dv) / dv;
+            blue = 0;
+        }
+        else
+        {
+            green = 1f + 4f * (-1f + 0.75f * dv - v) / dv;
+            blue = 0;
+        }
+
+        return new Color(red, green, blue, 1f);
     }
 
     public RailProps rp

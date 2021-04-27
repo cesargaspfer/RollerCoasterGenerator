@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class UIObjectManager : MonoBehaviour
 {
@@ -39,15 +36,10 @@ public class UIObjectManager : MonoBehaviour
     {
         _objectsNames = new List<string>();
 
-        string[] fileEntries = Directory.GetFiles(Application.dataPath + "/Resources/Objects/");
-        for(int i = 0; i < fileEntries.Length; i++)
+        Object[] objects = Resources.LoadAll("Objects", typeof(GameObject));
+        for (int i = 0; i < objects.Length; i++)
         {
-            if(!fileEntries[i].EndsWith(".meta"))
-            {
-                string fileName = Path.GetFileName(fileEntries[i]);
-                fileName = fileName.Substring(0, fileName.Length - 4);
-                _objectsNames.Add(fileName);
-            }
+            _objectsNames.Add(objects[i].name);
         }
 
         _UIObjectButtons = new UIObjectButton [9];

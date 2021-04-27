@@ -251,10 +251,13 @@ public class RollerCoaster : MonoBehaviour
                     rotation: savePack[i].rp.Rotation, 
                     inclination: savePack[i].rp.Inclination
                 );
+                GenerateSupports(i);
             }
             else
             {
                 this.AddFinalRail((int) savePack[i].Type);
+                GenerateSupports(i);
+                GenerateSupports(i+1);
                 return (decorativeObjects, terrain);
             }
         }

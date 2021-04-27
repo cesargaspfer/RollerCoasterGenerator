@@ -9,7 +9,7 @@ public class BlueprintLever : Blueprint
 
     public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
-        if(spaceProps.Position.y < 5f && railPhysics.Final.Velocity < 4f)
+        if(spaceProps.Position.y <= 10f && railPhysics.Final.Velocity <= 10f)
             return 1f;
         return 0f;
     }
@@ -39,6 +39,32 @@ public class BlueprintLever : Blueprint
         };
 
         return dict;
+    }
+
+    public override Dictionary<string, float> GenerateParams(string subtype, RollerCoaster rollerCoaster, SpaceProps sp, RailPhysics rp)
+    {
+        float elevation = 15f * (int) Random.Range(2, 5);
+        if (subtype.Equals("Rotate"))
+        {
+            elevation = 15f * (int)Random.Range(2, 4);
+        }
+        float rotation = 15f * (int)Random.Range(1, 3);
+        if ((int)Random.Range(-1, 1) == 0)
+        {
+            rotation = -rotation;
+        }
+        float maxHeight = Mathf.Max(20f, 50f - sp.Position.y);
+        float height = Random.Range(20f, maxHeight);
+        float pieces = (int)Random.Range(2 + ((int)height - 20) / 20, 8);
+
+        Dictionary<string, float> paramsDict = new Dictionary<string, float>() {
+            {"elevation", elevation},
+            {"rotation", rotation},
+            {"height", height},
+            {"pieces", pieces},
+        };
+
+        return paramsDict;
     }
 
     public override List<(RailProps, RailType)> GetBlueprint(string type, Dictionary<string, float> dict)
@@ -83,10 +109,10 @@ public class BlueprintLever : Blueprint
         float middleRailHeight = RollerCoaster.MeasureRail
         (
             new RailProps(0f, rotation, 0f, 1f),
-            new SpaceProps(Vector3.zero, ThreeRotationMatrix(Matrix4x4.identity, new RailProps(elevation, 0f, 0f, 5f)))
+            new SpaceProps(Vector3.zero, ThreeRotationMatrix(Matrix4x4.identity, new RailProps(elevation, 0f, 0f, 1f)))
         ).y;
 
-        float length = height / (2f * initialRailHeight + (pieces - 2) * middleRailHeight);
+        float length = height / (2f * initialRailHeight + (pieces - 2f) * middleRailHeight);
 
         rails.Add((new RailProps(elevation, rotation, inclination, length), RailType.Lever));
         for (int i = 2; i < pieces; i++)
@@ -94,5 +120,10 @@ public class BlueprintLever : Blueprint
         rails.Add((new RailProps(-elevation, rotation, -inclination, length), RailType.Lever));
 
         return rails;
+    }
+
+    public override string Name
+    {
+        get { return "Lever"; }
     }
 }

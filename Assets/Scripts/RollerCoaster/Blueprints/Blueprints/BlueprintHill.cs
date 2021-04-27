@@ -8,7 +8,7 @@ public class BlueprintHill : Blueprint
 
     public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
-        if (railPhysics.Final.Velocity > 5f)
+        if (railPhysics.Final.Velocity > 10f)
             return 1f;
         return 0f;
     }
@@ -16,6 +16,13 @@ public class BlueprintHill : Blueprint
     public override List<string> GetSubtypeNames()
     {
         List<string> names = new List<string>() { "StraightHeight", "StraightLength", "RotateHeight", "RotateLength" };
+
+        return names;
+    }
+
+    public override List<string> GetGenerationSubtypeNames()
+    {
+        List<string> names = new List<string>() { "StraightHeight", "RotateHeight" };
 
         return names;
     }
@@ -47,6 +54,31 @@ public class BlueprintHill : Blueprint
         };
 
         return dict;
+    }
+
+    public override Dictionary<string, float> GenerateParams(string subtype, RollerCoaster rollerCoaster, SpaceProps sp, RailPhysics rp)
+    {
+        float elevation = ((int)Random.Range(3, 5));
+        float rotation = ((int)Random.Range(-6, 7));
+        if ((int)Random.Range(-1, 1) == 0)
+        {
+            rotation = ((int)Random.Range(-12, 13));
+        }
+
+        float maxHeight = rp.Final.Velocity * (rp.Final.Velocity / (19.6f * 0.9f));
+
+        float height = Random.Range(maxHeight * 0.5f, maxHeight);
+
+        elevation *= 15f;
+        rotation *= 15f;
+
+        Dictionary<string, float> paramsDict = new Dictionary<string, float>() {
+            {"elevation", elevation},
+            {"rotation", rotation},
+            {"height", height},
+        };
+
+        return paramsDict;
     }
 
     public override List<(RailProps, RailType)> GetBlueprint(string type, Dictionary<string, float> dict)
@@ -98,7 +130,7 @@ public class BlueprintHill : Blueprint
         elevation *= Mathf.PI / 180f;
         rotation *= (Mathf.PI / 180f) * 0.25f;
 
-        float railHeight = RollerCoaster.MeasureRail(new RailProps(elevation, rotation, 0f, 1f)).y;
+        float railHeight = Mathf.Abs(RollerCoaster.MeasureRail(new RailProps(elevation, rotation, 0f, 1f)).y);
         float length = height / (2f * railHeight);
 
         rails.Add((new RailProps(elevation, rotation, -rotation * 0.5f, length), RailType.Normal));
@@ -121,7 +153,7 @@ public class BlueprintHill : Blueprint
         rotation *= (Mathf.PI / 180f) * 0.25f;
 
 
-        float railLength = RollerCoaster.MeasureRail(new RailProps(elevation, rotation, 0f, 1f)).x;
+        float railLength = Mathf.Abs(RollerCoaster.MeasureRail(new RailProps(elevation, rotation, 0f, 1f)).x);
         float finalLength = length / (4f * railLength);
 
         rails.Add((new RailProps(elevation, rotation, -rotation * 0.5f, finalLength), RailType.Normal));
@@ -130,5 +162,10 @@ public class BlueprintHill : Blueprint
         rails.Add((new RailProps(elevation, rotation, rotation * 0.5f, finalLength), RailType.Normal));
 
         return rails;
+    }
+
+    public override string Name
+    {
+        get { return "Hill"; }
     }
 }

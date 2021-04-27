@@ -44,6 +44,7 @@ public class Generator
     private IEnumerator _statusCoroutine = null;
     private bool _generatorCanContinue = true;
     private bool _blueprintCanContinue = true;
+    private bool _finalizeCoaster = false;
 
     public Generator(RollerCoaster rollerCoaster)
     {
@@ -79,16 +80,11 @@ public class Generator
         _blueprintCanContinue = true;
         _generatorCanContinue = true;
 
-        while(true)
+        _finalizeCoaster = false;
+
+        while(!_finalizeCoaster)
         {
-            if(_status.totalLength < 200f)
-            {
-                AddBluerpint();
-            }
-            else
-            {
-                break;
-            }
+            AddBluerpint();
             yield return new WaitUntil(() => _generatorCanContinue);
         }
 
@@ -133,63 +129,29 @@ public class Generator
 
     private IEnumerator AddBluerpintCoroutine()
     {
-        List<string> possibleTypes = new List<string>();
-        List<float> typeCumulativeProbabilities = new List<float>();
 
-        List<string> types = _blueprintManager.GetTypeNames();
-        foreach(string keyType in types)
-        {
-            float probability = _blueprintManager.GetType(keyType).GetProbability(_status.sp, _status.rp);
-            if(probability > 0f)
-            {
-                possibleTypes.Add(keyType);
-                if(possibleTypes.Count == 1)
-                    typeCumulativeProbabilities.Add(probability);
-                else
-                    typeCumulativeProbabilities.Add(probability + typeCumulativeProbabilities[possibleTypes.Count - 2]);
-            }
-        }
-        Debug.Log(typeCumulativeProbabilities.Count + " " + possibleTypes.Count);
-        Debug.Log(_status.height + " " + _status.rp.Final.Velocity);
+        // Filter possible blueprint types
+        (List<string> possibleTypes, List<float> cumulativeProbs) = FilterPossibleBlueprints();
         
-        float drawn = Random.Range(0f, typeCumulativeProbabilities[typeCumulativeProbabilities.Count - 1]);
-        int drawnTypeId = 0;
-        for(int i = 0; i < possibleTypes.Count; i++)
-        {
-            if(drawn < typeCumulativeProbabilities[i])
-                break;
-            else
-                drawnTypeId++;
-        }
-        if(drawnTypeId >= possibleTypes.Count)
-            drawnTypeId = possibleTypes.Count - 1;
-            
-        string bpType = possibleTypes[drawnTypeId];
-        Blueprint blueprint = _blueprintManager.GetType(bpType);
-        
-        List<string> subtypes = blueprint.GetSubtypeNames();
-        int drawnSubtypes = Random.Range(0, subtypes.Count);
-        string bpSubtype = subtypes[drawnSubtypes];
-        
-        Dictionary<string, string> bpParamsProps = blueprint.GetParams()[bpSubtype];
-        Dictionary<string, float> bpParams = new Dictionary<string, float>();
+        // Drawn a possible type
+        (int typeId, Blueprint blueprint) = DrawnBlueprintType(possibleTypes, cumulativeProbs);
 
-        Debug.Log(bpType + " " + bpSubtype);
-        foreach(string paramKey in bpParamsProps.Keys)
-        {
-            string[] paramProps = bpParamsProps[paramKey].Split(';');
-            float intercalationValue = float.Parse(paramProps[0], CultureInfo.InvariantCulture.NumberFormat);
-            float minValue = float.Parse(paramProps[1], CultureInfo.InvariantCulture.NumberFormat);
-            float maxValue = float.Parse(paramProps[2], CultureInfo.InvariantCulture.NumberFormat);
-            int range = (int) ((maxValue - minValue) / intercalationValue);
+        // Drown a subtype
+        (int subtypeId, string bpSubtype) = DrawnBlueprintSubtype(blueprint);
 
-            int drawnRange = Random.Range(0, range);
-            float drawnValue = minValue + intercalationValue * drawnRange;
 
-            bpParams.Add(paramKey, drawnValue);
-        }
+        // Randomize parameters
+        // Dictionary<string, float> bpParams = RandomizeBlueprintParams(blueprint, bpSubtype);
+        Dictionary<string, float> bpParams = blueprint.GenerateParams(bpSubtype, _rollerCoaster, _status.sp, _status.rp);
 
-        List<(RailProps, RailType)> rails = _blueprintManager.GetType(bpType).GetBlueprint(bpSubtype, bpParams);
+        // Debug.Log(blueprint.Name + " " + bpSubtype);
+        // foreach(string key in bpParams.Keys)
+        // {
+        //     Debug.Log(key + " " + bpParams[key]);
+        // }
+
+        // Add blueprint rails
+        List<(RailProps, RailType)> rails = blueprint.GetBlueprint(bpSubtype, bpParams);
 
         for(int i = 0; i < rails.Count; i++)
         {
@@ -198,12 +160,88 @@ public class Generator
             yield return new WaitUntil(() => _blueprintCanContinue);
         }
 
+        if(_status.totalLength >= 1000f)
+            _finalizeCoaster = true;
+
         _generatorCanContinue = true;
+    }
+
+    private (List<string>, List<float>) FilterPossibleBlueprints()
+    {
+        List<string> possibleTypes = new List<string>();
+        List<float> typeCumulativeProbabilities = new List<float>();
+
+        List<string> types = _blueprintManager.GetTypeNames();
+        foreach (string keyType in types)
+        {
+            float probability = _blueprintManager.GetType(keyType).GetProbability(_status.sp, _status.rp);
+            if (probability > 0f)
+            {
+                possibleTypes.Add(keyType);
+                if (possibleTypes.Count == 1)
+                    typeCumulativeProbabilities.Add(probability);
+                else
+                    typeCumulativeProbabilities.Add(probability + typeCumulativeProbabilities[possibleTypes.Count - 2]);
+            }
+        }
+        return (possibleTypes, typeCumulativeProbabilities);
+    }
+
+    private (int, Blueprint) DrawnBlueprintType(List<string> possibleTypes, List<float> cumulativeProbs)
+    {
+        float drawn = Random.Range(0f, cumulativeProbs[cumulativeProbs.Count - 1]);
+        int drawnTypeId = 0;
+        for (int i = 0; i < possibleTypes.Count; i++)
+        {
+            if (drawn < cumulativeProbs[i])
+                break;
+            else
+                drawnTypeId++;
+        }
+        if (drawnTypeId >= possibleTypes.Count)
+            drawnTypeId = possibleTypes.Count - 1;
+
+        string bpType = possibleTypes[drawnTypeId];
+        Blueprint blueprint = _blueprintManager.GetType(bpType);
+
+        return (drawnTypeId, blueprint);
+    }
+
+    private (int, string) DrawnBlueprintSubtype(Blueprint blueprint)
+    {
+        List<string> subtypes = blueprint.GetGenerationSubtypeNames();
+        int drawnSubtypes = Random.Range(0, subtypes.Count);
+        string bpSubtype = subtypes[drawnSubtypes];
+        
+        return (drawnSubtypes, bpSubtype);
+    }
+
+    private Dictionary<string, float> RandomizeBlueprintParams(Blueprint blueprint, string bpSubtype)
+    {
+        Dictionary<string, string> bpParamsProps = blueprint.GetParams()[bpSubtype];
+        Dictionary<string, float> bpParams = new Dictionary<string, float>();
+
+        foreach (string paramKey in bpParamsProps.Keys)
+        {
+            string[] paramProps = bpParamsProps[paramKey].Split(';');
+            float intercalationValue = float.Parse(paramProps[0], CultureInfo.InvariantCulture.NumberFormat);
+            float minValue = float.Parse(paramProps[1], CultureInfo.InvariantCulture.NumberFormat);
+            float maxValue = float.Parse(paramProps[2], CultureInfo.InvariantCulture.NumberFormat);
+            int range = (int)((maxValue - minValue) / intercalationValue);
+
+            int drawnRange = Random.Range(0, range);
+            float drawnValue = minValue + intercalationValue * drawnRange;
+
+            bpParams.Add(paramKey, drawnValue);
+        }
+
+        return bpParams;
     }
 
     private void FinalizeCoaster()
     {
         // TODO
+        _finalizeCoaster = false;
     }
 
     private void GenerateCurveMax90(float rotation)

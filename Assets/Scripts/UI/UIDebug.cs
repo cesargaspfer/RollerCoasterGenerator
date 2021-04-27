@@ -19,6 +19,14 @@ public class UIDebug : MonoBehaviour
         this.transform.GetChild(0).GetComponent<Text>().text = message;
     }
 
+    void HandleLog(string logString, string stackTrace, LogType type)
+    {
+        if ((type == LogType.Error || type == LogType.Exception || type == LogType.Warning))
+        {
+            ShowDebugMessage(type + "\n" + logString + "\n" + stackTrace);
+        }
+    }
+
     void Update()
     {
         if(Input.GetKeyDown(KeyCode.O))
