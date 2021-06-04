@@ -3,10 +3,7 @@ guid: 092626b76876a3542822d302f9246c7d
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences:
-  - _railPrefab: {instanceID: 0}
-  - _railParent: {instanceID: 0}
-  - _carManagerPrefab: {fileID: 1164025782957210887, guid: 63cf28dd13250654a89004b300a56aa0, type: 3}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

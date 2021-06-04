@@ -42,7 +42,7 @@ public class RollerCoaster : MonoBehaviour
         SpaceProps sp = new SpaceProps(Vector3.up, Matrix4x4.identity);
         _constructor = new Constructor(this, rp, mp, sp);
         _carSimulation = null;
-        _simulator = new Simulator(this, 1f / 60f, 0, 1);
+        _simulator = new Simulator(this, 1f / 40f, 0, 1);
         _blueprintManager = new BlueprintManager();
         _isComplete = false;
         _heatmapValue = -1;
@@ -237,6 +237,19 @@ public class RollerCoaster : MonoBehaviour
             this.RemoveLastRail(false);
         }
         (SavePack[] savePack, (string, Vector3, float)[] decorativeObjects, float[] terrain) = SaveManager.LoadCoaster(coasterName);
+
+        // TODO: Remove
+        string coasterSting = "";
+        for (int i = 0; i < savePack.Length; i++)
+        {
+            string sE = savePack[i].rp.Elevation.ToString().Replace(',', '.');
+            string sR = (-savePack[i].rp.Rotation).ToString().Replace(',', '.');
+            string sI = (-savePack[i].rp.Inclination).ToString().Replace(',', '.');
+            int sL = Mathf.RoundToInt(savePack[i].rp.Length);
+            coasterSting += "rails.Add((new RailProps(" + sE + "f, " + sR + "f * orientation, " + sI + "f * orientation, " + sL + " * lengthScale), RailType.Normal));\n";
+        }
+        Debug.Log(coasterSting);
+
         for(int i = 0; i < savePack.Length; i++)
         {
             this.AddRail(false);

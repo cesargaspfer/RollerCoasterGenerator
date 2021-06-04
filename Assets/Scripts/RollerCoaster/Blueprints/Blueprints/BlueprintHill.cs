@@ -121,14 +121,16 @@ public class BlueprintHill : Blueprint
 
     public static List<(RailProps, RailType)> RotateHeight(Dictionary<string, float> dict)
     {
-        return RotateHeight(dict["elevation"], dict["rotation"], (int)dict["height"]);
+        if (!dict.ContainsKey("orientation"))
+            dict["orientation"] = 1f;
+        return RotateHeight(dict["elevation"], dict["rotation"], (int)dict["height"], (int)dict["orientation"]);
     }
 
-    public static List<(RailProps, RailType)> RotateHeight(float elevation, float rotation, int height)
+    public static List<(RailProps, RailType)> RotateHeight(float elevation, float rotation, int height, int orientation = 1)
     {
         List<(RailProps, RailType)> rails = new List<(RailProps, RailType)>();
         elevation *= Mathf.PI / 180f;
-        rotation *= (Mathf.PI / 180f) * 0.25f;
+        rotation *= (Mathf.PI / 180f) * 0.25f * orientation;
 
         float railHeight = Mathf.Abs(RollerCoaster.MeasureRail(new RailProps(elevation, rotation, 0f, 1f)).y);
         float length = height / (2f * railHeight);
@@ -143,14 +145,16 @@ public class BlueprintHill : Blueprint
 
     public static List<(RailProps, RailType)> RotateLength(Dictionary<string, float> dict)
     {
-        return RotateLength(dict["elevation"], dict["rotation"], (int)dict["length"]);
+        if (!dict.ContainsKey("orientation"))
+            dict["orientation"] = 1f;
+        return RotateLength(dict["elevation"], dict["rotation"], (int)dict["length"], (int)dict["orientation"]);
     }
 
-    public static List<(RailProps, RailType)> RotateLength(float elevation, float rotation, int length)
+    public static List<(RailProps, RailType)> RotateLength(float elevation, float rotation, int length, int orientation = 1)
     {
         List<(RailProps, RailType)> rails = new List<(RailProps, RailType)>();
         elevation *= Mathf.PI / 180f;
-        rotation *= (Mathf.PI / 180f) * 0.25f;
+        rotation *= (Mathf.PI / 180f) * 0.25f * orientation;
 
 
         float railLength = Mathf.Abs(RollerCoaster.MeasureRail(new RailProps(elevation, rotation, 0f, 1f)).x);

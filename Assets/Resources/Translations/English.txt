@@ -78,9 +78,17 @@ StraightLength|Straight length
 RotateHeight|Rotate height
 RotateLength|Rotate length
 Rotate|Rotate
+Curve|Curve
+Corkscrew|Corkscrew
+Sidewinder|Sidewinder
+CobraRoll|CobraRoll
+HorseShoe|HorseShoe
+PretzelKnot|PretzelKnot
+PretzelCurve|PretzelCurve
 lengthScale|Scale
 orientation|Orientation
 railLength|Rail Length
+loops|Loops
 pieces|Pieces
 relief|Relief
 decoration|Decoration

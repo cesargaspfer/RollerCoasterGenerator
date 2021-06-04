@@ -127,8 +127,8 @@ public class ConstructionArrows : MonoBehaviour
         {
             if (_rc.GetLastGlobalrp().Inclination <= -0.025f || _rc.GetLastGlobalrp().Inclination >= 0.025f)
             {
-                this.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
-                this.transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
+                this.transform.GetChild(0).GetChild(0).gameObject.SetActive(active);
+                this.transform.GetChild(0).GetChild(1).gameObject.SetActive(active);
             }
             else
             {
@@ -145,8 +145,8 @@ public class ConstructionArrows : MonoBehaviour
 
             if (active && (_rc.GetLastGlobalrp().Inclination <= -0.025f || _rc.GetLastGlobalrp().Inclination >= 0.025f))
             {
-                this.transform.GetChild(0).GetChild(0).gameObject.SetActive(false);
-                this.transform.GetChild(0).GetChild(1).gameObject.SetActive(false);
+                this.transform.GetChild(0).GetChild(0).gameObject.SetActive(active);
+                this.transform.GetChild(0).GetChild(1).gameObject.SetActive(active);
             }
         }
     }

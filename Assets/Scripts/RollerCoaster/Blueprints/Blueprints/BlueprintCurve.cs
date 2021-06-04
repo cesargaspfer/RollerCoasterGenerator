@@ -65,12 +65,14 @@ public class BlueprintCurve : Blueprint
 
     public static List<(RailProps, RailType)> Curve(Dictionary<string, float> dict)
     {
-        return Curve(dict["rotation"], dict["length"]);
+        if(!dict.ContainsKey("orientation"))
+            dict["orientation"] = 1f;
+        return Curve(dict["rotation"], dict["length"], dict["orientation"]);
     }
 
-    public static List<(RailProps, RailType)> Curve(float rotation, float length)
+    public static List<(RailProps, RailType)> Curve(float rotation, float length, float orientation = 1f)
     {
-        rotation *= (Mathf.PI / 180f) * 0.25f;
+        rotation *= (Mathf.PI / 180f) * 0.25f * orientation;
         length *= 0.25f;
         float inclination = -rotation * 0.5f;
 

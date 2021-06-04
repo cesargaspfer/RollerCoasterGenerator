@@ -93,13 +93,15 @@ public class BlueprintFall : Blueprint
 
     public static List<(RailProps, RailType)> Rotate(Dictionary<string, float> dict)
     {
-        return Rotate(dict["elevation"], dict["rotation"], dict["height"], (int)dict["pieces"]);
+        if (!dict.ContainsKey("orientation"))
+            dict["orientation"] = 1f;
+        return Rotate(dict["elevation"], dict["rotation"], dict["height"], (int)dict["pieces"], (int)dict["orientation"]);
     }
 
-    public static List<(RailProps, RailType)> Rotate(float elevation, float rotation, float height, int pieces)
+    public static List<(RailProps, RailType)> Rotate(float elevation, float rotation, float height, int pieces, int orientation = 1)
     {
         elevation *= Mathf.PI / 180f;
-        rotation *= Mathf.PI / 180f;
+        rotation *= Mathf.PI / 180f * orientation;
 
         List<(RailProps, RailType)> rails = new List<(RailProps, RailType)>();
         float inclination = -rotation * 0.5f;

@@ -72,7 +72,8 @@ public class Simulator
 
         for (int i = 0; i < _cars.Length; i++)
         {
-            float scalarPosition = _cars[i].CarProperties.Length * 0.5f + ((_cars.Length - 1) - i) * _cars[i].CarProperties.Length;
+            // float scalarPosition = _cars[i].CarProperties.Length * 0.5f + ((_cars.Length - 1) - i) * _cars[i].CarProperties.Length;
+            float scalarPosition = ((_cars.Length - 1) - i) * _cars[i].CarProperties.Length;
             (Rail lastRail, _) = _rails[0];
             (int currentSegment, float currentPos, float lastT, float distance) = CalculateSegment(0, scalarPosition, 0f, 0f);
             (Rail currentRail, _) = _rails[currentSegment];
@@ -346,7 +347,7 @@ public class Simulator
             RailPhysics.Props currentrpp;
             (currentrpp, curveT) = StepSimulateRail(rail, curveT, velocity, _dtres);
             velocity = currentrpp.Velocity;
-            scalarPosition += velocity * _dtres;
+            scalarPosition = rail.rp.Length * (curveT - 0.05f);
             
             if(scalarPosition >= nextPositionToSaveProps)
             {

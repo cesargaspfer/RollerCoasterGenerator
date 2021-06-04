@@ -203,7 +203,15 @@ public class Translator : MonoBehaviour
 
     public string GetTranslation(string key)
     {
-        return _translations[key];
+        if(_translations.ContainsKey(key))
+        {
+            return _translations[key];
+        }
+        else
+        {
+            Debug.LogError("Error in GetTranslation: key '" + key + "' not found in " + _availableLanguages[PlayerPrefs.GetInt("language", 0)]);
+            return key;
+        }
     }
 
     // Read data from file

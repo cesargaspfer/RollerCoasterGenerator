@@ -78,9 +78,17 @@ StraightLength|Reto tamanho
 RotateHeight|Rotacionando altura
 RotateLength|Rotacionando tamanho
 Rotate|Rotacionando
+Curve|Curva
+Corkscrew|Saca Rolhas
+Sidewinder|Enrolador Lateral
+CobraRoll|Manobra da Cobra
+HorseShoe|Ferradura
+PretzelKnot|Nó de Pretzel
+PretzelCurve|Curva de Pretzel
 lengthScale|Escala
 orientation|Orientação
 railLength|Tamanho do Trilho
+loops|Inversões
 pieces|Peças
 relief|Relevo
 decoration|Decoração
