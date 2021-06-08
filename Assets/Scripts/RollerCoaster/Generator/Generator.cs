@@ -44,7 +44,11 @@ public class Generator
     private IEnumerator _statusCoroutine = null;
     private bool _generatorCanContinue = true;
     private bool _blueprintCanContinue = true;
-    private bool _finalizeCoaster = false;
+    private bool _finalizedCoaster = false;
+
+    private int _currentModelPartId;
+
+    private List<(string, string)> _model;
 
     public Generator(RollerCoaster rollerCoaster)
     {
@@ -53,6 +57,29 @@ public class Generator
         _isGenerating = false;
         // Generate();
         // _rc.GenerateCoaster();
+
+        _model = new List<(string, string)>() {
+            {("Plataform", "")},
+            {("Straight", "x;30;1000")},
+            {("Curve", "-1")},
+            {("Straight", "z;30;50")},
+            {("Curve", "-1")},
+            {("Straight", "x;-50;-100")},
+            {("Curve", "-1")},
+            {("Straight", "z;20;0")},
+            {("Curve", "-1")},
+            {("Straight", "x;-40;-30")},
+            {("End", "")},
+        };
+        // _model = new List<(string, string)>() {
+        //     {("Plataform", "")},
+        //     {("Straight", "x;50;1000")},
+        //     {("Turn", "-1")},
+        //     {("Straight", "x;-50;-100")},
+        //     {("Turn", "-1")},
+        //     {("Straight", "x;-40;-30")},
+        //     {("End", "")},
+        // };
     }
 
     public void Generate()
@@ -80,15 +107,14 @@ public class Generator
         _blueprintCanContinue = true;
         _generatorCanContinue = true;
 
-        _finalizeCoaster = false;
+        _finalizedCoaster = false;
 
-        while(!_finalizeCoaster)
+        _currentModelPartId = 0;
+        while(!_finalizedCoaster)
         {
             AddBluerpint();
             yield return new WaitUntil(() => _generatorCanContinue);
         }
-
-        FinalizeCoaster();
 
         _isGenerating = false;
     }
@@ -98,6 +124,7 @@ public class Generator
         _rollerCoaster.AddRail(false);
         _rollerCoaster.UpdateLastRailAdd(elevation: rp.Elevation, rotation: rp.Rotation, inclination: rp.Inclination);
         _rollerCoaster.UpdateLastRail(length: rp.Length, railType: (int) railType);
+        _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
         UpdateStatus();
     }
 
@@ -130,90 +157,203 @@ public class Generator
     private IEnumerator AddBluerpintCoroutine()
     {
 
-        // Filter possible blueprint types
-        (List<string> possibleTypes, List<float> cumulativeProbs) = FilterPossibleBlueprints();
-        
-        // Drawn a possible type
-        (int typeId, Blueprint blueprint) = DrawnBlueprintType(possibleTypes, cumulativeProbs);
-
-        // Drown a subtype
-        (int subtypeId, string bpSubtype) = DrawnBlueprintSubtype(blueprint);
+        (string elementType, string posRestrictions) = _model[_currentModelPartId];
+        Debug.Log("index: " + _currentModelPartId + " h: " + _status.sp.Position.y + " v: " + _status.rp.Final.Velocity);
 
 
-        // Randomize parameters
-        // Dictionary<string, float> bpParams = RandomizeBlueprintParams(blueprint, bpSubtype);
-        Dictionary<string, float> bpParams = blueprint.GenerateParams(bpSubtype, _rollerCoaster, _status.sp, _status.rp);
-
-        // Debug.Log(blueprint.Name + " " + bpSubtype);
-        // foreach(string key in bpParams.Keys)
-        // {
-        //     Debug.Log(key + " " + bpParams[key]);
-        // }
-
-        // Add blueprint rails
-        List<(RailProps, RailType)> rails = blueprint.GetBlueprint(bpSubtype, bpParams);
-
-        for(int i = 0; i < rails.Count; i++)
+        if(elementType.Equals("End"))
         {
-            (RailProps rp, RailType railType) = rails[i];
-            AddRail(rp, railType);
-            yield return new WaitUntil(() => _blueprintCanContinue);
+            _rollerCoaster.AddRail(false);
+            _rollerCoaster.AddFinalRail();
+            _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 2);
+            _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
+            _finalizedCoaster = true;
+            _currentModelPartId++;
         }
+        else 
+        {
+            List<(RailProps, RailType)> rails = null;
 
-        if(_status.totalLength >= 1000f)
-            _finalizeCoaster = true;
+            if(elementType.Equals("Plataform"))
+            {
+                Dictionary<string, float> bpParams = new Dictionary<string, float>() {
+                    {"length", 5},
+                };
+                rails = _blueprintManager.GetElement("Plataform").GetBlueprint("Plataform", bpParams);
+            }
+            else
+            {
+                // Filter possible blueprint elements
+                (List<string> possibleElements, List<float> cumulativeProbs) = FilterPossibleBlueprints(elementType);
 
+                for(int i = 0; i < possibleElements.Count; i++)
+                {
+                    Debug.Log(possibleElements[i] + " " + cumulativeProbs[i]);
+                }
+                // Drawn a possible element
+                (string bpElement, Blueprint blueprint) = DrawnBlueprintElement(possibleElements, cumulativeProbs);
+
+                // Drown a subtype
+                (string bpSubtype, string parRestrictionsString) = DrawnBlueprintSubtype(elementType, bpElement);
+
+
+                // Randomize parameters
+                // Dictionary<string, float> bpParams = RandomizeBlueprintParams(blueprint, bpSubtype);
+                Dictionary<string, float> bpParams = blueprint.GenerateParams(bpSubtype, _rollerCoaster, _status.sp, _status.rp);
+
+                if(!parRestrictionsString.Equals(""))
+                {
+                    string[] parRestrictions = parRestrictionsString.Split(';');
+                    foreach(string s in parRestrictions)
+                    {
+                        string[] splited = s.Split('=');
+                        bpParams[splited[0]] = float.Parse(splited[1]);
+                    }
+                }
+                if(elementType.Equals("Curve") || elementType.Equals("Turn"))
+                {
+                    bpParams["orientation"] = int.Parse(posRestrictions);
+                    Debug.Log(elementType + " orientation = " + posRestrictions);
+                }
+
+                // Debug.Log(blueprint.Name + " " + bpSubtype);
+                // foreach(string key in bpParams.Keys)
+                // {
+                //     Debug.Log(key + " " + bpParams[key]);
+                // }
+
+                rails = blueprint.GetBlueprint(bpSubtype, bpParams);
+            }
+
+            float previousPos = 0f;
+            if (elementType.Equals("Straight"))
+            {
+                previousPos = posRestrictions.Split(';')[0].Equals("x") ? _status.sp.Position.x : _status.sp.Position.z;
+            }
+
+            for (int i = 0; i < rails.Count; i++)
+            {
+                (RailProps rp, RailType railType) = rails[i];
+                AddRail(rp, railType);
+                yield return new WaitUntil(() => _blueprintCanContinue);
+            }
+
+            if(!elementType.Equals("Straight"))
+            {
+                _currentModelPartId++;
+            }
+            // TODO: Fix
+            else {
+                string[] splitedRestrictions = posRestrictions.Split(';');
+                float curPos = splitedRestrictions[0].Equals("x") ? _status.sp.Position.x : _status.sp.Position.z;
+                int minPos = int.Parse(splitedRestrictions[1]);
+                int maxPos = int.Parse(splitedRestrictions[2]);
+                Debug.Log("POS " + previousPos + " " + curPos + " " + minPos + " " + maxPos);
+                if(maxPos - minPos > 0)
+                {
+                    if (curPos > minPos)
+                    {
+                        if(curPos > maxPos)
+                        {
+                            for (int i = 0; i < rails.Count; i++)
+                            {
+                                _rollerCoaster.RemoveLastRail(false);
+                            }
+                            AddRail(new RailProps(0f, 0f, 0f, Mathf.Abs(maxPos - previousPos)), RailType.Normal);
+                            yield return new WaitUntil(() => _blueprintCanContinue);
+                        }
+                        
+                        _currentModelPartId++;
+                    }
+                }
+                else
+                {
+                    if (curPos < minPos)
+                    {
+                        if (curPos < maxPos)
+                        {
+                            for (int i = 0; i < rails.Count; i++)
+                            {
+                                _rollerCoaster.RemoveLastRail();
+                            }
+                            AddRail(new RailProps(0f, 0f, 0f, Mathf.Abs(maxPos - previousPos)), RailType.Normal);
+                            yield return new WaitUntil(() => _blueprintCanContinue);
+                        }
+                        _currentModelPartId++;
+                    }
+                }
+            }
+        }
         _generatorCanContinue = true;
     }
 
-    private (List<string>, List<float>) FilterPossibleBlueprints()
+    private (List<string>, List<float>) FilterPossibleBlueprints(string elementType)
     {
-        List<string> possibleTypes = new List<string>();
-        List<float> typeCumulativeProbabilities = new List<float>();
+        List<string> possibleElements = new List<string>();
+        List<float> elementCumulativeProbabilities = new List<float>();
 
-        List<string> types = _blueprintManager.GetTypeNames();
-        foreach (string keyType in types)
+        List<(string, string, string)> elements = _blueprintManager.GetElementsByType(elementType);
+
+        List<string> elementNames = new List<string>();
+
+        for(int i = 0; i < elements.Count; i++)
         {
-            float probability = _blueprintManager.GetType(keyType).GetProbability(_status.sp, _status.rp);
+            (string name, _, _) = elements[i];
+            if(elementNames.Count > 0 && name.Equals(elementNames[elementNames.Count -1]))
+                continue;
+            elementNames.Add(name);
+        }
+
+        foreach (string keyElement in elementNames)
+        {
+            float probability = _blueprintManager.GetElement(keyElement).GetProbability(_status.sp, _status.rp);
             if (probability > 0f)
             {
-                possibleTypes.Add(keyType);
-                if (possibleTypes.Count == 1)
-                    typeCumulativeProbabilities.Add(probability);
+                possibleElements.Add(keyElement);
+                if (possibleElements.Count == 1)
+                    elementCumulativeProbabilities.Add(probability);
                 else
-                    typeCumulativeProbabilities.Add(probability + typeCumulativeProbabilities[possibleTypes.Count - 2]);
+                    elementCumulativeProbabilities.Add(probability + elementCumulativeProbabilities[possibleElements.Count - 2]);
             }
         }
-        return (possibleTypes, typeCumulativeProbabilities);
+        return (possibleElements, elementCumulativeProbabilities);
     }
 
-    private (int, Blueprint) DrawnBlueprintType(List<string> possibleTypes, List<float> cumulativeProbs)
+    private (string, Blueprint) DrawnBlueprintElement(List<string> possibleElements, List<float> cumulativeProbs)
     {
         float drawn = Random.Range(0f, cumulativeProbs[cumulativeProbs.Count - 1]);
-        int drawnTypeId = 0;
-        for (int i = 0; i < possibleTypes.Count; i++)
+        int drawnElementId = 0;
+        for (int i = 0; i < possibleElements.Count; i++)
         {
             if (drawn < cumulativeProbs[i])
                 break;
             else
-                drawnTypeId++;
+                drawnElementId++;
         }
-        if (drawnTypeId >= possibleTypes.Count)
-            drawnTypeId = possibleTypes.Count - 1;
+        if (drawnElementId >= possibleElements.Count)
+            drawnElementId = possibleElements.Count - 1;
 
-        string bpType = possibleTypes[drawnTypeId];
-        Blueprint blueprint = _blueprintManager.GetType(bpType);
+        string bpElement = possibleElements[drawnElementId];
+        Blueprint blueprint = _blueprintManager.GetElement(bpElement);
 
-        return (drawnTypeId, blueprint);
+        return (bpElement, blueprint);
     }
 
-    private (int, string) DrawnBlueprintSubtype(Blueprint blueprint)
+    private (string, string) DrawnBlueprintSubtype(string elementType, string drawnElement)
     {
-        List<string> subtypes = blueprint.GetGenerationSubtypeNames();
-        int drawnSubtypes = Random.Range(0, subtypes.Count);
-        string bpSubtype = subtypes[drawnSubtypes];
-        
-        return (drawnSubtypes, bpSubtype);
+        List<(string, string, string)> elements = _blueprintManager.GetElementsByType(elementType);
+
+        List<(string, string)> subtypes = new List<(string, string)>();
+        for(int i = 0; i < elements.Count; i++)
+        {
+            (string type, string subtype, string restrictions) = elements[i];
+            if(type.Equals(drawnElement))
+                subtypes.Add((subtype, restrictions));
+        }
+        int drawn = Random.Range(0, subtypes.Count);
+        Debug.Log(elementType + " " + drawnElement + " " + subtypes.Count + " " + drawn);
+        Debug.Log(subtypes[drawn]);
+        return subtypes[drawn];
     }
 
     private Dictionary<string, float> RandomizeBlueprintParams(Blueprint blueprint, string bpSubtype)
@@ -236,12 +376,6 @@ public class Generator
         }
 
         return bpParams;
-    }
-
-    private void FinalizeCoaster()
-    {
-        // TODO
-        _finalizeCoaster = false;
     }
 
     private void GenerateCurveMax90(float rotation)

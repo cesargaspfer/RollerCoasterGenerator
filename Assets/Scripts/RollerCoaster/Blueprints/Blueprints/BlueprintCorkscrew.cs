@@ -38,7 +38,7 @@ public class BlueprintCorkscrew : Blueprint
         int orientation = Random.Range(-1, 1) * 2 + 1;
         float lengthScale = rp.Final.Velocity / 12f;
         lengthScale = Random.Range(Mathf.Max(lengthScale * 0.9f, 1f), lengthScale);
-        int loops = Random.Range(1, 6);
+        int loops = Random.Range(1, 4);
 
         Dictionary<string, float> paramsDict = new Dictionary<string, float>() {
             {"lengthScale", lengthScale},

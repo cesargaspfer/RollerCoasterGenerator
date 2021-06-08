@@ -60,8 +60,8 @@ public class UIBlueprint : MonoBehaviour
         _currentSubtype = 0;
         _currentRailPreviewCount = 0;
 
-        _typeNames = _blueprintManager.GetTypeNames();
-        _currentBlueprint = _blueprintManager.GetType(_typeNames[0]);
+        _typeNames = _blueprintManager.GetElementNames();
+        _currentBlueprint = _blueprintManager.GetElement(_typeNames[0]);
         _subtypeNames = _currentBlueprint.GetSubtypeNames();
         _blueprintParams = _currentBlueprint.GetParams();
 
@@ -187,7 +187,7 @@ public class UIBlueprint : MonoBehaviour
         _currentType = type;
         _typeDropdown.value = type;
 
-        _currentBlueprint = _blueprintManager.GetType(_typeNames[type]);
+        _currentBlueprint = _blueprintManager.GetElement(_typeNames[type]);
         _subtypeNames = _currentBlueprint.GetSubtypeNames();
         _blueprintParams = _currentBlueprint.GetParams();
         

@@ -252,9 +252,12 @@ public class RollerCoaster : MonoBehaviour
 
         for(int i = 0; i < savePack.Length; i++)
         {
-            this.AddRail(false);
             if(!savePack[i].IsFinalRail)
             {
+                if (i < savePack.Length - 1)
+                    this.AddRail(false);
+                else
+                    this.AddRail(true);
                 this.UpdateLastRail(
                     length: savePack[i].rp.Length,
                     railType: (int)savePack[i].Type
@@ -264,10 +267,12 @@ public class RollerCoaster : MonoBehaviour
                     rotation: savePack[i].rp.Rotation, 
                     inclination: savePack[i].rp.Inclination
                 );
-                GenerateSupports(i);
+                if (i < savePack.Length - 1)
+                    GenerateSupports(i);
             }
             else
             {
+                this.AddRail(false);
                 this.AddFinalRail((int) savePack[i].Type);
                 GenerateSupports(i);
                 GenerateSupports(i+1);

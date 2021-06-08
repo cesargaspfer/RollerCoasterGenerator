@@ -8,7 +8,7 @@ public class BlueprintHill : Blueprint
 
     public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
-        if (railPhysics.Final.Velocity > 10f)
+        if (railPhysics.Final.Velocity > 8f)
             return 1f;
         return 0f;
     }
@@ -76,6 +76,7 @@ public class BlueprintHill : Blueprint
             {"elevation", elevation},
             {"rotation", rotation},
             {"height", height},
+            {"length", height},
         };
 
         return paramsDict;

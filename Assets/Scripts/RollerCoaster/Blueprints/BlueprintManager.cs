@@ -25,6 +25,7 @@ public class BlueprintManager
             { "PretzelKnot", new BlueprintPretzelKnot() },
             { "PretzelCurve", new BlueprintPretzelCurve() },
             { "Straight", new BlueprintStraight() },
+            { "Plataform", new BlueprintPlataform() },
             
         };
 
@@ -32,9 +33,11 @@ public class BlueprintManager
         {
             {("Loop", "Straight", "")},
             {("Hill", "StraightHeight", "")},
-            {("Hill", "StraightLength", "")},
-            {("Corkscrew", "Corkscrew", "")},
+            // {("Hill", "StraightLength", "")},
+            {("Corkscrew", "Straight", "")},
             {("Straight", "Straight", "")},
+            {("Lever", "Straight", "")},
+            {("Fall", "Straight", "")},
 
         };
 
@@ -42,8 +45,10 @@ public class BlueprintManager
         {
             {("Curve", "Curve", "rotation=90")},
             {("Hill", "RotateHeight", "rotation=90")},
-            {("Hill", "RotateLength", "rotation=90")},
+            // {("Hill", "RotateLength", "rotation=90")},
             {("Sidewinder", "Sidewinder", "")},
+            {("Lever", "Rotate", "rotation=30;pieces=3")},
+            {("Fall", "Rotate", "rotation=30;pieces=3")},
 
         };
 
@@ -51,37 +56,34 @@ public class BlueprintManager
         {
             {("Curve", "Curve", "rotation=180")},
             {("Hill", "RotateHeight", "rotation=180")},
-            {("Hill", "RotateLength", "rotation=180")},
+            // {("Hill", "RotateLength", "rotation=180")},
             {("CobraRoll", "CobraRoll", "")},
             {("HorseShoe", "HorseShoe", "")},
             {("PretzelKnot", "PretzelKnot", "")},
             {("PretzelCurve", "PretzelCurve", "")},
+            {("Lever", "Rotate", "rotation=60;pieces=3")},
+            {("Fall", "Rotate", "rotation=60;pieces=3")},
 
         };
     }
 
-    public List<string> GetTypeNames()
+    public List<string> GetElementNames()
     {
         return new List<string>(_blueprintDict.Keys);
     }
 
-    public Blueprint GetType(string type)
+    public Blueprint GetElement(string element)
     {
-        return _blueprintDict[type];
+        return _blueprintDict[element];
     }
 
-    public List<(string, string, string)> GetStraitBps()
+    public List<(string, string, string)> GetElementsByType(string type)
     {
-        return _straitBps;
-    }
-
-    public List<(string, string, string)> GetCurveBps()
-    {
-        return _curveBps;
-    }
-
-    public List<(string, string, string)> GetTurnBps()
-    {
-        return _turnBps;
+        if(type.Equals("Straight"))
+            return _straitBps;
+        else if (type.Equals("Curve"))
+            return _curveBps;
+        else
+            return _turnBps;
     }
 }

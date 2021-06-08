@@ -68,6 +68,7 @@ warnAutocomplete|Não é possível autocompletar nessa disposição!
 warnComplete|A montanha-russa já esta completa!
 warnIsGenerating|Espere a montanha-russa terminar de ser gerada!
 coasterExists|Já existe uma montanha-russa com o mesmo nome. Deseja substituí-la?
+Plataform|Plataforma
 Lever|Alavanca
 Fall|Queda
 Loop|Loop

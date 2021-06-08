@@ -3,20 +3,18 @@ using UnityEngine;
 using static Algebra;
 using static RailModelProperties;
 
-public class BlueprintStraight : Blueprint
+public class BlueprintPlataform : Blueprint
 {
-    public BlueprintStraight() { }
+    public BlueprintPlataform() { }
 
     public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
-        if (spaceProps.Position.y <= 10f)
-            return 0.1f;
         return 0f;
     }
 
     public override List<string> GetSubtypeNames()
     {
-        List<string> names = new List<string>() { "Straight" };
+        List<string> names = new List<string>() { "Plataform" };
 
         return names;
     }
@@ -25,8 +23,8 @@ public class BlueprintStraight : Blueprint
     {
         Dictionary<string, Dictionary<string, string>> dict = new Dictionary<string, Dictionary<string, string>>();
 
-        dict["Straight"] = new Dictionary<string, string>() {
-            {"length", "1;5;50;10;m"},
+        dict["Plataform"] = new Dictionary<string, string>() {
+            {"length", "0;5;5;5;m"},
         };
 
         return dict;
@@ -34,7 +32,7 @@ public class BlueprintStraight : Blueprint
 
     public override Dictionary<string, float> GenerateParams(string subtype, RollerCoaster rollerCoaster, SpaceProps sp, RailPhysics rp)
     {
-        float length = Random.Range(1f, 5f);
+        float length = 5;
 
         Dictionary<string, float> paramsDict = new Dictionary<string, float>() {
             {"length", length},
@@ -47,31 +45,31 @@ public class BlueprintStraight : Blueprint
     {
         switch (type)
         {
-            case "Straight":
-                return Straight(dict);
+            case "Plataform":
+                return Plataform(dict);
             default:
                 Debug.LogError("Type not found in BlueprintLever.GetBlueprint");
                 return null;
         }
     }
 
-    public static List<(RailProps, RailType)> Straight(Dictionary<string, float> dict)
+    public static List<(RailProps, RailType)> Plataform(Dictionary<string, float> dict)
     {
-        return Straight(dict["length"]);
+        return Plataform(dict["length"]);
     }
 
-    public static List<(RailProps, RailType)> Straight(float length)
+    public static List<(RailProps, RailType)> Plataform(float length)
     {
 
         List<(RailProps, RailType)> rails = new List<(RailProps, RailType)>();
 
-        rails.Add((new RailProps(0f, 0f, 0f, length), RailType.Normal));
+        rails.Add((new RailProps(0f, 0f, 0f, length), RailType.Platform));
 
         return rails;
     }
 
     public override string Name
     {
-        get { return "Straight"; }
+        get { return "Plataform"; }
     }
 }
