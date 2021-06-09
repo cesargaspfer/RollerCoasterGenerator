@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿using System.Text;
+using System.IO;
+using System.Collections;
+using System.Globalization;
 using System.Collections.Generic;
 using UnityEngine;
 using static RailModelProperties;
@@ -42,7 +45,7 @@ public class RollerCoaster : MonoBehaviour
         SpaceProps sp = new SpaceProps(Vector3.up, Matrix4x4.identity);
         _constructor = new Constructor(this, rp, mp, sp);
         _carSimulation = null;
-        _simulator = new Simulator(this, 1f / 40f, 0, 1);
+        _simulator = new Simulator(this, 1f / 60f, 0, 1);
         _blueprintManager = new BlueprintManager();
         _isComplete = false;
         _heatmapValue = -1;
@@ -438,5 +441,163 @@ public class RollerCoaster : MonoBehaviour
     public bool IsGenerating()
     {
         return _generator.IsGenerating;
+    }
+
+    private bool _testBlueprintsMinVelocityCoroutineCanContinue = false;
+    private bool _testAllBlueprintParamsCanContinue = false;
+    private float _testBpVel = 5f;
+
+    public void TestBlueprintsMinVelocity()
+    {
+        StartCoroutine(TestBlueprintsMinVelocityCoroutine());
+    }
+
+    public IEnumerator TestBlueprintsMinVelocityCoroutine()
+    {
+        List<string> elements = _blueprintManager.GetElementNames();
+
+        for (int i = 0; i < elements.Count; i++)
+        {
+            if (elements[i].Equals("Lever") || elements[i].Equals("Fall") || elements[i].Equals("Curve") || elements[i].Equals("Straight") || elements[i].Equals("Plataform"))
+                continue;
+            if(!elements[i].Equals("Hill"))
+                continue;
+            _testBlueprintsMinVelocityCoroutineCanContinue = false;
+            StartCoroutine(TestAllBlueprintParams(_blueprintManager.GetElement(elements[i])));
+            yield return new WaitUntil(() => _testBlueprintsMinVelocityCoroutineCanContinue);
+        }
+
+        Debug.Log("Done Testing Blueprint Params!");
+    }
+
+
+    public IEnumerator TestAllBlueprintParams(Blueprint bp)
+    {
+        string subtype = bp.GetSubtypeNames()[0];
+        if(bp.Name.Equals("Hill"))
+            subtype = "StraightLength";
+
+        Dictionary<string, string> bpParamsProps = bp.GetParams()[subtype];
+        List<(string, float, float, float)> paramsRest = new List<(string, float, float, float)>();
+
+        Dictionary<string, float> bpParams = new Dictionary<string, float>();
+        bpParams["orientation"] = 1;
+        List<string> paramsToCheck = new List<string>();
+
+        foreach (string paramKey in bpParamsProps.Keys)
+        {
+            if(paramKey.Equals("orientation"))
+                continue;
+            string[] paramProps = bpParamsProps[paramKey].Split(';');
+            float intercalationValue = float.Parse(paramProps[0], CultureInfo.InvariantCulture.NumberFormat);
+            float minValue = float.Parse(paramProps[1], CultureInfo.InvariantCulture.NumberFormat);
+            float maxValue = float.Parse(paramProps[2], CultureInfo.InvariantCulture.NumberFormat);
+
+
+            paramsRest.Add((paramKey, intercalationValue, minValue, maxValue));
+            bpParams[paramKey] = minValue;
+            paramsToCheck.Add(paramKey);
+        }
+
+        StringBuilder csv = new StringBuilder();
+        string line = "";
+        foreach(string key in paramsToCheck)
+        {
+            line += key + ";";
+        }
+        line += "velocity";
+        csv.AppendLine(line);
+
+        _testAllBlueprintParamsCanContinue = false;
+        StartCoroutine(TestBlueprintParams(bp, subtype, bpParams, 5f));
+        yield return new WaitUntil(() => _testAllBlueprintParamsCanContinue);
+
+        float minVel = _testBpVel;
+        line = "";
+        foreach (string key in paramsToCheck)
+        {
+            line += Mathf.Round(bpParams[key] * 10) / 10f + ";";
+        }
+        line += Mathf.RoundToInt(_testBpVel * 10) / 10f;
+        csv.AppendLine(line);
+
+        // TODO: Loop
+        while(true)
+        {
+            // Change Params
+            int index = paramsToCheck.Count - 1;
+            while(true)
+            {
+                (string name, float intercalationValue, float minValue, float maxValue) = paramsRest[index];
+                bpParams[name] += intercalationValue;
+                if(bpParams[name] > maxValue)
+                {
+                    bpParams[name] = minValue;
+                    minVel = 5f;
+                    index--;
+                    if (index < 0)
+                        break;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            if(index < 0)
+                break;
+
+            _testAllBlueprintParamsCanContinue = false;
+            StartCoroutine(TestBlueprintParams(bp, subtype, bpParams, minVel));
+            yield return new WaitUntil(() => _testAllBlueprintParamsCanContinue);
+
+            minVel = _testBpVel;
+            line = "";
+            foreach (string key in paramsToCheck)
+            {
+                line += Mathf.Round(bpParams[key] * 10) / 10f + ";";
+            }
+            line += Mathf.RoundToInt(_testBpVel * 10) / 10f;
+            csv.AppendLine(line);
+        }
+
+
+        File.WriteAllText("Results/" + bp.Name + ".csv", csv.ToString());
+        _testBlueprintsMinVelocityCoroutineCanContinue = true;
+    }
+
+    public IEnumerator TestBlueprintParams(Blueprint bp, string subtype, Dictionary<string, float> bpParams, float startVel)
+    {
+        if (_simulator.IsSimulating)
+            StopCarSimulation();
+        float railsCount = _constructor.Rails.Count;
+        for (int i = 0; i < railsCount; i++)
+        {
+            this.RemoveLastRail(false);
+        }
+
+        List<(RailProps, RailType)> bpRails = bp.GetBlueprint(subtype, bpParams);
+        AddBlueprint(bpRails, false);
+        AddRail(false);
+        UpdateLastRail(railType: 0);
+        _testBpVel = startVel;
+
+        while(true)
+        {
+            _simulator.InitialRailPhysics.Final = new RailPhysics.Props(_testBpVel, _simulator.InitialRailPhysics.Final.GForce);
+            StartCarSimulation();
+
+            yield return new WaitUntil(() => {
+                return _simulator.FirstCarVelocity <= 0.5f || _simulator.FirstCarLap >= 1;
+            });
+
+            if(_simulator.FirstCarLap >= 1)
+                break;
+            _testBpVel += 0.5f;
+
+            StopCarSimulation();
+        }
+        StopCarSimulation();
+
+        _testAllBlueprintParamsCanContinue = true;
     }
 }

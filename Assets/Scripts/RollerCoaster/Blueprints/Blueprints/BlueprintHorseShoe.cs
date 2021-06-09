@@ -8,7 +8,7 @@ public class BlueprintHorseShoe : Blueprint
 
     public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
-        if (railPhysics.Final.Velocity > 10f)
+        if (railPhysics.Final.Velocity >= 17f)
             return 1f;
         return 0f;
     }
@@ -35,8 +35,8 @@ public class BlueprintHorseShoe : Blueprint
     public override Dictionary<string, float> GenerateParams(string subtype, RollerCoaster rollerCoaster, SpaceProps sp, RailPhysics rp)
     {
         int orientation = Random.Range(-1, 1) * 2 + 1;
-        float lengthScale = rp.Final.Velocity / 12f;
-        lengthScale = Random.Range(Mathf.Max(lengthScale * 0.9f, 1f), lengthScale);
+        float MaxLengthScale = 0.6f + (rp.Final.Velocity - 18f) * 0.1f;
+        float lengthScale = Random.Range(Mathf.Max(MaxLengthScale, 1f), Mathf.Min(MaxLengthScale, 1.9f));
 
         Dictionary<string, float> paramsDict = new Dictionary<string, float>() {
             {"lengthScale", lengthScale},

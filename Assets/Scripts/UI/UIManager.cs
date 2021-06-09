@@ -104,20 +104,22 @@ public class UIManager : MonoBehaviour
         else
         {
             _rollerCoaster.Initialize();
-            if (_constructorPannelState == 0)
-            {
-                _rollerCoaster.AddRail(false);
-                _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
-                _rollerCoaster.AddRail(true);
-                _lasRailType = 1;
-                _railTypeDropdown.value = 1;
-                _rollerCoaster.UpdateLastRail(railType: 1);
-                ConstructionArrows.inst.Initialize(_rollerCoaster);
-            }
-            else
-            {        
-                _rollerCoaster.GenerateCoaster();
-            }
+            _rollerCoaster.TestBlueprintsMinVelocity();
+
+            // if (_constructorPannelState == 0)
+            // {
+            //     _rollerCoaster.AddRail(false);
+            //     _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
+            //     _rollerCoaster.AddRail(true);
+            //     _lasRailType = 1;
+            //     _railTypeDropdown.value = 1;
+            //     _rollerCoaster.UpdateLastRail(railType: 1);
+            //     ConstructionArrows.inst.Initialize(_rollerCoaster);
+            // }
+            // else
+            // {        
+            //     _rollerCoaster.GenerateCoaster();
+            // }
 
             ShowPannel(_constructorPannelState, false);
 

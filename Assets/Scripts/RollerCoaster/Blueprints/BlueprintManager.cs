@@ -32,7 +32,7 @@ public class BlueprintManager
         _straitBps = new List<(string, string, string)>()
         {
             {("Loop", "Straight", "")},
-            {("Hill", "StraightHeight", "")},
+            {("Hill", "StraightLength", "")},
             // {("Hill", "StraightLength", "")},
             {("Corkscrew", "Straight", "")},
             {("Straight", "Straight", "")},
@@ -44,7 +44,7 @@ public class BlueprintManager
         _curveBps = new List<(string, string, string)>()
         {
             {("Curve", "Curve", "rotation=90")},
-            {("Hill", "RotateHeight", "rotation=90")},
+            {("Hill", "RotateLength", "rotation=90")},
             // {("Hill", "RotateLength", "rotation=90")},
             {("Sidewinder", "Sidewinder", "")},
             {("Lever", "Rotate", "rotation=30;pieces=3")},
@@ -55,7 +55,7 @@ public class BlueprintManager
         _turnBps = new List<(string, string, string)>()
         {
             {("Curve", "Curve", "rotation=180")},
-            {("Hill", "RotateHeight", "rotation=180")},
+            {("Hill", "RotateLength", "rotation=180")},
             // {("Hill", "RotateLength", "rotation=180")},
             {("CobraRoll", "CobraRoll", "")},
             {("HorseShoe", "HorseShoe", "")},

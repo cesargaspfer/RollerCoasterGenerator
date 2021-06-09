@@ -86,7 +86,7 @@ public class Simulator
             Vector3 vectorPos = curve.Sample(currentCurveT);
             Quaternion rotation = currentRail.GetQuaternionAt(currentCurveT);
 
-            _cars[i].UpdatePhysics(currentPos, 0f, Vector3.up, currentSegment, currentLap, currentCurveT, distance);
+            _cars[i].UpdatePhysics(currentPos, _initialrp.Final.Velocity, Vector3.up, currentSegment, currentLap, currentCurveT, distance);
             _cars[i].Transform(vectorPos, rotation);
         }
 
@@ -347,14 +347,15 @@ public class Simulator
             RailPhysics.Props currentrpp;
             (currentrpp, curveT) = StepSimulateRail(rail, curveT, velocity, _dtres);
             velocity = currentrpp.Velocity;
-            scalarPosition = rail.rp.Length * (curveT - 0.05f);
+            scalarPosition = rail.rp.Length * curveT;
             
             if(scalarPosition >= nextPositionToSaveProps)
             {
                 // TODO: Interpolate
                 while(nextPositionToSaveProps <= scalarPosition && nextPositionToSaveProps < physicsAlongRail.Length)
                 {
-                    physicsAlongRail[nextPositionToSaveProps++] = currentrpp;
+                    physicsAlongRail[nextPositionToSaveProps] = currentrpp;
+                    nextPositionToSaveProps++;
                 }
             }
 
@@ -362,8 +363,12 @@ public class Simulator
             {
                 interations++;
             }
+            else
+            {
+                interations = 0;
+            }
 
-            if(velocity <= 0 || scalarPosition > rail.rp.Length || curveT > 1f || interations > 25)
+            if(velocity <= 0 || curveT > 1f || interations > 25)
             {
                 currentRailPhysics.Final = currentrpp;
                 currentRailPhysics.CarCompletedSegment = velocity > 0;
@@ -371,9 +376,11 @@ public class Simulator
                 {
                     while (nextPositionToSaveProps < physicsAlongRail.Length)
                     {
-                        physicsAlongRail[nextPositionToSaveProps++] = currentrpp;
+                        physicsAlongRail[nextPositionToSaveProps] = currentrpp;
+                        nextPositionToSaveProps++;
                     }
                 }
+                physicsAlongRail[physicsAlongRail.Length - 1] = currentrpp;
                 break;
             }
 
@@ -450,7 +457,7 @@ public class Simulator
     private float CalculateAccelerationRail(Rail rail, float curveT, float dt, float velocity)
     {
         float newCurveT = rail.sp.Curve.GetNextT(curveT, dt * velocity);
-        float acceleration = CalculateAcceleration(rail, newCurveT, velocity, dt) * 0.5f;
+        float acceleration = CalculateAcceleration(rail, newCurveT, velocity, dt);
         return acceleration;
     }
 
@@ -497,6 +504,36 @@ public class Simulator
         get { return _isSimulating; }
     }
 
+    public int FirstCarLap
+    {
+        get
+        {
+            if (_cars != null && _cars.Length > 0)
+            {
+                return _cars[0].CurrentLap;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+    }
+
+    public float FirstCarVelocity
+    {
+        get
+        {
+            if (_cars != null && _cars.Length > 0)
+            {
+                return _cars[0].Velocity;
+            }
+            else
+            {
+                return 0f;
+            }
+        }
+    }
+
     public Transform FirstCar
     {
         get
@@ -509,6 +546,14 @@ public class Simulator
             {
                 return null;
             }
+        }
+    }
+
+    public RailPhysics InitialRailPhysics
+    {
+        get
+        {
+            return _initialrp;
         }
     }
 

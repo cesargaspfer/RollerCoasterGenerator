@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using static RailModelProperties;
 
@@ -8,8 +8,8 @@ public class BlueprintHill : Blueprint
 
     public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
-        if (railPhysics.Final.Velocity > 8f)
-            return 1f;
+        if (railPhysics.Final.Velocity >= 8f)
+            return 0.3f;
         return 0f;
     }
 
@@ -58,25 +58,19 @@ public class BlueprintHill : Blueprint
 
     public override Dictionary<string, float> GenerateParams(string subtype, RollerCoaster rollerCoaster, SpaceProps sp, RailPhysics rp)
     {
-        float elevation = ((int)Random.Range(3, 5));
-        float rotation = ((int)Random.Range(-6, 7));
-        if ((int)Random.Range(-1, 1) == 0)
-        {
-            rotation = ((int)Random.Range(-12, 13));
-        }
+        int maxElevation = Mathf.Min((int)((rp.Final.Velocity - 8f) * 0.5f), 5);
+        float elevation = ((int)Random.Range(0, maxElevation + 1));
 
-        float maxHeight = rp.Final.Velocity * (rp.Final.Velocity / (19.6f * 0.9f));
+        float maxLength = Mathf.Min(80f, 20f + (rp.Final.Velocity - 8f - 2f * elevation) * 60 / (6f + 2f * elevation));
 
-        float height = Random.Range(maxHeight * 0.5f, maxHeight);
+        float length = Random.Range(20f, Mathf.Max(20f, maxLength));
 
-        elevation *= 15f;
-        rotation *= 15f;
+        elevation++;
+        elevation *= 15;
 
         Dictionary<string, float> paramsDict = new Dictionary<string, float>() {
             {"elevation", elevation},
-            {"rotation", rotation},
-            {"height", height},
-            {"length", height},
+            {"length", length},
         };
 
         return paramsDict;

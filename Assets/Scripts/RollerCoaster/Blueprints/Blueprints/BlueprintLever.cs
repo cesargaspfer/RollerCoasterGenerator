@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using static Algebra;
 using static RailModelProperties;
@@ -10,9 +10,9 @@ public class BlueprintLever : Blueprint
     public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
         Debug.Log("Aki");
-        if (spaceProps.Position.y <= 4f && railPhysics.Final.Velocity <= 4f)
+        if (spaceProps.Position.y <= 4f && railPhysics.Final.Velocity <= 6f)
             return 100f;
-        if(railPhysics.Final.Velocity <= 4f)
+        if(railPhysics.Final.Velocity <= 7f)
             return 1f;
         return 0f;
     }
@@ -58,7 +58,7 @@ public class BlueprintLever : Blueprint
         }
         float maxHeight = Mathf.Max(20f, 50f - sp.Position.y);
         float height = Random.Range(20f, maxHeight);
-        float pieces = (int)Random.Range(2 + ((int)height - 20) / 20, 8);
+        float pieces = (int)Random.Range(4 + ((int)height - 20) / 20, 8);
 
         Dictionary<string, float> paramsDict = new Dictionary<string, float>() {
             {"elevation", elevation},

@@ -164,6 +164,7 @@ public class Generator
         if(elementType.Equals("End"))
         {
             _rollerCoaster.AddRail(false);
+            _rollerCoaster.UpdateLastRail(railType: 1);
             _rollerCoaster.AddFinalRail();
             _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 2);
             _rollerCoaster.GenerateSupports(_rollerCoaster.GetRailsCount() - 1);
