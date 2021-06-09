@@ -9,7 +9,6 @@ public class BlueprintLever : Blueprint
 
     public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
-        Debug.Log("Aki");
         if (spaceProps.Position.y <= 4f && railPhysics.Final.Velocity <= 6f)
             return 100f;
         return 0f;
