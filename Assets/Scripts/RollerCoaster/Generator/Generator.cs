@@ -48,6 +48,8 @@ public class Generator
 
     private int _currentModelPartId;
 
+    private List<List<(string, string)>> _models;
+
     private List<(string, string)> _model;
 
     public Generator(RollerCoaster rollerCoaster)
@@ -55,31 +57,99 @@ public class Generator
         _rollerCoaster = rollerCoaster;
         _blueprintManager = _rollerCoaster.GetBlueprintManager();
         _isGenerating = false;
-        // Generate();
-        // _rc.GenerateCoaster();
 
-        _model = new List<(string, string)>() {
-            {("Plataform", "")},
-            {("Straight", "x;30;1000")},
-            {("Curve", "-1")},
-            {("Straight", "z;30;50")},
-            {("Curve", "-1")},
-            {("Straight", "x;-50;-100")},
-            {("Curve", "-1")},
-            {("Straight", "z;20;0")},
-            {("Curve", "-1")},
-            {("Straight", "x;-40;-30")},
-            {("End", "")},
+        _models = new List<List<(string, string)>>() {
+            {
+                // Big Circle
+                new List<(string, string)>()
+                {
+                    {("Plataform", "")},
+                    {("Straight", "x;30;1000")},
+                    {("Curve", "-1")},
+                    {("Straight", "z;30;50")},
+                    {("Curve", "-1")},
+                    {("Straight", "x;-50;-100")},
+                    {("Curve", "-1")},
+                    {("Straight", "z;20;0")},
+                    {("Curve", "-1")},
+                    {("Straight", "x;-50;-40")},
+                    {("End", "")},
+                }
+            },
+            {
+                // Small Circle
+                new List<(string, string)>()
+                {
+                    {("Plataform", "")},
+                    {("Straight", "x;30;100")},
+                    {("Curve", "-1")},
+                    {("Straight", "z;10;20")},
+                    {("Curve", "-1")},
+                    {("Straight", "x;-40;-50")},
+                    {("Curve", "-1")},
+                    {("Straight", "z;20;10")},
+                    {("Curve", "-1")},
+                    {("Straight", "x;-50;-40")},
+                    {("End", "")},
+                }
+            },
+            {
+                // T
+                new List<(string, string)>()
+                {
+                    {("Plataform", "")},
+                    {("Curve", "1")},
+                    {("Straight", "z;-70;-150")},
+                    {("Curve", "-1")},
+                    {("Straight", "x;30;120")},
+                    {("Curve", "-1")},
+                    {("Straight", "z;20;30")},
+                    {("Curve", "1")},
+                    {("Turn", "-1")},
+                    {("Straight", "x;-30;-40")},
+                    {("Turn", "-1")},
+                    {("End", "")},
+                }
+            },
+            {
+                // Small Circle With Turm
+                new List<(string, string)>()
+                {
+                    {("Plataform", "")},
+                    {("Straight", "x;30;50")},
+                    {("Curve", "-1")},
+                    {("Straight", "z;10;20")},
+                    {("Curve", "-1")},
+                    {("Straight", "x;-20;-30")},
+                    {("Turn", "-1")},
+                    {("End", "")},
+                }
+            },
+            {
+                // U
+                new List<(string, string)>()
+                {
+                    {("Plataform", "")},
+                    {("Straight", "x;100;150")},
+                    {("Curve", "-1")},
+                    {("Straight", "z;100;150")},
+                    {("Curve", "-1")},
+                    {("Straight", "x;20;0")},
+                    {("Curve", "-1")},
+                    {("Straight", "z;50;40")},
+                    {("Curve", "1")},
+                    {("Curve", "1")},
+                    {("Straight", "z;100;150")},
+                    {("Curve", "-1")},
+                    {("Straight", "x;-100;-150")},
+                    {("Curve", "-1")},
+                    {("Straight", "z;20;10")},
+                    {("Curve", "-1")},
+                    {("Straight", "x;-50;-40")},
+                    {("End", "")},
+                }
+            },
         };
-        // _model = new List<(string, string)>() {
-        //     {("Plataform", "")},
-        //     {("Straight", "x;50;1000")},
-        //     {("Turn", "-1")},
-        //     {("Straight", "x;-50;-100")},
-        //     {("Turn", "-1")},
-        //     {("Straight", "x;-40;-30")},
-        //     {("End", "")},
-        // };
     }
 
     public void Generate()
@@ -109,7 +179,11 @@ public class Generator
 
         _finalizedCoaster = false;
 
+        _deletedBlueprints = 0;
         _currentModelPartId = 0;
+
+        _model = _models[Random.Range(0, _models.Count)];
+
         while(!_finalizedCoaster)
         {
             AddBluerpint();
@@ -154,6 +228,7 @@ public class Generator
         _rollerCoaster.StartChildCoroutine(_blueprintCoroutine);
     }
 
+    private int _deletedBlueprints = 0;
     private IEnumerator AddBluerpintCoroutine()
     {
 
@@ -217,6 +292,11 @@ public class Generator
                     Debug.Log(elementType + " orientation = " + posRestrictions);
                 }
 
+                if(bpElement.Equals("Fall"))
+                {
+                    bpParams["height"] = _status.sp.Position.y - 2;
+                }
+
                 // Debug.Log(blueprint.Name + " " + bpSubtype);
                 // foreach(string key in bpParams.Keys)
                 // {
@@ -260,11 +340,20 @@ public class Generator
                             {
                                 _rollerCoaster.RemoveLastRail(false);
                             }
-                            AddRail(new RailProps(0f, 0f, 0f, Mathf.Abs(maxPos - previousPos)), RailType.Normal);
+                            _deletedBlueprints++;
+                            if(_deletedBlueprints >= 5)
+                            {
+                                AddRail(new RailProps(0f, 0f, 0f, Mathf.Min(Mathf.Abs(maxPos - previousPos), 3f)), RailType.Normal);
+                            }
+                            UpdateStatus();
                             yield return new WaitUntil(() => _blueprintCanContinue);
                         }
-                        
-                        _currentModelPartId++;
+                        if (_deletedBlueprints >= 5)
+                        {
+                            _deletedBlueprints = 0;
+                            if(maxPos - previousPos <= 3f)
+                                _currentModelPartId++;
+                        }
                     }
                 }
                 else
@@ -355,45 +444,6 @@ public class Generator
         Debug.Log(elementType + " " + drawnElement + " " + subtypes.Count + " " + drawn);
         Debug.Log(subtypes[drawn]);
         return subtypes[drawn];
-    }
-
-    private Dictionary<string, float> RandomizeBlueprintParams(Blueprint blueprint, string bpSubtype)
-    {
-        Dictionary<string, string> bpParamsProps = blueprint.GetParams()[bpSubtype];
-        Dictionary<string, float> bpParams = new Dictionary<string, float>();
-
-        foreach (string paramKey in bpParamsProps.Keys)
-        {
-            string[] paramProps = bpParamsProps[paramKey].Split(';');
-            float intercalationValue = float.Parse(paramProps[0], CultureInfo.InvariantCulture.NumberFormat);
-            float minValue = float.Parse(paramProps[1], CultureInfo.InvariantCulture.NumberFormat);
-            float maxValue = float.Parse(paramProps[2], CultureInfo.InvariantCulture.NumberFormat);
-            int range = (int)((maxValue - minValue) / intercalationValue);
-
-            int drawnRange = Random.Range(0, range);
-            float drawnValue = minValue + intercalationValue * drawnRange;
-
-            bpParams.Add(paramKey, drawnValue);
-        }
-
-        return bpParams;
-    }
-
-    private void GenerateCurveMax90(float rotation)
-    {
-        rotation = Mathf.Sign(rotation) * Mathf.Min(Mathf.Abs(rotation), Mathf.PI * 0.5f);
-
-        int pieces = Random.Range(2, 4);
-        
-        float length = ( (_status.rp.Final.Velocity * 2f) / ( (float) pieces) ) * ( Mathf.Abs(rotation) * 2f / Mathf.PI );
-        length = Mathf.Max(length, 1f);
-
-        rotation /= (float) pieces;
-
-        // AddRail(rotation: rotation, inclination:-rotation, length: length, railType: (int)RailType.Normal);
-        // for (int i = 1; i < pieces - 1; i++)
-        //     AddRail(rotation: rotation);
-        // AddRail(rotation: rotation, inclination: rotation);
     }
 
     public bool IsGenerating

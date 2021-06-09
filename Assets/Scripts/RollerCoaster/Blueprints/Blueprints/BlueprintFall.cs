@@ -48,10 +48,10 @@ public class BlueprintFall : Blueprint
 
     public override Dictionary<string, float> GenerateParams(string subtype, RollerCoaster rollerCoaster, SpaceProps sp, RailPhysics rp)
     {
-        float elevation = -15f * (int)Random.Range(2, 7);
+        float elevation = -15f * (int)Random.Range(3, 7);
         if(subtype.Equals("Rotate"))
         {
-            elevation = -15f * (int)Random.Range(2, 4);
+            elevation = -15f * (int)Random.Range(3, 5);
         }
         float rotation = 15f * (int)Random.Range(4, 7);
         if ((int)Random.Range(-1, 1) == 0)

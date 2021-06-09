@@ -136,9 +136,9 @@ public class Simulator
 
         if (rail.mp.Type == RailModelProperties.RailType.Lever)
         {
-            if(velocity < 4f)
+            if(velocity < 6f)
             {
-                acceleration += 2f;
+                acceleration += 6f;
             }
         }
 

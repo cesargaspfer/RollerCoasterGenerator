@@ -41,7 +41,7 @@ public class BlueprintCurve : Blueprint
             rotation = -rotation;
         }
         float length = ((rp.Final.Velocity * 2f)) * (Mathf.Abs(rotation) / 90f);
-        length = Mathf.Max(length, 5f);
+        length = Mathf.Max(length * 0.75f, 5f);
 
         Dictionary<string, float> paramsDict = new Dictionary<string, float>() {
             {"rotation", rotation},

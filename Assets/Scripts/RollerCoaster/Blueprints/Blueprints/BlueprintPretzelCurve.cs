@@ -35,7 +35,7 @@ public class BlueprintPretzelCurve : Blueprint
     public override Dictionary<string, float> GenerateParams(string subtype, RollerCoaster rollerCoaster, SpaceProps sp, RailPhysics rp)
     {
         int orientation = Random.Range(-1, 1) * 2 + 1;
-        float MaxLengthScale = 1f + (rp.Final.Velocity - 16f) * 1.125f;
+        float MaxLengthScale = 1f + (rp.Final.Velocity - 16f) * 0.2375f;
         float lengthScale = Random.Range(Mathf.Max(MaxLengthScale, 0.9f), Mathf.Min(MaxLengthScale, 1.9f));
 
         Dictionary<string, float> paramsDict = new Dictionary<string, float>() {

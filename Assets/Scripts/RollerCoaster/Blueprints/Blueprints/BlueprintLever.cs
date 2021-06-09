@@ -12,8 +12,6 @@ public class BlueprintLever : Blueprint
         Debug.Log("Aki");
         if (spaceProps.Position.y <= 4f && railPhysics.Final.Velocity <= 6f)
             return 100f;
-        if(railPhysics.Final.Velocity <= 7f)
-            return 1f;
         return 0f;
     }
 

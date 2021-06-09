@@ -9,9 +9,7 @@ public class BlueprintStraight : Blueprint
 
     public override float GetProbability(SpaceProps spaceProps, RailPhysics railPhysics)
     {
-        if (spaceProps.Position.y <= 10f)
-            return 0.1f;
-        return 0f;
+        return 0.1f;
     }
 
     public override List<string> GetSubtypeNames()
