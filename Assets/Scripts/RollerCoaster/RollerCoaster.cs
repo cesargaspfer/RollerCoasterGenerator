@@ -239,19 +239,20 @@ public class RollerCoaster : MonoBehaviour
         {
             this.RemoveLastRail(false);
         }
-        (SavePack[] savePack, (string, Vector3, float)[] decorativeObjects, float[] terrain) = SaveManager.LoadCoaster(coasterName);
+        (SavePack[] savePack, int modelId, (string, Vector3, float)[] decorativeObjects, float[] terrain) = SaveManager.LoadCoaster(coasterName);
 
-        // TODO: Remove
-        string coasterSting = "";
-        for (int i = 0; i < savePack.Length; i++)
-        {
-            string sE = savePack[i].rp.Elevation.ToString().Replace(',', '.');
-            string sR = (-savePack[i].rp.Rotation).ToString().Replace(',', '.');
-            string sI = (-savePack[i].rp.Inclination).ToString().Replace(',', '.');
-            int sL = Mathf.RoundToInt(savePack[i].rp.Length);
-            coasterSting += "rails.Add((new RailProps(" + sE + "f, " + sR + "f * orientation, " + sI + "f * orientation, " + sL + " * lengthScale), RailType.Normal));\n";
-        }
-        Debug.Log(coasterSting);
+        // Helps when projecting blueprints
+        // string coasterSting = "";
+        // for (int i = 0; i < savePack.Length; i++)
+        // {
+        //     string sE = savePack[i].rp.Elevation.ToString().Replace(',', '.');
+        //     string sR = (-savePack[i].rp.Rotation).ToString().Replace(',', '.');
+        //     string sI = (-savePack[i].rp.Inclination).ToString().Replace(',', '.');
+        //     int sL = Mathf.RoundToInt(savePack[i].rp.Length);
+        //     coasterSting += "rails.Add((new RailProps(" + sE + "f, " + sR + "f * orientation, " + sI + "f * orientation, " + sL + " * lengthScale), RailType.Normal));\n";
+        // }
+
+        ChangeRailModel(modelId);
 
         for(int i = 0; i < savePack.Length; i++)
         {
@@ -336,6 +337,11 @@ public class RollerCoaster : MonoBehaviour
     public bool CheckLastRailPlacement()
     {
         return _constructor.CheckLastRailPlacement();
+    }
+
+    public void ChangeRailModel(int modelId)
+    {
+        _constructor.ChangeRailModel(modelId);
     }
 
     // TODO: Make functions to change rail model props; car props

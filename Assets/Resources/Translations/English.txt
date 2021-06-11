@@ -50,7 +50,8 @@ returnToMenu|Return to Main Menu
 back|Back
 continue|Continue
 selectCoasterType|Select the Roller Coaster Type:
-coasterTypeNormal|Normal
+coasterTypeThreeCylinders|Three Cylinders
+coasterTypeSkeleton|Skeleton
 vSync|V-Sync:
 enableSound|Enable Sound:
 dynamicArrows|Dynamic Arrow Drag Direction:

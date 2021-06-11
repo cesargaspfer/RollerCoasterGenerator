@@ -182,6 +182,15 @@ public class Constructor
         return _currentRail;
     }
 
+    public void ChangeRailModel(int modelId)
+    {
+        _mp.ModelId = modelId;
+        foreach(Rail rail in _rails)
+        {
+            rail.UpdateRail(mp: _mp);
+        }
+    }
+
     public (RailProps, ModelProps) RemoveLastRail()
     {
         if(_rails.Count <= 0)

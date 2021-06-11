@@ -219,7 +219,7 @@ public class SaveManager
         }
     }
 
-    public static (SavePack[], (string, Vector3, float)[], float[]) LoadCoaster(string coasterName)
+    public static (SavePack[], int, (string, Vector3, float)[], float[]) LoadCoaster(string coasterName)
     {
         SetPaths();
         byte[] content;
@@ -231,7 +231,7 @@ public class SaveManager
         {
             // TODO: Treat error
             Debug.LogError(ex.ToString());
-            return (null, null, null);
+            return (null, 0, null, null);
         }
         return Decode(content);
     }
@@ -253,7 +253,7 @@ public class SaveManager
     public static SavePack[] LoadBlueprint(string fileName)
     {
         TextAsset asset = Resources.Load("Blueprints/" + fileName) as TextAsset;
-        (SavePack[] blueprint, _, _) = Decode(asset.bytes);
+        (SavePack[] blueprint, _, _, _) = Decode(asset.bytes);
         return blueprint;
     }
 
@@ -357,6 +357,7 @@ public class SaveManager
         // Encode order:
         // Save Version - int - 4 bytes
         // Flags - byte - 4 bytes
+        // Model Id - byte - 4 bytes
         // Rail Quantity - int - 4 bytes
         // {
         //  Rail Properties - RailProperties - 16 bytes
@@ -370,7 +371,7 @@ public class SaveManager
         //  Position - Vector3 - 12 bytes
         //  Rotation - int - 4 bytes
         // }
-        int contentSize = rails.Length * 24 + 16;
+        int contentSize = rails.Length * 24 + 20;
         if (decorativeObjects != null)
         {
             int rawNameLength = 0;
@@ -387,7 +388,7 @@ public class SaveManager
 
         byte[] content = new byte[contentSize];
 
-        AddIntegerToArray(1, content, 0);
+        AddIntegerToArray(2, content, 0);
         byte[] flags = new byte[4];
         flags[3] = SetBit(flags[3], decorativeObjects != null, 0);
         flags[3] = SetBit(flags[3], terrain != null, 1);
@@ -395,18 +396,19 @@ public class SaveManager
             Array.Reverse(flags);
         int flagsInt = BitConverter.ToInt32(flags, 0);
         AddIntegerToArray(flagsInt, content, 4);
+        AddIntegerToArray(rails[0].mp.ModelId, content, 8);
 
-        AddIntegerToArray(rails.Length, content, 8);
+        AddIntegerToArray(rails.Length, content, 12);
 
         for (int i = 0; i < rails.Length; i++)
         {
             byte[] savePackBin = (new SavePack(rails[i])).ToBinary();
             for (int j = 0; j < savePackBin.Length; j++)
-                content[12 + i * 24 + j] = savePackBin[j];
+                content[16 + i * 24 + j] = savePackBin[j];
         }
 
 
-        int index = rails.Length * 24 + 12;
+        int index = rails.Length * 24 + 16;
         if (decorativeObjects != null)
         {
             AddIntegerToArray(decorativeObjects.Length, content, index);
@@ -435,11 +437,12 @@ public class SaveManager
         return content;
     }
 
-    public static (SavePack[], (string, Vector3, float)[], float[]) Decode(byte[] content)
+    public static (SavePack[], int, (string, Vector3, float)[], float[]) Decode(byte[] content)
     {
         // Dencode order:
         // Save Version - int - 4 bytes
         // Flags - byte - 4 bytes
+        // Model Id - byte - 4 bytes
         // Rail Quantity - int - 4 bytes
         // {
         //  Rail Properties - RailProperties - 16 bytes
@@ -456,14 +459,22 @@ public class SaveManager
 
         int version = GetIntegerFromArray(content, 0);
         int flags = GetIntegerFromArray(content, 4);
-        int railQuantity = GetIntegerFromArray(content, 8);
+        int index = 8;
+        int modelId = 1;
+        if(version > 1)
+        {
+            modelId = GetIntegerFromArray(content, 8);
+            index += 4;
+        }
+        int railQuantity = GetIntegerFromArray(content, index);
+        index += 4;
 
         SavePack[] savePack = new SavePack[railQuantity];
         for (int i = 0; i < savePack.Length; i++)
-            savePack[i] = new SavePack(content, 12 + i * 24);
+            savePack[i] = new SavePack(content, index + i * 24);
 
         (string, Vector3, float)[] decorativeObjects = null;
-        int index = 12 + railQuantity * 24;
+        index += railQuantity * 24;
 
         if(GetBit(content[4 + 3], 0))
         {
@@ -493,7 +504,7 @@ public class SaveManager
             index += terrain.Length * 4;
         }
 
-        return (savePack, decorativeObjects, terrain);
+        return (savePack, modelId, decorativeObjects, terrain);
     }
 
     // ------------------------- Binary Operations ------------------------- //

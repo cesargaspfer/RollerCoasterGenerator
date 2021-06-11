@@ -12,11 +12,12 @@
 
     private static void GenerateRailModels()
     {
-        _railModels = new RailModel[3]
+        _railModels = new RailModel[4]
         {
             new BasicRailModel(),
             new ThreeCylindersRailModel(),
             new ArrowRailModel(),
+            new SkeletonRailModel(),
         };
     }
 }

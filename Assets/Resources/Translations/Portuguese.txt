@@ -50,7 +50,8 @@ returnToMenu|Retornar ao Menu Principal
 back|Voltar
 continue|Continuar
 selectCoasterType|Selecione um Tipo de Montanha-Russa:
-coasterTypeNormal|Normal
+coasterTypeThreeCylinders|Três Cilindros
+coasterTypeSkeleton|Esqueleto
 vSync|Sincronização Vertical:
 enableSound|Permitir Som:
 dynamicArrows|Direção de Arrasto Dinâmica das Setas:

@@ -40,6 +40,8 @@ public class UIManager : MonoBehaviour
     #pragma warning disable 0649
     [SerializeField] private Dropdown _heatmapDropdown;
     #pragma warning disable 0649
+    [SerializeField] private Dropdown _modelIdDropdown;
+    #pragma warning disable 0649
     [SerializeField] private UIRailProps _UIRailProps;
     #pragma warning disable 0649
     [SerializeField] private UIRailPhysics _UIRailPhysics;
@@ -869,6 +871,12 @@ public class UIManager : MonoBehaviour
     private IEnumerator MenuContinueCoroutine()
     {
         _rollerCoaster.Initialize();
+        int modelId = _modelIdDropdown.value;
+        if (modelId == 0)
+            modelId = 1;
+        else
+            modelId += 2;
+        _rollerCoaster.ChangeRailModel(modelId);
         if(_constructorPannelState == 0)
         {
             _rollerCoaster.AddRail(false);

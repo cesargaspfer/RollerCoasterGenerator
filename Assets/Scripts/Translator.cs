@@ -177,8 +177,9 @@ public class Translator : MonoBehaviour
         _menuSelect.GetChild(0).GetChild(0).GetComponent<Text>().text = _translations["continue"];
         _menuSelect.GetChild(1).GetComponent<Text>().text = _translations["selectCoasterType"];
 
-        //TODO: Translate roller coaster types
-        _menuSelect.GetChild(2).GetComponent<Dropdown>().options[0].text = _translations["coasterTypeNormal"];
+        
+        _menuSelect.GetChild(2).GetComponent<Dropdown>().options[0].text = _translations["coasterTypeThreeCylinders"];
+        _menuSelect.GetChild(2).GetComponent<Dropdown>().options[1].text = _translations["coasterTypeSkeleton"];
 
 
         _menuOptions.GetChild(0).GetComponent<Text>().text = _translations["options"];
