@@ -187,15 +187,15 @@ public class SaveManager
         if(!_pathRollerCoaster.Equals(""))
             return;
 
-        _pathRollerCoaster = Application.dataPath + "/Saves/";
+        _pathRollerCoaster = Application.persistentDataPath + "/Saves/";
         if(!Directory.Exists(_pathRollerCoaster))
             Directory.CreateDirectory(_pathRollerCoaster);
 
-        _pathResources = Application.dataPath + "/Resources/";
+        _pathResources = Application.persistentDataPath + "/Resources/";
         if (!Directory.Exists(_pathResources))
             Directory.CreateDirectory(_pathResources);
             
-        _pathResources = Application.dataPath + "/Resources/Blueprints/";
+        _pathResources = Application.persistentDataPath + "/Resources/Blueprints/";
         if (!Directory.Exists(_pathResources))
             Directory.CreateDirectory(_pathResources);
     }
