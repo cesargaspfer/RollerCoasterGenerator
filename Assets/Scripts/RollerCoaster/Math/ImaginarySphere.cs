@@ -49,36 +49,6 @@ public class ImaginarySphere
         return((curve, finalBasis, finalPoint));
     }
 
-    public static Bezier CalculateBezier(Vector3 iPos, Matrix4x4 iBasis, Vector3 fPos, Matrix4x4 fBasis)
-    {
-        Vector3 ix = iBasis.GetColumn(0);
-        Vector3 fx = -fBasis.GetColumn(0);
-        float angle = Angle(ix, fx);
-        float distance = (fPos - iPos).magnitude;
-        float radius = distance;
-        if(angle == 0 || angle == Mathf.PI)
-        {
-            radius *= 0.5f;
-        }
-        else
-        {
-            radius = distance / Mathf.Sqrt(2f * (1f - Vector3.Dot(ix, fx)));
-        }
-
-        Vector3[] bezierPoints = new Vector3[4];
-        bezierPoints[0] = iPos;
-        bezierPoints[1] = iPos + approximate(radius, ix);
-
-        bezierPoints[2] = fPos + approximate(radius, fx);
-        bezierPoints[3] = fPos;
-
-
-        Bezier curve = new Bezier(bezierPoints);
-        
-        // TODO: return length
-        return curve;
-    }
-
     private static Vector3 approximate(float radius, Vector3 vector)
     {
         return 0.551915024494f * radius * vector;

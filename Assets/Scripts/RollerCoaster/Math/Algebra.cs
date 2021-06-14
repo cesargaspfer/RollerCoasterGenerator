@@ -156,7 +156,6 @@ public class Algebra
         Matrix4x4 matrix2;
         if(angle > 3.14 || cross.magnitude == 0f)
         {
-            // TODO: Check if it's not to the other side (angle = -angle)
             matrix2 = RotationMatrix(angle, -tY);
         }
         else
@@ -192,8 +191,7 @@ public class Algebra
         upwards.z = matrix.m21;
 
         Quaternion rotation;
-
-        // TODO: Check if there are more Quaternions cases
+        
         if(matrix.ValidTRS())
             rotation = matrix.rotation;
         else

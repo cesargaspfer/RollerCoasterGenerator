@@ -37,7 +37,7 @@ public class RollerCoaster : MonoBehaviour
 
     private IEnumerator _carSimulation = null;
 
-    // TODO: Add arguments
+    
     public void Initialize()
     {
         RailProps rp = new RailProps(0f, 0f, 0f, 5); 
@@ -104,10 +104,6 @@ public class RollerCoaster : MonoBehaviour
             Rail rail = _constructor.UpdateLastRail(elevation, rotation, inclination, length, railType);
             _simulator.UpdateLastRail(rail);
         }
-        else
-        {
-            // TODO: Warn player? *Restart simulation?* *Restart simulation if cars are in final rail?*
-        }
     }
 
     public void UpdateLastRailAdd(float elevation = -999f, float rotation = -999f, float inclination = -999f, float length = -999, int railType = -999)
@@ -116,10 +112,6 @@ public class RollerCoaster : MonoBehaviour
         {
             Rail rail = _constructor.UpdateLastRailAdd(elevation, rotation, inclination, length, railType);
             _simulator.UpdateLastRail(rail);
-        }
-        else
-        {
-            // TODO: Warn player? *Restart simulation?* *Restart simulation if cars are in final rail?*
         }
     }
 
@@ -344,8 +336,6 @@ public class RollerCoaster : MonoBehaviour
         _constructor.ChangeRailModel(modelId);
     }
 
-    // TODO: Make functions to change rail model props; car props
-
     // ---------------------------- Intern ---------------------------- //
 
     public GameObject InstantiateRail(Mesh mesh, Material material, Vector3 position, bool isSupport = false, bool isHeatmap = false)
@@ -527,7 +517,7 @@ public class RollerCoaster : MonoBehaviour
         line += Mathf.RoundToInt(_testBpVel * 10) / 10f;
         csv.AppendLine(line);
 
-        // TODO: Loop
+        
         while(true)
         {
             // Change Params

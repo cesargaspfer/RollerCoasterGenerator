@@ -74,7 +74,7 @@ public class ConstructionArrows : MonoBehaviour
         {
             _lastLength = rail.rp.Length;
 
-            // TODO: Improve arrows length
+            
             // RailProps rp = new RailProps(Mathf.PI * 0.25f, 0f, 0f, 0.9f * _lastLength);
             RailProps rp = new RailProps(Mathf.PI * 0.25f, 0f, 0f, 5f + 0.05f * _lastLength);
             ModelProps mp = new ModelProps(2, 0, 7);
@@ -99,7 +99,7 @@ public class ConstructionArrows : MonoBehaviour
                 }
             }
 
-            // TODO: Improve arrows length
+            
             // this.transform.GetChild(4).transform.localPosition = new Vector3(0f, _lastLength, 0f);
             // this.transform.GetChild(5).transform.localPosition = new Vector3(0f, _lastLength, 0f);
             this.transform.GetChild(2).GetChild(0).transform.localPosition = new Vector3(0f, 5f + 0.05f * _lastLength, 0f);

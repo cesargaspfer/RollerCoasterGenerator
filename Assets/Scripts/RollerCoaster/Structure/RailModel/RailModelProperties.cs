@@ -8,7 +8,6 @@ public class RailModelProperties
         Normal,
         Lever,
         Brake,
-        //TODO: Verify name:
         Impulsor,
     };
 

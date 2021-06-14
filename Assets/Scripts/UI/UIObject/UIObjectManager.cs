@@ -83,7 +83,6 @@ public class UIObjectManager : MonoBehaviour
         RenderTexture renderTexture = new RenderTexture(256, 256, 16, RenderTextureFormat.ARGB32);
         renderTexture.Create();
         uiObject.GetChild(0).GetComponent<Camera>().targetTexture = renderTexture;
-        // TODO: check if there is no to release the texture 
         renderTexture.Release();
 
         return (uiObject, renderTexture);

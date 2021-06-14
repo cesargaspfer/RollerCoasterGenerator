@@ -39,18 +39,6 @@ public class Simulator
         _railPhysicsCoroutines = new LinkedList<IEnumerator>();
     }
 
-    // TODO
-    public void ChangeCarId(int carId)
-    {
-
-    }
-
-    // TODO
-    public void ChangeCarQuantity(int carQuantity)
-    {
-        
-    }
-
     // ------------------- Car Simulation ------------------- //
 
     public bool CanSimulateCar()
@@ -123,7 +111,6 @@ public class Simulator
 
     private float CalculateAcceleration(Rail rail, float curveT, float velocity, float dt)
     {
-        // TODO: Define mass inside the car
         float mass = 1f;
         float acceleration = 0f;
         Bezier curve = rail.sp.Curve;
@@ -241,8 +228,6 @@ public class Simulator
                 Vector3 AcDir = -(Vector3.Cross(x0, Vector3.Cross(x0, x1))).normalized;
                 float Ac = (velocity * velocity) / lastRail.Radius;
                 centripetalAcceleration = Ac * AcDir;
-                // Debug.Log(Ac + "\t" + velocity + "\t" + lastRail.Radius);
-
             }
 
             Vector3 frontalAcceleration = acceleration * b0.GetColumn(0);
@@ -351,7 +336,6 @@ public class Simulator
             
             if(scalarPosition >= nextPositionToSaveProps)
             {
-                // TODO: Interpolate
                 while(nextPositionToSaveProps <= scalarPosition && nextPositionToSaveProps < physicsAlongRail.Length)
                 {
                     physicsAlongRail[nextPositionToSaveProps] = currentrpp;
@@ -420,7 +404,7 @@ public class Simulator
 
         float newCurveT = rail.sp.Curve.GetNextT(curveT, deltaTime * newVelocity);
 
-        // TODO: Calculate G-Force
+        
         Bezier curve = rail.sp.Curve;
 
         (Vector3 p0, Rail.CarStatus _) = rail.GetPositionInRail(curveT);
@@ -438,8 +422,6 @@ public class Simulator
             Vector3 AcDir = -(Vector3.Cross(x0, Vector3.Cross(x0, x1))).normalized;
             float Ac = (velocity * velocity) / rail.Radius;
             centripetalAcceleration = Ac * AcDir;
-            // Debug.Log(Ac + "\t" + velocity + "\t" + rail.Radius);
-
         }
 
         Vector3 frontalAcceleration = deltaResultantAcceleration * deltaTime * b0.GetColumn(0);

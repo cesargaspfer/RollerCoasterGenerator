@@ -48,7 +48,6 @@ public class LoadPannel : MonoBehaviour
         {
             _loadButton.SetActive(false);
             _coasterImage.sprite = null;
-            // TODO: Translate
             _coasterName.text = Translator.inst.GetTranslation("noCoasterFound");
         }
         else

@@ -213,7 +213,6 @@ public class SaveManager
         }
         catch (Exception ex)
         {
-            // TODO: Treat error
             Debug.LogError(ex.ToString());
             return false;
         }
@@ -229,7 +228,6 @@ public class SaveManager
         }
         catch (Exception ex)
         {
-            // TODO: Treat error
             Debug.LogError(ex.ToString());
             return (null, 0, null, null);
         }
@@ -245,7 +243,6 @@ public class SaveManager
         }
         catch (Exception ex)
         {
-            // TODO: Treat error
             Debug.LogError(ex.ToString());
         }
     }

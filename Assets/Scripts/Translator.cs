@@ -115,7 +115,6 @@ public class Translator : MonoBehaviour
 
         _simulatorProps.GetChild(1).GetChild(0).GetComponent<Text>().text = _translations["heatmap"] + ":";
 
-        // TODO: Translate heatmap's options
         _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[0].text = _translations["none"];
         _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[1].text = _translations["velocity"];
         _simulatorProps.GetChild(1).GetChild(1).GetComponent<Dropdown>().options[2].text = _translations["GVertical"];
@@ -235,8 +234,7 @@ public class Translator : MonoBehaviour
 
             // Read file content
             string text = f.text;
-
-            // TODO: Remove ''\r'
+            
             text = text.Replace("\r", "");
 
             // Split the lines and colluns

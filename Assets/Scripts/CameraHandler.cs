@@ -26,7 +26,6 @@ public class CameraHandler : MonoBehaviour
     [SerializeField] private Vector3 _currentTargetPosition = Vector3.zero;
     [SerializeField] private Vector3 _lastTransformPosition;
     [SerializeField] private Quaternion _lastTransformRotation;
-    // TODO: Change
     [SerializeField] private Quaternion _normalQuaternion;
     [SerializeField] private float _currentZoom = 10f;
     [SerializeField] private bool _canMove = true;

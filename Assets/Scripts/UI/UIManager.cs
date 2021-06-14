@@ -452,7 +452,6 @@ public class UIManager : MonoBehaviour
     {
         _settingsButton.SetActive(false);
         _MenuState = -1;
-        // TODO: Check if it's not interfering in nothing else
         _cameraHandler.SetCanMove(false);
         StopAllCoroutines();
         _menuPannel.gameObject.SetActive(true);
@@ -467,7 +466,6 @@ public class UIManager : MonoBehaviour
     {
         _settingsButton.SetActive(false);
         _MenuState = -1;
-        // TODO: Check if it's not interfering in nothing else
         _cameraHandler.SetCanMove(false);
         StopAllCoroutines();
         _menuPannel.gameObject.SetActive(true);
@@ -855,16 +853,12 @@ public class UIManager : MonoBehaviour
     public void MenuReturnToMenuButtonPressed()
     {
         if (_isAnimating) return;
-        // TODO dialoge "Are you sure"
         SceneManager.LoadScene(0);
-        // TODO Bright Pannel
     }
 
     public void MenuContinueButtonPressed()
     {
         if (_isAnimating) return;
-        // TODO
-        // Check _MenuState
         StartCoroutine(MenuContinueCoroutine());
     }
 

@@ -129,8 +129,7 @@ public class Terrain : MonoBehaviour
         ground.GetComponent<MeshCollider>().sharedMesh = mesh;
         ground.GetComponent<MeshCollider>().enabled = false;
     }
-
-    // TODO: Use in support
+    
     public float GetHeight(Vector2 position)
     {
         float newX = (position.x + _offset) * ((float) ((_resolution - 1) * (_chunksLength - 1)) / _size);

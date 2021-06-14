@@ -183,7 +183,6 @@ public class Generator
         _currentModelPartId = 0;
 
         int drawnModel = Random.Range(0, _models.Count);
-        Debug.Log("drawnModel = " + drawnModel);
         _model = _models[drawnModel];
 
         while(!_finalizedCoaster)
@@ -235,7 +234,6 @@ public class Generator
     {
 
         (string elementType, string posRestrictions) = _model[_currentModelPartId];
-        // Debug.Log("index: " + _currentModelPartId + " h: " + _status.sp.Position.y + " v: " + _status.rp.Final.Velocity);
 
 
         if(elementType.Equals("End"))
@@ -263,11 +261,7 @@ public class Generator
             {
                 // Filter possible blueprint elements
                 (List<string> possibleElements, List<float> cumulativeProbs) = FilterPossibleBlueprints(elementType);
-
-                for(int i = 0; i < possibleElements.Count; i++)
-                {
-                    // Debug.Log(possibleElements[i] + " " + cumulativeProbs[i]);
-                }
+                
                 // Drawn a possible element
                 (string bpElement, Blueprint blueprint) = DrawnBlueprintElement(possibleElements, cumulativeProbs);
 
@@ -304,19 +298,12 @@ public class Generator
                 if(elementType.Equals("Curve") || elementType.Equals("Turn"))
                 {
                     bpParams["orientation"] = int.Parse(posRestrictions);
-                    // Debug.Log(elementType + " orientation = " + posRestrictions);
                 }
 
                 if(bpElement.Equals("Fall"))
                 {
                     bpParams["height"] = _status.sp.Position.y - 2f;
                 }
-
-                // Debug.Log(blueprint.Name + " " + bpSubtype);
-                // foreach(string key in bpParams.Keys)
-                // {
-                //     Debug.Log(key + " " + bpParams[key]);
-                // }
 
                 rails = blueprint.GetBlueprint(bpSubtype, bpParams);
             }
@@ -338,13 +325,13 @@ public class Generator
             {
                 _currentModelPartId++;
             }
-            // TODO: Fix
+            
             else {
                 string[] splitedRestrictions = posRestrictions.Split(';');
                 float curPos = splitedRestrictions[0].Equals("x") ? _status.sp.Position.x : _status.sp.Position.z;
                 int minPos = int.Parse(splitedRestrictions[1]);
                 int maxPos = int.Parse(splitedRestrictions[2]);
-                // Debug.Log("POS " + previousPos + " " + curPos + " " + minPos + " " + maxPos);
+                
                 if(maxPos - minPos > 0)
                 {
                     if (curPos > minPos)
@@ -456,8 +443,7 @@ public class Generator
                 subtypes.Add((subtype, restrictions));
         }
         int drawn = Random.Range(0, subtypes.Count);
-        // Debug.Log(elementType + " " + drawnElement + " " + subtypes.Count + " " + drawn);
-        // Debug.Log(subtypes[drawn]);
+        
         return subtypes[drawn];
     }
 

@@ -85,7 +85,6 @@ public class Constructor
         }
 
         _currentRail.SetHeatmap(_heatmapValue);
-        // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
 
         return _currentRail;
     }
@@ -124,8 +123,6 @@ public class Constructor
             SetRailPreview(_rails.Count -1, true);
 
         _currentRail.SetHeatmap(_heatmapValue);
-
-        // Debug.Log("Intersected: " + CheckIntersection(_currentRail));
 
         return _currentRail;
     }
@@ -335,8 +332,6 @@ public class Constructor
 
     public (Rail, Rail) AddFinalRail(int railType = -1)
     {
-        // TODO: Check if can finish track
-
         Vector3 pi = _position;
         Vector3 ni = _basis.GetColumn(0);
         Vector3 pf = _initialPosition;
@@ -349,7 +344,7 @@ public class Constructor
         float b = - 2f * Vector3.Dot(p, n);
         float c = - Vector3.Dot(p, p);
 
-        // TODO: Improve this quadratic equation solver
+        
         float radius = -1f;
         if(Mathf.Abs(a) > 0.00001f)
             radius = (-b + Mathf.Sqrt((b * b) - 4f * a * c)) / (2f * a);
@@ -420,7 +415,6 @@ public class Constructor
 
     public bool CheckIntersection(Rail rail)
     {
-        // TODO: Use k-d Tree
         for(int i = 1; i < _railsIntersection.Count - 1; i++)
         {
             Rail r2 = _railsIntersection[i];
