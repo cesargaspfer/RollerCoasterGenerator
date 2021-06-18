@@ -16,14 +16,12 @@ public class ImaginarySphere
         Vector3 v2 = rotationMatrix.MultiplyPoint3x4(v1);
 
         float angle = Angle(v1, v2);
-        float distance = 0;
         if(radius == -1)
         {
             radius = rp.Length;
             if((angle < -0.01 && angle > -3.1414) || (angle > 0.01 && angle < 3.1414))
             {
-                distance = (v1 + v2).magnitude;
-                radius /= (distance*(angle/(2f*Mathf.Sin(0.5f*angle))));
+                radius = rp.Length * (Mathf.Tan(0.5f * angle) / angle);
             }
             else
             {
