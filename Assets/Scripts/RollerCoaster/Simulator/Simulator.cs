@@ -111,7 +111,6 @@ public class Simulator
 
     private float CalculateAcceleration(Rail rail, float curveT, float velocity, float dt)
     {
-        float mass = 1f;
         float acceleration = 0f;
         Bezier curve = rail.sp.Curve;
         Vector3 basisX = rail.GetBasisAt(curveT).GetColumn(0);
@@ -131,15 +130,15 @@ public class Simulator
 
         if (rail.mp.Type == RailModelProperties.RailType.Platform)
         {
-            if (velocity < 2f)
+            if (velocity < 4f)
             {
-                acceleration += 1f;
+                acceleration += 6f;
             }
         }
 
         if (rail.mp.Type == RailModelProperties.RailType.Brake)
         {
-            if (velocity > 1f)
+            if (velocity > 4f)
             {
                 acceleration -= 5f;
             }
@@ -167,7 +166,7 @@ public class Simulator
             }
         }
 
-        return acceleration / mass;
+        return acceleration;
     }
 
     public void StopCarSimulation()

@@ -58,9 +58,9 @@ public class Algebra
         Matrix4x4 matrix1 = RotationMatrix(degrees[0], cross);
         x = TransformPoints(matrix1, new Vector3[1] { x })[0];
 
-        cross = Vector3.Cross(z, Vector3.right);
-        if (cross.magnitude < 0.1f)
-            cross = y;
+        // cross = Vector3.Cross(z, Vector3.right);
+        // if (cross.magnitude < 0.1f)
+        //     cross = y;
         Matrix4x4 matrix2 = RotationMatrix(degrees[1], Vector3.up);
         x = TransformPoints(matrix2, new Vector3[1] { x })[0];
 

@@ -368,6 +368,10 @@ public class SaveManager
         //  Position - Vector3 - 12 bytes
         //  Rotation - int - 4 bytes
         // }
+        // Terrain Heightmap Size - 4 bytes
+        // {
+        //  Terrain height - 4 bytes
+        // }
         int contentSize = rails.Length * 24 + 20;
         if (decorativeObjects != null)
         {
@@ -452,6 +456,10 @@ public class SaveManager
         //  Name - string - ? bytes
         //  Position - Vector3 - 12 bytes
         //  Rotation - int - 4 bytes
+        // }
+        // Terrain Heightmap Size - 4 bytes
+        // {
+        //  Terrain height - 4 bytes
         // }
 
         int version = GetIntegerFromArray(content, 0);

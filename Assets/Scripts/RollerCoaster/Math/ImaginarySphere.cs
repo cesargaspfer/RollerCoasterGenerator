@@ -49,6 +49,6 @@ public class ImaginarySphere
 
     private static Vector3 approximate(float radius, Vector3 vector)
     {
-        return 0.551915024494f * radius * vector;
+        return 0.55191496f * radius * vector;
     }
 }
